@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新航道成都 · 教师简介库</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #f5f3ef;
+  --surface: #ffffff;
+  --border: #e8e4dc;
+  --accent: #8b5e3c;
+  --accent2: #c4913a;
+  --text: #2a2420;
+  --muted: #9a8f85;
+  --tag-bg: #f0ebe3;
+  --sidebar-w: 300px;
+  --header-h: 60px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 300;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.header {
+  height: var(--header-h);
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.logo {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.logo small {
+  font-weight: 300;
+  font-size: 11px;
+  opacity: 0.7;
+  margin-left: 8px;
+}
+
+.search-wrap {
+  flex: 1;
+  max-width: 400px;
+  position: relative;
+}
+
+.search-wrap input {
+  width: 100%;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  padding: 8px 14px 8px 36px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: background 0.2s;
+}
+.search-wrap input::placeholder { color: rgba(255,255,255,0.6); }
+.search-wrap input:focus { background: rgba(255,255,255,0.25); }
+.search-icon {
+  position: absolute; left: 12px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px; color: rgba(255,255,255,0.7);
+}
+
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+.btn {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.35);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn:hover { background: rgba(255,255,255,0.3); }
+.btn.primary { background: #fff; color: var(--accent); font-weight: 500; }
+.btn.primary:hover { background: #f5f0ea; }
+
+/* ── Layout ── */
+.layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Sidebar: teacher list ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebar-top {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-top-label {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
+.file-filter {
+  font-size: 11px;
+  background: var(--tag-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: inherit;
+  outline: none;
+  max-width: 160px;
+}
+
+.teacher-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.teacher-item {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.teacher-item:hover { background: #faf7f3; }
+.teacher-item.active { background: #fdf5ec; border-left: 3px solid var(--accent2); }
+
+.teacher-item-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.teacher-item-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.teacher-item-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.tag {
+  background: var(--tag-bg);
+  border-radius: 3px;
+  padding: 1px 6px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.tag.ielts {
+  background: #fef3e2;
+  color: var(--accent2);
+  font-weight: 500;
+}
+
+.empty-list {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ── Main: PDF preview ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #e8e4dc;
+}
+
+.main-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  gap: 12px;
+}
+
+.main-empty .icon { font-size: 48px; opacity: 0.3; }
+.main-empty p { font-size: 14px; }
+
+.pdf-viewer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pdf-toolbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.pdf-teacher-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.pdf-source {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.pdf-canvas-wrap {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px;
+}
+
+#pdf-canvas {
+  max-width: 100%;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+
+.pdf-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--muted);
+  font-size: 13px;
+  gap: 8px;
+}
+
+/* ── Setup modal ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 32px;
+  width: min(480px, 92vw);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+}
+
+.modal h2 {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 20px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.modal p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.modal input[type=text], .modal input[type=password] {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+.modal input:focus { border-color: var(--accent2); }
+
+.modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+
+.btn-accent {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 9px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 500;
+}
+.btn-accent:hover { background: #7a5235; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 9px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ── Parse progress ── */
+.progress-bar-wrap {
+  background: var(--border);
+  border-radius: 4px;
+  height: 6px;
+  margin: 12px 0;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--accent2);
+  border-radius: 4px;
+  transition: width 0.3s;
+  width: 0%;
+}
+
+.parse-status {
+  font-size: 12px;
+  color: var(--muted);
+  min-height: 18px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent2);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">新航道成都 <small>教师简介库</small></div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search" placeholder="搜索老师姓名、科目..." oninput="renderList()">
+  </div>
+  <div class="header-right">
+    <span id="count-label" style="font-size:12px;color:rgba(255,255,255,0.7)"></span>
+    <button class="btn" onclick="showParseModal()">📄 更新/新增PDF</button>
+    <button class="btn" onclick="showKeyModal()">🔑 API设置</button>
+  </div>
+</div>
+
+<!-- Layout -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <span class="sidebar-top-label" id="list-count">全部老师</span>
+      <select class="file-filter" id="file-filter" onchange="renderList()">
+        <option value="">全部文件</option>
+      </select>
+    </div>
+    <div class="teacher-list" id="teacher-list">
+      <div class="empty-list">暂无数据<br><small>点击右上角「更新/新增PDF」开始</small></div>
+    </div>
+  </div>
+
+  <!-- Main PDF viewer -->
+  <div class="main" id="main">
+    <div class="main-empty" id="main-empty">
+      <div class="icon">📋</div>
+      <p>选择左侧老师查看简历原图</p>
+    </div>
+    <div class="pdf-viewer" id="pdf-viewer" style="display:none">
+      <div class="pdf-toolbar">
+        <div>
+          <div class="pdf-teacher-name" id="viewer-name"></div>
+          <div class="pdf-source" id="viewer-source"></div>
+        </div>
+      </div>
+      <div class="pdf-canvas-wrap">
+        <div class="pdf-loading" id="pdf-loading" style="display:none">
+          <span class="spinner"></span> 加载中...
+        </div>
+        <canvas id="pdf-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- API Key Modal -->
+<div class="modal-overlay" id="key-modal">
+  <div class="modal">
+    <h2>🔑 设置阿里云 API Key</h2>
+    <p>Key 仅保存在你的浏览器本地，不会上传到任何服务器。用于解析新上传的PDF，查看已有老师不需要Key。</p>
+    <input type="password" id="key-input" placeholder="sk-xxxxxxxxxxxxxxxx">
+    <div class="modal-btns">
+      <button class="btn-ghost" onclick="closeKeyModal()">取消</button>
+      <button class="btn-accent" onclick="saveKey()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Parse PDF Modal -->
+<div class="modal-overlay" id="parse-modal">
+  <div class="modal">
+    <h2>📄 更新 / 新增 PDF</h2>
+    <p>在你的 GitHub 仓库 <code>pdfs/</code> 文件夹里更新或新增了PDF后，在下方填写文件名，系统会自动读取并解析老师信息。</p>
+    <input type="text" id="parse-filename" placeholder="例如：雅思老师简历汇总.pdf">
+    <div class="parse-status" id="parse-status"></div>
+    <div class="progress-bar-wrap" id="progress-wrap" style="display:none">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-ghost" onclick="closeParseModal()">关闭</button>
+      <button class="btn-accent" id="parse-btn" onclick="startParse()">开始解析</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── PDF.js setup ──
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ── PDF files list (add new filenames here when you upload to pdfs/) ──
+const PDF_FILES = [
+  '2026锦秋老师介绍资料3月版.pdf',
+  'AEAS老师简历.pdf',
+  'BEC中级1106更新.pdf',
+  'IGCSEESL老师简历.pdf',
+  'PTE老师简历.pdf',
+  '_大学四六级教师_.pdf',
+  '_小托福全职老师_.pdf',
+  '_旅游口语和生活口语_.pdf',
+  '_留备全职教师__最新.pdf',
+  '_留备兼职教师_.pdf',
+  '北美老师202604全.pdf',
+  '商务英语老师简历.pdf',
+  '多邻国老师简历.pdf',
+  '托业老师简历.pdf',
+  '朗思老师简历.pdf',
+  '腾飞老师202604全.pdf',
+  '雅思听说读写兼职.pdf',
+  '雅思老师简历汇总.pdf',
+  '雅思菁英工作室老师简历.pdf',
+  '雅托老师青少版简历.pdf',
+  '领思老师简历.pdf',
+];
+
+// ── State ──
+let teachers = [];
+let selectedTeacher = null;
+let pdfCache = {};
+
+// ── Init ──
+function init() {
+  loadTeachers();
+  renderList();
+  // Show key modal if no key saved
+  if (!localStorage.getItem('qwen_key')) {
+    setTimeout(showKeyModal, 500);
+  }
+}
+
+// ── Data persistence ──
+function loadTeachers() {
+  try {
+    const saved = localStorage.getItem('teachers_data');
+    if (saved) teachers = JSON.parse(saved);
+  } catch(e) { teachers = []; }
+}
+
+function saveTeachers() {
+  localStorage.setItem('teachers_data', JSON.stringify(teachers));
+}
+
+// ── Render list ──
+function renderList() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const fileFilter = document.getElementById('file-filter').value;
+
+  let list = teachers;
+  if (fileFilter) list = list.filter(t => t.file === fileFilter);
+  if (q) list = list.filter(t => {
+    return q.split(/\s+/).every(w =>
+      (t.name + t.file + (t.subjects||[]).join(' ') + (t.education||'') + (t.ielts||'')).toLowerCase().includes(w)
+    );
+  });
+
+  document.getElementById('list-count').textContent = `${list.length} 位老师`;
+  document.getElementById('count-label').textContent = `共 ${teachers.length} 位`;
+
+  // Update file filter options
+  const sel = document.getElementById('file-filter');
+  const curVal = sel.value;
+  const files = [...new Set(teachers.map(t => t.file))].sort();
+  sel.innerHTML = '<option value="">全部文件</option>' +
+    files.map(f => `<option value="${f}" ${f===curVal?'selected':''}>${f.replace('.pdf','')}</option>`).join('');
+
+  const container = document.getElementById('teacher-list');
+  if (list.length === 0) {
+    container.innerHTML = `<div class="empty-list">${teachers.length===0?'暂无数据<br><small>点击右上角「更新/新增PDF」开始</small>':'未找到匹配的老师'}</div>`;
+    return;
+  }
+
+  container.innerHTML = list.map((t,i) => {
+    const tags = (t.subjects||[]).slice(0,3).map(s=>`<span class="tag">${s}</span>`).join('');
+    const ielts = t.ielts ? `<span class="tag ielts">雅思 ${t.ielts}</span>` : '';
+    const isActive = selectedTeacher && selectedTeacher.name===t.name && selectedTeacher.file===t.file && selectedTeacher.page===t.page;
+    return `<div class="teacher-item ${isActive?'active':''}" onclick="selectTeacher(${teachers.indexOf(t)})">
+      <div class="teacher-item-name">${t.name}</div>
+      <div class="teacher-item-sub">${t.file.replace('.pdf','')} · 第${t.page}页</div>
+      <div class="teacher-item-tags">${tags}${ielts}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Select teacher & show PDF ──
+async function selectTeacher(idx) {
+  selectedTeacher = teachers[idx];
+  renderList();
+
+  document.getElementById('main-empty').style.display = 'none';
+  document.getElementById('pdf-viewer').style.display = 'flex';
+  document.getElementById('viewer-name').textContent = selectedTeacher.name;
+  document.getElementById('viewer-source').textContent = `${selectedTeacher.file} · 第 ${selectedTeacher.page} 页`;
+
+  await renderPdfPage(selectedTeacher.file, selectedTeacher.page);
+}
+
+async function renderPdfPage(filename, pageNum) {
+  const canvas = document.getElementById('pdf-canvas');
+  const loading = document.getElementById('pdf-loading');
+
+  canvas.style.display = 'none';
+  loading.style.display = 'flex';
+
+  try {
+    let pdf = pdfCache[filename];
+    if (!pdf) {
+      // Try to load from pdfs/ folder (GitHub Pages)
+      const url = `pdfs/${encodeURIComponent(filename)}`;
+      pdf = await pdfjsLib.getDocument(url).promise;
+      pdfCache[filename] = pdf;
+    }
+
+    const page = await pdf.getPage(pageNum);
+    const viewport = page.getViewport({ scale: 1.8 });
+
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    await page.render({
+      canvasContext: canvas.getContext('2d'),
+      viewport
+    }).promise;
+
+    loading.style.display = 'none';
+    canvas.style.display = 'block';
+  } catch(e) {
+    loading.innerHTML = `<span style="color:#c0392b">⚠️ 无法加载PDF：${filename}<br><small>请确认文件已上传到 pdfs/ 文件夹</small></span>`;
+  }
+}
+
+// ── API Key modal ──
+function showKeyModal() {
+  const saved = localStorage.getItem('qwen_key') || '';
+  document.getElementById('key-input').value = saved;
+  document.getElementById('key-modal').classList.add('open');
+}
+function closeKeyModal() {
+  document.getElementById('key-modal').classList.remove('open');
+}
+function saveKey() {
+  const key = document.getElementById('key-input').value.trim();
+  if (key) localStorage.setItem('qwen_key', key);
+  closeKeyModal();
+}
+
+// ── Parse modal ──
+function showParseModal() {
+  document.getElementById('parse-filename').value = '';
+  document.getElementById('parse-status').textContent = '';
+  document.getElementById('progress-wrap').style.display = 'none';
+  document.getElementById('parse-btn').disabled = false;
+  document.getElementById('parse-modal').classList.add('open');
+}
+function closeParseModal() {
+  document.getElementById('parse-modal').classList.remove('open');
+}
+
+async function startParse() {
+  const filename = document.getElementById('parse-filename').value.trim();
+  if (!filename) { alert('请输入文件名'); return; }
+
+  const key = localStorage.getItem('qwen_key');
+  if (!key) { alert('请先设置阿里云 API Key'); showKeyModal(); return; }
+
+  document.getElementById('parse-btn').disabled = true;
+  document.getElementById('progress-wrap').style.display = 'block';
+  setStatus('正在加载PDF...');
+  setProgress(5);
+
+  try {
+    const url = `pdfs/${encodeURIComponent(filename)}`;
+    const pdf = await pdfjsLib.getDocument(url).promise;
+    const totalPages = pdf.numPages;
+    pdfCache[filename] = pdf;
+
+    // Remove existing entries for this file
+    teachers = teachers.filter(t => t.file !== filename);
+
+    setStatus(`共 ${totalPages} 页，开始识别...`);
+
+    let parsed = 0;
+    for (let p = 1; p <= totalPages; p++) {
+      setStatus(`正在识别第 ${p}/${totalPages} 页...`);
+      setProgress(5 + Math.round((p/totalPages)*90));
+
+      try {
+        const imageData = await pdfPageToBase64(pdf, p);
+        const result = await callQwenOCR(key, imageData, filename, p);
+        if (result) {
+          teachers.push(result);
+          parsed++;
+          renderList();
+        }
+      } catch(e) {
+        console.warn(`Page ${p} failed:`, e);
+      }
+
+      // Small delay to avoid rate limiting
+      await sleep(300);
+    }
+
+    saveTeachers();
+    setProgress(100);
+    setStatus(`✅ 完成！从 ${totalPages} 页中识别出 ${parsed} 位老师`);
+    document.getElementById('parse-btn').disabled = false;
+
+  } catch(e) {
+    setStatus(`❌ 错误：${e.message}`);
+    document.getElementById('parse-btn').disabled = false;
+  }
+}
+
+async function pdfPageToBase64(pdf, pageNum) {
+  const page = await pdf.getPage(pageNum);
+  const viewport = page.getViewport({ scale: 1.5 });
+  const canvas = document.createElement('canvas');
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+  return canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+}
+
+async function callQwenOCR(apiKey, base64Image, filename, page) {
+  const prompt = `这是一位英语老师的简历页面。请提取以下信息并严格按JSON格式返回（无需Markdown代码块）：
+{
+  "name": "老师姓名（2-4个汉字，如果没有则返回null）",
+  "subjects": ["科目1", "科目2"],
+  "education": "最高学历或毕业学校",
+  "ielts": "雅思分数数字（如8.5，没有则null）",
+  "teaching_style": "教学风格一句话概括",
+  "cases": ["提分案例1", "提分案例2"]
+}
+如果这页不是老师简历（是封面或目录），返回 {"name": null}`;
+
+  const response = await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'qwen-vl-ocr',
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64Image}` } },
+          { type: 'text', text: prompt }
+        ]
+      }],
+      max_tokens: 800
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error?.message || `HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  const text = data.choices?.[0]?.message?.content || '';
+
+  try {
+    const clean = text.replace(/```json|```/g, '').trim();
+    const json = JSON.parse(clean);
+    if (!json.name) return null;
+    return {
+      name: json.name,
+      file: filename,
+      page: page,
+      subjects: json.subjects || [],
+      education: json.education || '',
+      ielts: json.ielts ? String(json.ielts) : '',
+      teaching_style: json.teaching_style || '',
+      cases: json.cases || []
+    };
+  } catch(e) {
+    return null;
+  }
+}
+
+function setStatus(msg) {
+  document.getElementById('parse-status').textContent = msg;
+}
+function setProgress(pct) {
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── Start ──
+init();
+</script>
+</body>
+</html>
