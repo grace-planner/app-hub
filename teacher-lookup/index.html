@@ -473,7 +473,8 @@ body {
     </div>
     <div class="modal-btns">
       <button class="btn-ghost" onclick="closeParseModal()">关闭</button>
-      <button class="btn-accent" id="parse-btn" onclick="startParse()">开始解析</button>
+      <button class="btn-accent" id="parse-btn" onclick="startParse()">解析此文件</button>
+      <button class="btn-accent" id="parse-all-btn" onclick="startParseAll()" style="background:#5c7a3e">一键解析全部</button>
     </div>
   </div>
 </div>
@@ -770,6 +771,46 @@ async function callQwenOCR(apiKey, base64Image, filename, page) {
   } catch(e) {
     return null;
   }
+}
+
+async function startParseAll() {
+  const key = localStorage.getItem('qwen_key');
+  if (!key) { alert('请先设置阿里云 API Key'); showKeyModal(); return; }
+
+  document.getElementById('parse-btn').disabled = true;
+  document.getElementById('parse-all-btn').disabled = true;
+  document.getElementById('progress-wrap').style.display = 'block';
+
+  let totalParsed = 0;
+  for (let i = 0; i < PDF_FILES.length; i++) {
+    const filename = PDF_FILES[i];
+    setStatus(`正在处理 (${i+1}/${PDF_FILES.length})：${filename}`);
+    setProgress(Math.round((i / PDF_FILES.length) * 100));
+
+    try {
+      const url = `pdfs/${encodeURIComponent(filename)}`;
+      const pdf = await pdfjsLib.getDocument(url).promise;
+      pdfCache[filename] = pdf;
+      teachers = teachers.filter(t => t.file !== filename);
+
+      for (let p = 1; p <= pdf.numPages; p++) {
+        try {
+          const imageData = await pdfPageToBase64(pdf, p);
+          const result = await callQwenOCR(key, imageData, filename, p);
+          if (result) { teachers.push(result); totalParsed++; renderList(); }
+        } catch(e) { console.warn(`${filename} p${p} failed:`, e); }
+        await sleep(300);
+      }
+      saveTeachers();
+    } catch(e) {
+      console.warn(`Failed to load ${filename}:`, e);
+    }
+  }
+
+  setProgress(100);
+  setStatus(`✅ 全部完成！共识别出 ${totalParsed} 位老师`);
+  document.getElementById('parse-btn').disabled = false;
+  document.getElementById('parse-all-btn').disabled = false;
 }
 
 function setStatus(msg) {
