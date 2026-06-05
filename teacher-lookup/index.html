@@ -267,7 +267,35 @@ body {
   max-width: 100%;
   box-shadow: 0 4px 24px rgba(0,0,0,0.2);
   border-radius: 4px;
+  cursor: zoom-in;
 }
+#pdf-canvas:hover { opacity: 0.95; }
+
+.fullscreen-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 300;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+.fullscreen-overlay.open { display: flex; }
+#fullscreen-canvas {
+  max-width: 95vw;
+  max-height: 95vh;
+}
+.fullscreen-close {
+  position: fixed;
+  top: 16px; right: 20px;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.8;
+}
+.fullscreen-close:hover { opacity: 1; }
 
 .pdf-loading {
   display: flex;
@@ -441,11 +469,19 @@ body {
         <div class="pdf-loading" id="pdf-loading" style="display:none">
           <span class="spinner"></span> 加载中...
         </div>
-        <canvas id="pdf-canvas"></canvas>
+        <div onclick="openFullscreen()" style="cursor:zoom-in;display:inline-block" title="点击放大">
+          <canvas id="pdf-canvas"></canvas>
+        </div>
       </div>
     </div>
   </div>
 
+</div>
+
+<!-- Fullscreen overlay -->
+<div class="fullscreen-overlay" id="fullscreen-overlay" onclick="closeFullscreen()">
+  <span class="fullscreen-close" onclick="closeFullscreen()">✕</span>
+  <canvas id="fullscreen-canvas"></canvas>
 </div>
 
 <!-- API Key Modal -->
@@ -621,6 +657,20 @@ async function renderPdfPage(filename, pageNum) {
   } catch(e) {
     loading.innerHTML = `<span style="color:#c0392b">⚠️ 无法加载PDF：${filename}<br><small>请确认文件已上传到 pdfs/ 文件夹</small></span>`;
   }
+}
+
+function openFullscreen() {
+  const src = document.getElementById('pdf-canvas');
+  if (!src.width) return;
+  const dst = document.getElementById('fullscreen-canvas');
+  dst.width = src.width;
+  dst.height = src.height;
+  dst.getContext('2d').drawImage(src, 0, 0);
+  document.getElementById('fullscreen-overlay').classList.add('open');
+}
+
+function closeFullscreen() {
+  document.getElementById('fullscreen-overlay').classList.remove('open');
 }
 
 // ── API Key modal ──
