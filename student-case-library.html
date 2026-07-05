@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>学生案例库｜Apple 风科技感预览</title>
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --bg-2: #eef2f7;
+      --panel: rgba(255,255,255,.72);
+      --panel-strong: rgba(255,255,255,.88);
+      --card: rgba(255,255,255,.82);
+      --line: rgba(15, 23, 42, .08);
+      --line-strong: rgba(15, 23, 42, .14);
+      --ink: #0f172a;
+      --muted: #64748b;
+      --subtle: #94a3b8;
+      --brand: #2563eb;
+      --brand-soft: rgba(37,99,235,.12);
+      --brand-strong: #1d4ed8;
+      --shadow: 0 20px 60px rgba(15, 23, 42, .08);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, .05);
+      --radius-xl: 32px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 14px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,.95), transparent 35%),
+        radial-gradient(circle at 85% 10%, rgba(37,99,235,.12), transparent 26%),
+        radial-gradient(circle at 20% 90%, rgba(14,165,233,.08), transparent 28%),
+        linear-gradient(180deg, #f7f9fc 0%, #eef2f8 100%);
+      letter-spacing: -.01em;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(255,255,255,.18), rgba(255,255,255,.18)),
+        repeating-linear-gradient(90deg, transparent 0 119px, rgba(255,255,255,.18) 119px 120px),
+        repeating-linear-gradient(180deg, transparent 0 119px, rgba(255,255,255,.18) 119px 120px);
+      mix-blend-mode: soft-light;
+      opacity: .45;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .shell {
+      position: relative;
+      width: min(1240px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 22px 0 72px;
+    }
+
+    .glass {
+      border: 1px solid rgba(255,255,255,.55);
+      background: var(--panel);
+      backdrop-filter: blur(24px) saturate(140%);
+      -webkit-backdrop-filter: blur(24px) saturate(140%);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) 360px;
+      gap: 22px;
+      padding: 30px;
+      border-radius: 36px;
+      margin-bottom: 18px;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(10px);
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 240px;
+      height: 240px;
+      right: -60px;
+      top: -70px;
+      background: radial-gradient(circle, rgba(59,130,246,.26), rgba(59,130,246,0));
+    }
+
+    .hero::after {
+      width: 220px;
+      height: 220px;
+      left: -70px;
+      bottom: -90px;
+      background: radial-gradient(circle, rgba(255,255,255,.9), rgba(255,255,255,0));
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      padding-right: 10px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid rgba(37,99,235,.12);
+      border-radius: 999px;
+      background: rgba(255,255,255,.62);
+      color: var(--brand-strong);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #60a5fa, #2563eb);
+      box-shadow: 0 0 16px rgba(37,99,235,.5);
+    }
+
+    h1 {
+      margin: 18px 0 12px;
+      max-width: 760px;
+      font-size: clamp(40px, 6vw, 72px);
+      line-height: .95;
+      letter-spacing: -.05em;
+      font-weight: 800;
+    }
+
+    .lead {
+      max-width: 720px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.85;
+    }
+
+    .hero-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .hero-chip {
+      min-height: 38px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid rgba(15,23,42,.06);
+      border-radius: 999px;
+      background: rgba(255,255,255,.66);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
+    }
+
+    .hero-side {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 14px;
+      align-content: space-between;
+    }
+
+    .overview-card {
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,.5);
+      border-radius: 26px;
+      background: var(--panel-strong);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .overview-title {
+      margin: 0 0 12px;
+      color: var(--subtle);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .metric {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -.04em;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .sync-status {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.7));
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .sync-status.ok {
+      color: #0f3e91;
+      background: linear-gradient(180deg, rgba(231,240,255,.98), rgba(241,246,255,.8));
+      border-color: rgba(37,99,235,.14);
+    }
+
+    .sync-status.err {
+      color: #b42318;
+      background: linear-gradient(180deg, rgba(254,242,242,.98), rgba(255,247,247,.86));
+      border-color: rgba(220,38,38,.14);
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 14px;
+      z-index: 20;
+      padding: 16px;
+      border-radius: 28px;
+      margin-bottom: 22px;
+    }
+
+    .search-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 54px;
+      padding: 0 18px;
+      border: 1px solid rgba(255,255,255,.65);
+      border-radius: 18px;
+      background: rgba(255,255,255,.92);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+    }
+
+    .search-box span {
+      color: var(--subtle);
+      font-size: 18px;
+    }
+
+    .search-box input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      font-size: 15px;
+    }
+
+    .filter-block {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .filter-line {
+      display: flex;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-title {
+      flex: 0 0 52px;
+      padding-top: 9px;
+      color: var(--subtle);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .05em;
+    }
+
+    .filter-btn,
+    .chip {
+      min-height: 34px;
+      padding: 6px 12px;
+      border: 1px solid rgba(15,23,42,.08);
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      color: var(--muted);
+      font-size: 13px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+      transition: .16s ease;
+    }
+
+    .filter-btn:hover,
+    .chip:hover {
+      transform: translateY(-1px);
+      border-color: rgba(37,99,235,.2);
+      color: var(--ink);
+    }
+
+    .filter-btn.active,
+    .chip.active {
+      background: linear-gradient(180deg, rgba(244,248,255,.98), rgba(229,238,255,.9));
+      border-color: rgba(37,99,235,.22);
+      color: var(--brand-strong);
+      font-weight: 700;
+      box-shadow: 0 8px 24px rgba(37,99,235,.12);
+    }
+
+    .filter-count {
+      margin-left: 4px;
+      color: var(--subtle);
+      font-size: 12px;
+    }
+
+    .case-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .case-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 336px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,.5);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.74));
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      backdrop-filter: blur(14px);
+    }
+
+    .case-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(135deg, var(--accent-soft, rgba(37,99,235,.1)), rgba(255,255,255,0));
+      opacity: .9;
+      pointer-events: none;
+    }
+
+    .case-card::after {
+      content: "";
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 92px;
+      height: 92px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(255,255,255,.82), rgba(255,255,255,0));
+      pointer-events: none;
+    }
+
+    .case-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(37,99,235,.18);
+      box-shadow: 0 18px 42px rgba(15,23,42,.10);
+    }
+
+    .card-top,
+    .case-title,
+    .case-summary,
+    .path-box,
+    .result-row,
+    .tag-row,
+    .open-btn { position: relative; z-index: 1; }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .student {
+      display: grid;
+      gap: 5px;
+    }
+
+    .student-name {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+
+    .student-stage {
+      min-height: 18px;
+      color: var(--subtle);
+      font-size: 13px;
+    }
+
+    .category-pill {
+      flex: 0 0 auto;
+      min-height: 28px;
+      padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: var(--accent-soft, rgba(37,99,235,.1));
+      color: var(--accent, var(--brand));
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .case-title {
+      margin: 0 0 10px;
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: -.03em;
+      font-weight: 800;
+    }
+
+    .case-summary {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.75;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .path-box {
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border: 1px solid rgba(15,23,42,.06);
+      border-radius: 16px;
+      background: rgba(255,255,255,.64);
+      color: var(--brand-strong);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .result-row {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .result-line {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .result-line b {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: auto;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      border: 1px solid rgba(15,23,42,.06);
+      border-radius: 999px;
+      background: rgba(255,255,255,.78);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .open-btn {
+      width: 100%;
+      min-height: 46px;
+      margin-top: 18px;
+      border: 1px solid rgba(15,23,42,.06);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #0f172a, #1e293b);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      box-shadow: 0 10px 24px rgba(15,23,42,.14);
+    }
+
+    .open-btn:hover {
+      background: linear-gradient(180deg, #0b1220, #172033);
+    }
+
+    .empty {
+      display: none;
+      padding: 48px 26px;
+      border: 1px dashed rgba(15,23,42,.12);
+      border-radius: 28px;
+      background: rgba(255,255,255,.74);
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.8;
+      box-shadow: var(--shadow-soft);
+    }
+
+    dialog {
+      width: min(920px, calc(100vw - 28px));
+      border: 1px solid rgba(255,255,255,.5);
+      border-radius: 30px;
+      padding: 0;
+      overflow: hidden;
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 32px 90px rgba(15, 23, 42, .24);
+      backdrop-filter: blur(26px);
+    }
+
+    dialog::backdrop {
+      background: rgba(15,23,42,.38);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-head {
+      position: relative;
+      padding: 24px 24px 22px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(135deg, var(--modal-soft, rgba(37,99,235,.12)), rgba(255,255,255,.92) 55%, rgba(255,255,255,.68));
+    }
+
+    .modal-meta {
+      margin-bottom: 10px;
+      color: var(--accent, var(--brand));
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .modal-head h2 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.1;
+      letter-spacing: -.04em;
+    }
+
+    .close-btn {
+      flex: 0 0 auto;
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(15,23,42,.08);
+      border-radius: 14px;
+      background: rgba(255,255,255,.85);
+      color: var(--muted);
+      font-size: 22px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+    }
+
+    .modal-body {
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .detail-block {
+      padding: 18px;
+      border: 1px solid rgba(15,23,42,.06);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.68));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+    }
+
+    .detail-block.wide { grid-column: 1 / -1; }
+
+    .detail-block h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      letter-spacing: -.01em;
+    }
+
+    .detail-block p,
+    .timeline-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.85;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+    }
+
+    .timeline-item {
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(15,23,42,.06);
+      background: rgba(255,255,255,.74);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+    }
+
+    @media (max-width: 1080px) {
+      .hero { grid-template-columns: 1fr; }
+      .case-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 720px) {
+      .shell { width: min(100vw - 18px, 1240px); padding-top: 14px; }
+      .hero { padding: 22px; border-radius: 28px; }
+      h1 { font-size: 38px; }
+      .toolbar {
+        position: static;
+        border-radius: 22px;
+      }
+      .filter-title {
+        flex-basis: 100%;
+        padding-top: 0;
+      }
+      .metrics,
+      .case-grid,
+      .modal-body { grid-template-columns: 1fr; }
+      .detail-block.wide { grid-column: auto; }
+      .case-title { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero glass">
+      <div class="hero-copy">
+        <div class="eyebrow">Case Library / Cloud Preview</div>
+        <h1>让真实成长案例，像产品一样被展示。</h1>
+        <p class="lead">用于顾问快速检索真实案例。保留专业感与科技感，强化搜索、筛选与案例阅读体验，让案例库更像一个高完成度的品牌工具，而不是普通信息列表。</p>
+        <div class="hero-strip">
+          <span class="hero-chip">真实案例读取自飞书台账</span>
+          <span class="hero-chip">支持分类 / 项目 / 路径筛选</span>
+          <span class="hero-chip">点击查看完整案例详情</span>
+        </div>
+      </div>
+      <div class="hero-side">
+        <div class="overview-card">
+          <div class="overview-title">Overview</div>
+          <div class="metrics">
+            <div class="metric"><strong id="totalCases">0</strong><span>当前公开案例</span></div>
+            <div class="metric"><strong>4</strong><span>主线分类</span></div>
+            <div class="metric"><strong>9</strong><span>项目标签</span></div>
+            <div class="metric"><strong>Cloud</strong><span>实时读取 student_cases</span></div>
+          </div>
+        </div>
+        <div class="sync-status" id="syncStatus">准备读取云函数数据...</div>
+      </div>
+    </section>
+
+    <section class="toolbar glass">
+      <div class="search-row">
+        <label class="search-box" aria-label="搜索案例">
+          <span>⌕</span>
+          <input id="searchInput" type="search" placeholder="搜索学生、项目、路径、亮点关键词" />
+        </label>
+      </div>
+      <div class="filter-block">
+        <div class="filter-line"><span class="filter-title">分类</span><span id="categoryFilters"></span></div>
+        <div class="filter-line"><span class="filter-title">项目</span><span id="programFilters"></span></div>
+        <div class="filter-line"><span class="filter-title">路径</span><span id="pathChips"></span></div>
+      </div>
+    </section>
+
+    <section class="case-grid" id="caseGrid"></section>
+    <section class="empty" id="emptyState">没有匹配的案例。可以切换分类、项目，或者删短搜索关键词。</section>
+  </div>
+
+  <dialog id="caseDialog">
+    <div class="modal-head">
+      <div>
+        <div class="modal-meta" id="dialogMeta"></div>
+        <h2 id="dialogTitle"></h2>
+      </div>
+      <button class="close-btn" id="closeDialog" aria-label="关闭">×</button>
+    </div>
+    <div class="modal-body" id="dialogBody"></div>
+  </dialog>
+
+  <script>
+    const PROXY = "https://feishu-le-proxy-wyyuhgxhep.cn-hangzhou.fcapp.run";
+    let cases = [];
+
+    const categoryFilters = document.querySelector("#categoryFilters");
+    const programFilters = document.querySelector("#programFilters");
+    const pathChips = document.querySelector("#pathChips");
+    const caseGrid = document.querySelector("#caseGrid");
+    const emptyState = document.querySelector("#emptyState");
+    const searchInput = document.querySelector("#searchInput");
+    const totalCases = document.querySelector("#totalCases");
+    const syncStatus = document.querySelector("#syncStatus");
+    const dialog = document.querySelector("#caseDialog");
+    const dialogMeta = document.querySelector("#dialogMeta");
+    const dialogTitle = document.querySelector("#dialogTitle");
+    const dialogBody = document.querySelector("#dialogBody");
+    const closeDialog = document.querySelector("#closeDialog");
+
+    const state = { category: "全部", program: "全部", path: "全部路径", query: "" };
+    const categories = ["全部", "青少成长", "语言考试", "标化考试", "国际课程"];
+    const programs = ["全部", "Power Up Think", "雅思", "托福", "SAT", "SSAT", "GRE", "GMAT", "AP", "A-Level"];
+    const paths = ["全部路径", "基础铺垫", "冲分提升", "长期成长", "考前强化", "申请衔接"];
+
+    function splitList(value) {
+      return String(value || "").split(/[,，、/]/).map(item => item.trim()).filter(Boolean);
+    }
+
+    function getPrograms(item) {
+      return Array.isArray(item.programs) ? item.programs : splitList(item.program);
+    }
+
+    function displayPrograms(item) {
+      return getPrograms(item).join(" / ") || item.program || "未分类";
+    }
+
+    function colorByCategory(category) {
+      const palette = {
+        "青少成长": ["#14b8a6", "rgba(20,184,166,.12)"],
+        "语言考试": ["#2563eb", "rgba(37,99,235,.12)"],
+        "标化考试": ["#f97316", "rgba(249,115,22,.12)"],
+        "国际课程": ["#8b5cf6", "rgba(139,92,246,.12)"],
+        "未分类": ["#64748b", "rgba(100,116,139,.12)"]
+      };
+      return palette[category] || palette["未分类"];
+    }
+
+    function normalizeRemoteCase(item, index) {
+      const palette = colorByCategory(item.category || "未分类");
+      return {
+        id: item.id || item.record_id || String(index + 1),
+        name: item.name || "未命名学员",
+        category: item.category || "未分类",
+        program: item.program || (Array.isArray(item.programs) ? item.programs[0] : "") || "",
+        programs: Array.isArray(item.programs) ? item.programs : splitList(item.program),
+        stage: item.stage || "",
+        path: item.path || "",
+        title: item.title || "未填写案例标题",
+        summary: item.summary || "",
+        tags: Array.isArray(item.tags) ? item.tags : splitList(item.tags),
+        accent: item.accent || palette[0],
+        soft: item.soft || palette[1],
+        scores: Array.isArray(item.scores) && item.scores.length ? item.scores : [42, 64, 82],
+        start: item.start || "",
+        result: item.result || "",
+        timeline: Array.isArray(item.timeline) && item.timeline.length ? item.timeline : [],
+        sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : 999,
+        updatedAt: item.updatedAt || 0
+      };
+    }
+
+    async function loadRemoteCases() {
+      syncStatus.className = "sync-status";
+      syncStatus.textContent = "正在读取云函数 student_cases...";
+      try {
+        const response = await fetch(PROXY, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "student_cases" })
+        });
+        const envelope = await response.json();
+        const payload = typeof envelope.body === "string" ? JSON.parse(envelope.body) : envelope;
+        if (payload.code !== 0) throw new Error(payload.error || payload.msg || "云函数返回异常");
+        const items = payload.data?.items || [];
+        cases = items.map(normalizeRemoteCase).sort((a, b) => (a.sort - b.sort) || ((b.updatedAt || 0) - (a.updatedAt || 0)));
+        syncStatus.className = "sync-status ok";
+        syncStatus.textContent = cases.length
+          ? `已连接云函数，读取到 ${cases.length} 个公开案例。`
+          : "云函数已连接，但没有读取到案例。请确认飞书里至少有一条记录填写：案例公开 = 是。";
+        renderAll();
+      } catch (error) {
+        cases = [];
+        syncStatus.className = "sync-status err";
+        syncStatus.textContent = `没有成功读取云函数：${error.message}`;
+        renderAll();
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function countBy(key, value) {
+      if (value === "全部" || value === "全部路径") return cases.length;
+      if (key === "path") return cases.filter(item => (item.path || "").includes(value) || (item.tags || []).includes(value)).length;
+      if (key === "program") return cases.filter(item => getPrograms(item).includes(value)).length;
+      return cases.filter(item => item[key] === value).length;
+    }
+
+    function renderButtonGroup(container, items, stateKey, countKey) {
+      container.innerHTML = items.map(item => `
+        <button class="filter-btn ${state[stateKey] === item ? "active" : ""}" data-key="${stateKey}" data-value="${item}">
+          ${item}<span class="filter-count">${countBy(countKey, item)}</span>
+        </button>
+      `).join("");
+    }
+
+    function renderPathChips() {
+      pathChips.innerHTML = paths.map(item => `
+        <button class="chip ${state.path === item ? "active" : ""}" data-key="path" data-value="${item}">${item}</button>
+      `).join("");
+    }
+
+    function caseMatches(item) {
+      const q = state.query.trim().toLowerCase();
+      const pathMatch = state.path === "全部路径" || (item.path || "").includes(state.path) || (item.tags || []).some(tag => tag.includes(state.path));
+      const queryText = [item.name, item.category, displayPrograms(item), item.stage, item.path, item.title, item.summary, item.start, item.result, ...(item.tags || [])].join(" ").toLowerCase();
+      return (state.category === "全部" || item.category === state.category)
+        && (state.program === "全部" || getPrograms(item).includes(state.program))
+        && pathMatch
+        && (!q || queryText.includes(q));
+    }
+
+    function compact(value, fallback = "") {
+      const text = String(value || "").trim();
+      if (!text || text.startsWith("未填写")) return fallback;
+      return text;
+    }
+
+    function renderCases() {
+      const visible = cases.filter(caseMatches);
+      totalCases.textContent = cases.length;
+      emptyState.style.display = visible.length ? "none" : "block";
+      caseGrid.style.display = visible.length ? "grid" : "none";
+      caseGrid.innerHTML = visible.map(item => {
+        const summary = compact(item.summary, "暂无摘要，可在飞书补充案例摘要。");
+        const path = compact(item.path);
+        const start = compact(item.start);
+        const result = compact(item.result);
+        const stage = compact(item.stage);
+        const tags = (item.tags || []).filter(Boolean).slice(0, 5);
+        return `
+          <article class="case-card" style="--accent:${item.accent};--accent-soft:${item.soft};">
+            <div class="card-top">
+              <div class="student">
+                <div class="student-name">${escapeHtml(item.name)}</div>
+                <div class="student-stage">${escapeHtml(stage || displayPrograms(item))}</div>
+              </div>
+              <div class="category-pill">${escapeHtml(item.category)}</div>
+            </div>
+            <h2 class="case-title">${escapeHtml(item.title)}</h2>
+            <p class="case-summary">${escapeHtml(summary)}</p>
+            ${path ? `<div class="path-box">路径：${escapeHtml(path)}</div>` : ""}
+            ${(start || result) ? `<div class="result-row">
+              ${start ? `<div class="result-line"><b>起点</b><span>${escapeHtml(start)}</span></div>` : ""}
+              ${result ? `<div class="result-line"><b>结果</b><span>${escapeHtml(result)}</span></div>` : ""}
+            </div>` : ""}
+            ${tags.length ? `<div class="tag-row">${tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>` : ""}
+            <button class="open-btn" data-id="${escapeHtml(item.id)}">查看完整案例</button>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function openCase(id) {
+      const item = cases.find(entry => String(entry.id) === String(id));
+      if (!item) return;
+      dialog.style.setProperty("--modal-soft", item.soft);
+      dialog.style.setProperty("--accent", item.accent);
+      dialogMeta.textContent = `${item.category} / ${displayPrograms(item)}${item.stage ? " / " + item.stage : ""}`;
+      dialogTitle.textContent = item.title;
+      const timeline = (item.timeline || []).filter(Boolean);
+      dialogBody.innerHTML = `
+        <div class="detail-block">
+          <h3>起点状态</h3>
+          <p>${escapeHtml(compact(item.start, "未补充"))}</p>
+        </div>
+        <div class="detail-block">
+          <h3>当前结果</h3>
+          <p>${escapeHtml(compact(item.result, "未补充"))}</p>
+        </div>
+        <div class="detail-block wide">
+          <h3>案例摘要</h3>
+          <p>${escapeHtml(compact(item.summary, "未补充"))}</p>
+        </div>
+        ${compact(item.path) ? `<div class="detail-block wide"><h3>学习路径</h3><p>${escapeHtml(item.path)}</p></div>` : ""}
+        <div class="detail-block wide">
+          <h3>阶段记录</h3>
+          <div class="timeline">${timeline.length ? timeline.map(step => `<div class="timeline-item"><p>${escapeHtml(step)}</p></div>`).join("") : `<div class="timeline-item"><p>未补充</p></div>`}</div>
+        </div>
+        ${(item.tags || []).length ? `<div class="detail-block wide"><h3>亮点标签</h3><div class="tag-row">${item.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div></div>` : ""}
+      `;
+      dialog.showModal();
+    }
+
+    function renderAll() {
+      renderButtonGroup(categoryFilters, categories, "category", "category");
+      renderButtonGroup(programFilters, programs, "program", "program");
+      renderPathChips();
+      renderCases();
+    }
+
+    document.body.addEventListener("click", event => {
+      const filter = event.target.closest("[data-key]");
+      const open = event.target.closest(".open-btn");
+      if (filter) {
+        const key = filter.dataset.key;
+        state[key] = filter.dataset.value;
+        renderAll();
+      }
+      if (open) openCase(open.dataset.id);
+    });
+
+    searchInput.addEventListener("input", event => {
+      state.query = event.target.value;
+      renderCases();
+    });
+
+    closeDialog.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); });
+
+    renderAll();
+    loadRemoteCases();
+  </script>
+</body>
+</html>
