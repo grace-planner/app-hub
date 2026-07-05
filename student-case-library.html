@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>学生案例库｜Apple 风科技感预览</title>
+  <title>Grace 的学生成长案例库</title>
   <style>
     :root {
-      --bg: #f4f5f7;
+      --bg: #f5f2ec;
       --bg-2: #eef2f7;
       --panel: rgba(255,255,255,.72);
       --panel-strong: rgba(255,255,255,.88);
@@ -16,9 +16,10 @@
       --ink: #0f172a;
       --muted: #64748b;
       --subtle: #94a3b8;
-      --brand: #2563eb;
-      --brand-soft: rgba(37,99,235,.12);
-      --brand-strong: #1d4ed8;
+      --brand: #1f6f5b;
+      --brand-soft: rgba(31,111,91,.12);
+      --brand-strong: #145947;
+      --gold: #b38a42;
       --shadow: 0 20px 60px rgba(15, 23, 42, .08);
       --shadow-soft: 0 10px 30px rgba(15, 23, 42, .05);
       --radius-xl: 32px;
@@ -36,9 +37,9 @@
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
       background:
         radial-gradient(circle at top left, rgba(255,255,255,.95), transparent 35%),
-        radial-gradient(circle at 85% 10%, rgba(37,99,235,.12), transparent 26%),
-        radial-gradient(circle at 20% 90%, rgba(14,165,233,.08), transparent 28%),
-        linear-gradient(180deg, #f7f9fc 0%, #eef2f8 100%);
+        radial-gradient(circle at 82% 8%, rgba(31,111,91,.13), transparent 24%),
+        radial-gradient(circle at 20% 90%, rgba(179,138,66,.11), transparent 30%),
+        linear-gradient(180deg, #faf7f1 0%, #eef4f0 100%);
       letter-spacing: -.01em;
     }
 
@@ -75,13 +76,12 @@
 
     .hero {
       position: relative;
-      overflow: hidden;
+      overflow: visible;
       display: grid;
-      grid-template-columns: minmax(0, 1.4fr) 360px;
-      gap: 22px;
-      padding: 30px;
-      border-radius: 36px;
-      margin-bottom: 18px;
+      grid-template-columns: minmax(0, 1.08fr) 440px;
+      gap: 42px;
+      padding: 34px 0 40px;
+      margin-bottom: 10px;
     }
 
     .hero::before,
@@ -98,7 +98,7 @@
       height: 240px;
       right: -60px;
       top: -70px;
-      background: radial-gradient(circle, rgba(59,130,246,.26), rgba(59,130,246,0));
+      background: radial-gradient(circle, rgba(31,111,91,.22), rgba(31,111,91,0));
     }
 
     .hero::after {
@@ -106,7 +106,7 @@
       height: 220px;
       left: -70px;
       bottom: -90px;
-      background: radial-gradient(circle, rgba(255,255,255,.9), rgba(255,255,255,0));
+      background: radial-gradient(circle, rgba(179,138,66,.18), rgba(255,255,255,0));
     }
 
     .hero-copy {
@@ -121,7 +121,7 @@
       gap: 8px;
       min-height: 34px;
       padding: 0 12px;
-      border: 1px solid rgba(37,99,235,.12);
+      border: 1px solid rgba(31,111,91,.14);
       border-radius: 999px;
       background: rgba(255,255,255,.62);
       color: var(--brand-strong);
@@ -136,17 +136,65 @@
       width: 7px;
       height: 7px;
       border-radius: 999px;
-      background: linear-gradient(135deg, #60a5fa, #2563eb);
-      box-shadow: 0 0 16px rgba(37,99,235,.5);
+      background: linear-gradient(135deg, #68b39b, #1f6f5b);
+      box-shadow: 0 0 16px rgba(31,111,91,.45);
+    }
+
+    .signature-name {
+      margin-top: 18px;
+      font-family: Didot, "Bodoni 72", "Bodoni 72 Display", Georgia, "Times New Roman", serif;
+      font-size: clamp(64px, 9.4vw, 118px);
+      line-height: .86;
+      letter-spacing: 0;
+      font-weight: 400;
+    }
+
+    .role-line {
+      margin-top: 14px;
+      padding-left: 38px;
+      color: var(--gold);
+      font-size: 18px;
+      line-height: 1.5;
+      font-family: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", STSong, serif;
+      font-style: normal;
+    }
+
+    .credential-list {
+      max-width: 620px;
+      margin: 26px 0 0;
+      padding: 0 0 0 18px;
+      display: grid;
+      gap: 14px;
+      border-left: 3px solid var(--brand);
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .credential-list div {
+      position: relative;
+      padding-left: 18px;
+    }
+
+    .credential-list div::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: .75em;
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: var(--gold);
     }
 
     h1 {
-      margin: 18px 0 12px;
+      margin: 48px 0 28px;
       max-width: 760px;
-      font-size: clamp(40px, 6vw, 72px);
-      line-height: .95;
-      letter-spacing: -.05em;
-      font-weight: 800;
+      font-family: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", STSong, serif;
+      font-size: clamp(34px, 4.2vw, 52px);
+      line-height: 1.16;
+      letter-spacing: 0;
+      font-weight: 700;
     }
 
     .lead {
@@ -154,44 +202,119 @@
       margin: 0;
       color: var(--muted);
       font-size: 16px;
-      line-height: 1.85;
+      line-height: 1.95;
     }
 
-    .hero-strip {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 22px;
-    }
-
-    .hero-chip {
-      min-height: 38px;
-      padding: 0 14px;
-      display: inline-flex;
-      align-items: center;
-      border: 1px solid rgba(15,23,42,.06);
-      border-radius: 999px;
-      background: rgba(255,255,255,.66);
-      color: var(--ink);
-      font-size: 13px;
-      font-weight: 600;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
+    .grace-note {
+      max-width: 620px;
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.9;
     }
 
     .hero-side {
       position: relative;
       z-index: 1;
-      display: grid;
-      gap: 14px;
-      align-content: space-between;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-self: stretch;
     }
 
     .overview-card {
-      padding: 18px;
+      padding: 16px 18px;
       border: 1px solid rgba(255,255,255,.5);
-      border-radius: 26px;
+      border-radius: 22px;
       background: var(--panel-strong);
       box-shadow: var(--shadow-soft);
+    }
+
+    .profile-card {
+      position: relative;
+      overflow: hidden;
+      flex: 1 1 auto;
+      min-height: 292px;
+      padding: 30px 22px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 24px;
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 30px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.92), rgba(255,255,255,.64)),
+        radial-gradient(circle at 80% 10%, rgba(31,111,91,.12), transparent 34%);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .profile-card::after {
+      content: "Grace";
+      position: absolute;
+      right: -10px;
+      bottom: -34px;
+      color: rgba(31,111,91,.07);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 110px;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .profile-orbit {
+      width: min(260px, 68%);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      margin: 0 auto;
+      border: 1px solid rgba(31,111,91,.18);
+      border-radius: 999px;
+      background: rgba(255,255,255,.62);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 18px 42px rgba(31,111,91,.11);
+    }
+
+    .profile-avatar {
+      width: calc(100% - 42px);
+      aspect-ratio: 1;
+      border-radius: 999px;
+      object-fit: cover;
+      object-position: center;
+      border: 4px solid rgba(255,255,255,.96);
+      box-shadow: 0 14px 32px rgba(15,23,42,.16);
+    }
+
+    .method-list {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 8px;
+    }
+
+    .method-step {
+      min-height: 40px;
+      display: grid;
+      grid-template-columns: 34px max-content;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      border: 1px solid rgba(15,23,42,.06);
+      border-radius: 16px;
+      background: rgba(255,255,255,.66);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .method-step span {
+      width: 28px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--brand-soft);
+      color: var(--brand-strong);
+      font-size: 12px;
+      font-weight: 800;
     }
 
     .overview-title {
@@ -205,28 +328,29 @@
 
     .metrics {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
     }
 
     .metric {
-      padding: 16px;
+      min-height: 74px;
+      padding: 12px 14px;
       border: 1px solid var(--line);
-      border-radius: 20px;
+      border-radius: 18px;
       background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
     }
 
     .metric strong {
       display: block;
-      margin-bottom: 8px;
-      font-size: 28px;
+      margin-bottom: 6px;
+      font-size: 24px;
       line-height: 1;
       letter-spacing: -.04em;
     }
 
     .metric span {
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
       line-height: 1.45;
     }
 
@@ -238,6 +362,10 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.65;
+    }
+
+    .sync-status.is-hidden {
+      display: none;
     }
 
     .sync-status.ok {
@@ -644,12 +772,40 @@
     @media (max-width: 1080px) {
       .hero { grid-template-columns: 1fr; }
       .case-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 
     @media (max-width: 720px) {
       .shell { width: min(100vw - 18px, 1240px); padding-top: 14px; }
-      .hero { padding: 22px; border-radius: 28px; }
-      h1 { font-size: 38px; }
+      .hero { padding: 22px 0; }
+      .hero-copy { padding: 0 22px; }
+      h1 {
+        margin: 30px 0 18px;
+        font-size: 32px;
+        line-height: 1.2;
+      }
+      .signature-name { font-size: 72px; }
+      .role-line {
+        margin-top: 10px;
+        padding-left: 22px;
+        font-size: 15px;
+        line-height: 1.45;
+      }
+      .credential-list {
+        margin-top: 22px;
+        gap: 12px;
+        font-size: 13.5px;
+        line-height: 1.62;
+      }
+      .lead {
+        font-size: 14px;
+        line-height: 1.82;
+      }
+      .grace-note {
+        margin-top: 22px;
+        font-size: 13.5px;
+        line-height: 1.82;
+      }
       .toolbar {
         position: static;
         border-radius: 22px;
@@ -658,9 +814,9 @@
         flex-basis: 100%;
         padding-top: 0;
       }
-      .metrics,
       .case-grid,
       .modal-body { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr; }
       .detail-block.wide { grid-column: auto; }
       .case-title { font-size: 22px; }
     }
@@ -668,28 +824,42 @@
 </head>
 <body>
   <div class="shell">
-    <section class="hero glass">
+    <section class="hero">
       <div class="hero-copy">
-        <div class="eyebrow">Case Library / Cloud Preview</div>
-        <h1>让真实成长案例，像产品一样被展示。</h1>
-        <p class="lead">用于顾问快速检索真实案例。保留专业感与科技感，强化搜索、筛选与案例阅读体验，让案例库更像一个高完成度的品牌工具，而不是普通信息列表。</p>
-        <div class="hero-strip">
-          <span class="hero-chip">真实案例读取自飞书台账</span>
-          <span class="hero-chip">支持分类 / 项目 / 路径筛选</span>
-          <span class="hero-chip">点击查看完整案例详情</span>
+        <div class="eyebrow">我的学生成长案例库</div>
+        <div class="signature-name">Grace</div>
+        <div class="role-line">龚丽莎 · 国际升学规划师</div>
+        <div class="credential-list" aria-label="Grace 资历">
+          <div>8年咨询经验</div>
+          <div>陪伴超过1600位学生走过国际课程之路</div>
+          <div>专注 剑桥英语/雅思托福 / IB / A-Level / AP 课程规划</div>
+          <div>帮孩子找到最适合的国际教育路径</div>
         </div>
+        <h1>每一份成绩，<br>都是被认真陪伴过的成长曲线。</h1>
+        <p class="lead">这里记录了我近年来陪伴过的学员：从起点到突破，每一位的学习路径、阶段记录与亮点，都来自我亲手规划的真实档案。</p>
+        <p class="grace-note">我更关心的不是单次结果，而是学生如何被看见、被诊断、被规划，并在一次次反馈里走出自己的节奏。</p>
       </div>
       <div class="hero-side">
+        <div class="profile-card">
+          <div class="profile-orbit">
+            <img class="profile-avatar" src="grace-avatar.svg" alt="Grace 头像">
+          </div>
+          <div class="method-list">
+            <div class="method-step"><span>01</span>诊断起点</div>
+            <div class="method-step"><span>02</span>规划路径</div>
+            <div class="method-step"><span>03</span>阶段陪伴</div>
+            <div class="method-step"><span>04</span>结果复盘</div>
+          </div>
+        </div>
         <div class="overview-card">
           <div class="overview-title">Overview</div>
           <div class="metrics">
             <div class="metric"><strong id="totalCases">0</strong><span>当前公开案例</span></div>
             <div class="metric"><strong>4</strong><span>主线分类</span></div>
             <div class="metric"><strong>9</strong><span>项目标签</span></div>
-            <div class="metric"><strong>Cloud</strong><span>实时读取 student_cases</span></div>
           </div>
         </div>
-        <div class="sync-status" id="syncStatus">准备读取云函数数据...</div>
+        <div class="sync-status is-hidden" id="syncStatus"></div>
       </div>
     </section>
 
@@ -793,8 +963,8 @@
     }
 
     async function loadRemoteCases() {
-      syncStatus.className = "sync-status";
-      syncStatus.textContent = "正在读取云函数 student_cases...";
+      syncStatus.className = "sync-status is-hidden";
+      syncStatus.textContent = "";
       try {
         const response = await fetch(PROXY, {
           method: "POST",
@@ -806,10 +976,13 @@
         if (payload.code !== 0) throw new Error(payload.error || payload.msg || "云函数返回异常");
         const items = payload.data?.items || [];
         cases = items.map(normalizeRemoteCase).sort((a, b) => (a.sort - b.sort) || ((b.updatedAt || 0) - (a.updatedAt || 0)));
-        syncStatus.className = "sync-status ok";
-        syncStatus.textContent = cases.length
-          ? `已连接云函数，读取到 ${cases.length} 个公开案例。`
-          : "云函数已连接，但没有读取到案例。请确认飞书里至少有一条记录填写：案例公开 = 是。";
+        if (cases.length) {
+          syncStatus.className = "sync-status is-hidden";
+          syncStatus.textContent = "";
+        } else {
+          syncStatus.className = "sync-status ok";
+          syncStatus.textContent = "云函数已连接，但没有读取到案例。请确认飞书里至少有一条记录填写：进入案例库 = 是。";
+        }
         renderAll();
       } catch (error) {
         cases = [];
