@@ -20,8 +20,8 @@
       --brand-soft: rgba(31,111,91,.12);
       --brand-strong: #145947;
       --gold: #b38a42;
-      --shadow: 0 20px 60px rgba(15, 23, 42, .08);
-      --shadow-soft: 0 10px 30px rgba(15, 23, 42, .05);
+      --shadow: 0 24px 64px rgba(15, 23, 42, .12);
+      --shadow-soft: 0 12px 32px rgba(15, 23, 42, .08);
       --radius-xl: 32px;
       --radius-lg: 24px;
       --radius-md: 18px;
@@ -251,11 +251,12 @@
     .profile-card::after {
       content: "Grace";
       position: absolute;
-      right: -10px;
-      bottom: -34px;
+      right: -6px;
+      top: -4px;
+      z-index: 0;
       color: rgba(31,111,91,.07);
       font-family: Georgia, "Times New Roman", serif;
-      font-size: 110px;
+      font-size: 64px;
       line-height: 1;
       pointer-events: none;
     }
@@ -460,17 +461,17 @@
     .filter-btn:hover,
     .chip:hover {
       transform: translateY(-1px);
-      border-color: rgba(37,99,235,.2);
+      border-color: rgba(31,111,91,.24);
       color: var(--ink);
     }
 
     .filter-btn.active,
     .chip.active {
-      background: linear-gradient(180deg, rgba(244,248,255,.98), rgba(229,238,255,.9));
-      border-color: rgba(37,99,235,.22);
+      background: linear-gradient(180deg, rgba(240,247,244,.98), rgba(222,238,231,.9));
+      border-color: rgba(31,111,91,.28);
       color: var(--brand-strong);
       font-weight: 700;
-      box-shadow: 0 8px 24px rgba(37,99,235,.12);
+      box-shadow: 0 8px 24px rgba(31,111,91,.14);
     }
 
     .filter-count {
@@ -525,7 +526,7 @@
 
     .case-card:hover {
       transform: translateY(-4px);
-      border-color: rgba(37,99,235,.18);
+      border-color: rgba(31,111,91,.2);
       box-shadow: 0 18px 42px rgba(15,23,42,.10);
     }
 
