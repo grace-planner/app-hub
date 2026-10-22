@@ -1,3 +1,9 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#dcf1fa">
 <title>竹竹英语闯关</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;800&display=swap">
@@ -89,7 +95,7 @@ button:disabled{cursor:default}
 /* learn */
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .wcard{padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
-.wcard .w{font:700 24px/1.1 var(--font-d);overflow-wrap:anywhere}
+.wcard .w{font:700 24px/1.1 var(--font-d);overflow-wrap:normal;word-break:keep-all}
 .wcard .z{font-size:14px;color:var(--muted)}
 .bump{animation:bump .35s}
 @keyframes bump{40%{transform:scale(1.07) rotate(-2deg)}}
@@ -146,6 +152,15 @@ button:disabled{cursor:default}
 
 .spark{position:fixed;pointer-events:none;z-index:50;animation:spark 1s ease-out forwards;line-height:1}
 @keyframes spark{from{transform:translate(-50%,-50%) scale(.4);opacity:1}to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1) rotate(200deg);opacity:0}}
+@media (max-width:380px){
+  .map li:nth-child(odd){margin-right:8px}
+  .map li:nth-child(even){margin-left:8px}
+  .node{gap:10px;padding:10px}
+  .orb{width:48px;height:48px;font-size:26px}
+  .ntxt b{font-size:18px;overflow-wrap:anywhere}
+  .ntxt em{font-size:13px}
+  .stars{font-size:15px;gap:0}
+}
 @media (prefers-reduced-motion: reduce){
   .panda,.bump,.wrong,.bigstars i.on{animation:none}
   .track i{transition:none}
@@ -165,6 +180,9 @@ button:disabled{cursor:default}
 .slots.words .slot,.tiles.words .tile{width:auto;min-width:50px;height:52px;padding:0 12px;font-size:clamp(20px,6vw,26px)}
 .wbtn.zhopt{font:800 24px/1.2 var(--font-b)}
 </style>
+</head>
+<body>
+
 
 <div class="app" id="app"></div>
 
@@ -456,6 +474,7 @@ function pic(it){
 }
 function fullS(it){return it.s.replace('___',it.a)}
 function lvs(kind){return kind==='sent'?SLEVELS:LEVELS}
+function fit(s,max){var n=Math.max(String(s).split(' ').reduce(function(a,b){return a>b.length?a:b.length},0),1);return 'font-size:min('+max+'px,calc((100vw - 96px)/2/'+n+'*1.55))'}
 function hue(i){return 'var(--c'+(i%5+1)+')'}
 function starRow(n){return [0,1,2].map(function(i){return '<i class="'+(i<n?'on':'')+'">★</i>'}).join('')}
 var SPEAKER='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a8 8 0 0 1 0 11"/></svg>';
@@ -562,7 +581,7 @@ function viewLearn(){
   }else{
     hint='先认识新朋友。点一点卡片，听听怎么读。';
     body='<div class="cards">'+L.items.map(function(it,i){
-      return '<button class="wcard candy" data-act="sayCard" data-i="'+i+'">'+pic(it)+'<span class="w">'+it.w+'</span><span class="z">'+it.zh+'</span></button>';
+      return '<button class="wcard candy" data-act="sayCard" data-i="'+i+'">'+pic(it)+'<span class="w" style="'+fit(it.w,24)+'">'+it.w+'</span><span class="z">'+it.zh+'</span></button>';
     }).join('')+'</div>';
   }
   return '<div class="qtop"><button class="back candy" data-act="home" aria-label="回到地图">←</button></div>'
@@ -758,3 +777,6 @@ $app.addEventListener('click',function(e){
 render();
 })();
 </script>
+
+</body>
+</html>
