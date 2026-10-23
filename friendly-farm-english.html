@@ -2,28 +2,2499 @@
 
 :root{--green:#285d4e;--cream:#faf8ed;--orange:#f39d48;--ink:#29483d}*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:Nunito,'PingFang SC',sans-serif}button,select,input{font:inherit}button{cursor:pointer;border:0}button:focus-visible,select:focus-visible{outline:4px solid #edac46;outline-offset:4px}.wrap{max-width:1240px;margin:auto;padding:0 38px}header{display:flex;align-items:center;justify-content:space-between;padding:25px 0;border-bottom:1px solid #dfe3d5}.brand{font-size:23px;font-weight:900;display:flex;align-items:center;gap:12px}.logo{background:var(--green);color:white;border-radius:14px;padding:8px 11px}.small{font-size:12px;letter-spacing:1.5px;color:#7f8b7b}nav{display:flex;gap:8px}.nav{background:transparent;padding:10px 17px;color:#647c6c;border-radius:24px}.nav.active{background:#e5ebdb;color:var(--green);font-weight:900}.stats{font-weight:900;background:white;border:1px solid #e5e6d9;border-radius:25px;padding:10px 17px}.hero{display:grid;grid-template-columns:1.1fr 1fr;align-items:center;gap:20px;padding:45px 0 28px}.eyebrow{font-size:12px;font-weight:900;letter-spacing:2px;color:#6b8a67}h1{font-size:49px;line-height:1.22;margin:17px 0}h1 span{color:#bd742e}p{line-height:1.8;color:#75816f}.primary{background:var(--green);color:white;border-radius:16px;padding:16px 27px;box-shadow:0 5px 0 #183d31;font-weight:900}.secondary{background:#f0ead7;color:var(--green);border-radius:14px;padding:13px 20px;font-weight:800}.hero small{display:block;margin-top:19px;color:#8b947f}.scene{position:relative;height:310px;border-radius:50% 50% 24px 24px;background:#e7edd9;overflow:hidden;border-bottom:9px solid #b7cb86}.sun{position:absolute;right:65px;top:27px;font-size:45px}.cloud{position:absolute;left:50px;top:40px;color:white;font-size:50px}.hill{position:absolute;bottom:-75px;left:-25px;width:580px;height:210px;border-radius:50%;background:#bdcf95}.barn{position:absolute;left:52%;top:120px;background:#c76d50;width:115px;height:107px;border-radius:3px}.barn:before{content:'';position:absolute;top:-40px;left:-14px;border-left:72px solid transparent;border-right:72px solid transparent;border-bottom:45px solid #854d43}.barn:after{content:'';position:absolute;width:42px;height:65px;background:#fbecd0;left:37px;bottom:0;border:5px solid #b15945}.char{position:absolute;bottom:18px;left:20%;font-size:88px;filter:drop-shadow(0 7px 0 #72945433)}.cat{left:67%;font-size:75px;bottom:4px}.speech{position:absolute;left:34px;top:102px;background:white;border-radius:18px 18px 18px 0;padding:13px 19px;font-size:16px;font-weight:900;transform:rotate(-5deg)}.daily{background:#f0eddc;border:1px solid #e8e5d4;border-radius:18px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}.daily b{font-size:16px}.daily p{font-size:13px;margin:3px 0}.pill{font-size:11px;background:#fff7dc;padding:5px 10px;border-radius:12px;color:#a17335}.sectiontitle{display:flex;justify-content:space-between;align-items:center;margin:35px 0 20px}h2{font-size:24px;margin:0}.sectiontitle small{color:#8b947f}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{position:relative;text-align:left;border:1px solid #e0e5d7;background:white;border-radius:21px;padding:23px;transition:.2s;min-height:198px;color:var(--ink)}.card:hover{transform:translateY(-4px);box-shadow:0 8px 20px #264b3d0c}.card.first{border:2px solid #8caa73;background:#f1f5e9}.icon{display:inline-grid;place-items:center;font-size:31px;width:57px;height:57px;border-radius:17px;background:var(--tint,#f2eedc);margin-bottom:14px}.unit{position:absolute;right:20px;top:26px;color:#93a08b;font-size:11px;letter-spacing:1px}.card h3{margin:0;font-size:18px}.card p{font-size:12px;margin:6px 0 15px}.cardbottom{display:flex;justify-content:space-between;font-size:12px;color:#7f9474}footer{font-size:11px;color:#94a08e;padding:32px 0;text-align:center}.view{display:none}.view.show{display:block}.overlay{position:fixed;inset:0;background:#153e31b3;z-index:5;display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(7px)}.overlay.open{display:flex}.modal{background:var(--cream);width:650px;max-height:94vh;overflow:auto;padding:29px;border-radius:28px;text-align:center}.modalhead{display:flex;justify-content:space-between;align-items:center}.close{background:#e6eadc;border-radius:50%;width:35px;height:35px}.progress{height:9px;background:#e3e8d7;border-radius:9px;margin:20px 0}.progress i{display:block;height:100%;background:#8db370;border-radius:9px}.bigemoji{font-size:77px;min-height:95px;margin:18px 0}.question{font-size:25px;margin:16px 0 8px}.listen{background:#e5eddc;color:var(--green);padding:10px 20px;border-radius:23px;margin:8px}.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0}.answer,.word{border:2px solid #e0e6d6;border-radius:15px;background:white;padding:17px;color:var(--ink);font-weight:800;font-size:18px}.answer.good{background:#ddedcd;border-color:#7fa65e}.answer.bad{background:#ffecd9;border-color:#eba763}.feedback{min-height:32px;font-weight:800;color:#6a8654}.word{display:inline-block;margin:5px;padding:12px}.built{min-height:65px;background:#edf0e1;border-radius:16px;padding:9px;margin:18px 0}.panel{max-width:780px;margin:45px auto;background:white;padding:30px;border-radius:24px;border:1px solid #e0e5d7}.panel label{display:block;margin:22px 0}.panel input,.panel select{padding:10px;border:1px solid #d4dfcf;border-radius:9px;max-width:100%}.badge{display:inline-block;padding:20px;margin:10px;background:#f5efda;border-radius:20px;font-size:31px}.report{padding:15px 0;border-bottom:1px solid #e6e9dd;display:flex;justify-content:space-between}.muted{color:#83917c;font-size:13px}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--green);color:white;padding:12px 20px;border-radius:20px;z-index:10;display:none}@media(max-width:760px){.wrap{padding:0 19px}header{flex-wrap:wrap;gap:15px}.brand{font-size:19px}nav{order:3;width:100%;justify-content:center}.nav{padding:8px 15px}.hero{grid-template-columns:1fr;padding-top:30px}h1{font-size:38px}.scene{height:235px}.barn{top:95px}.speech{top:45px}.char{font-size:76px}.grid{grid-template-columns:1fr 1fr;gap:12px}.card{padding:17px}.unit{right:13px;top:20px}.daily{padding:16px}.daily .pill{display:none}.sectiontitle small{display:none}.question{font-size:21px}.modal{padding:22px}.stats{font-size:13px}.panel{margin:25px 0;padding:22px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 .en-main{display:block;font-size:1em;font-weight:900;line-height:1.35}.zh-sub{display:block;font-size:12px;font-weight:500;line-height:1.6;letter-spacing:0;color:#65735e;margin-top:5px}.primary .zh-sub{color:#e0eadb}.hero .intro-en{font-size:18px;color:var(--green);font-weight:700;line-height:1.6;margin-bottom:8px}.hero .intro-zh{font-size:13px;margin:0 0 22px}.hero h1{font-size:clamp(34px,4vw,49px)}.hero h1 .zh-sub{font-size:14px;margin-top:12px}.daily .en-main{font-size:17px}.sectiontitle h2 .zh-sub{font-size:12px}.nav .en-main{font-size:14px}.nav .zh-sub{font-size:10px;margin-top:2px}.card h3{line-height:1.4}.card .zh-sub{margin-bottom:15px}.stats .zh-sub{display:inline;font-size:10px}@media(max-width:760px){.brand{flex-wrap:wrap}.brand .small{display:none}.nav{padding:9px 12px}.daily{flex-wrap:wrap}.daily .secondary{margin-left:auto}.card h3{font-size:17px}}
+
+.missiongrid,.wordgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:22px 0}.mission{background:white;color:var(--ink);border:1px solid #d6dfca;border-radius:18px;padding:18px;text-align:left;display:grid;gap:6px;min-height:145px}.mission>span{font-size:29px}.mission b{font-size:17px}.mission small{color:#74836c}.mission em{font-size:12px;color:#a87321;font-style:normal}.wordcard{background:white;border:1px solid #dce3d3;border-radius:14px;padding:12px;color:var(--ink);display:grid;gap:6px;min-width:0;overflow-wrap:anywhere}.wordcard span{font-size:30px}.wordcard b{font-size:19px}.wordcard small{font-size:12px;color:#697b60}.sentencecard{display:block;width:100%;border:1px solid #dce3d3;background:white;padding:14px;border-radius:12px;margin:10px 0;color:var(--ink);text-align:left}.textbutton{background:transparent;color:#647a59;padding:8px;margin-bottom:15px}.optionicon{display:block;font-size:36px;margin-bottom:8px}.answer{overflow-wrap:anywhere;min-width:0;min-height:78px}.storybox{background:#e9eedb;border:1px solid #d5dfc6;padding:15px;border-radius:15px;text-align:left;margin:16px 0}.storybox p{font-size:18px;color:var(--green);margin:8px 0}.example{font-size:23px;color:var(--green);font-weight:800}.endbuttons{display:grid;gap:15px}.earned{border:2px solid #d4a744}.feedback{margin:18px 0;line-height:1.6}.modal{width:720px}.report b{white-space:nowrap}.built{overflow-wrap:anywhere}.badge{font-size:27px;padding:14px;margin:6px}.word{min-width:42px;min-height:44px}.mission:hover,.wordcard:hover{background:#f1f5e9}.mission:focus-visible,.wordcard:focus-visible{outline:3px solid #edac46}.modal .primary{max-width:100%;margin-top:8px}#play h2 .zh-sub{margin-bottom:10px}#tokenhint{margin:15px}#tokens{margin:12px 0}.mission small,.mission em{line-height:1.5}@media(max-width:420px){.modal{padding:16px}.mission{padding:13px}.mission b{font-size:15px}.word{padding:9px;margin:3px}.answers{gap:9px}.answer{padding:13px;font-size:16px}.hero .intro-en{font-size:17px}}
 </style><div class="wrap"><header><div class="brand"><span class="logo">✿</span>Friendly Farm <span class="small">英语闯关岛</span></div><nav><button class="nav active" data-view="home"><span class="en-main">My Map</span><span class="zh-sub" lang="zh-CN">冒险地图</span></button><button class="nav" data-view="collection"><span class="en-main">My Treasures</span><span class="zh-sub" lang="zh-CN">我的宝藏</span></button><button class="nav" data-view="parent"><span class="en-main">For Parents</span><span class="zh-sub" lang="zh-CN">家长小站</span></button></nav><div class="stats">⭐ <span id="stars">0</span> Stars <span class="zh-sub" lang="zh-CN">星星</span></div></header>
-<main id="home" class="view show"><section class="hero"><div><div class="eyebrow">POWER UP 1 · BELLA’S ADVENTURE</div><h1>Hi, <span id="nickname">Bella</span>!<br>Let’s play and learn!<small class="zh-sub" lang="zh-CN">你好，小探险家！农场朋友在等你。</small></h1><p class="intro-en">Join Jim, Jenny and Cameron.<br>Listen, build and speak!</p><p class="intro-zh" lang="zh-CN">和农场朋友一起，听一听、拼一拼、开口说。</p><button class="primary" id="start"><span class="en-main">Let’s Go! ➜</span><span class="zh-sub" lang="zh-CN">开始冒险 · 从 Unit 1 出发</span></button><small>🌱 One little adventure · About 5 minutes<span class="zh-sub" lang="zh-CN">每次一小关 · 约 5 分钟 · 答错也可以再试</span></small></div><div class="scene" role="img" aria-label="农场原创示意插画：孩子、小猫和红色谷仓"><div class="sun">☀️</div><div class="cloud">☁</div><div class="hill"></div><div class="barn"></div><div class="char">👧🏻</div><div class="char cat">🐈</div><div class="speech">Hello! Let's play! 🌼</div></div></section><div class="daily"><div><b class="en-main">🎒 Help Jenny pack her bag!</b><span class="zh-sub" lang="zh-CN">今日任务：帮 Jenny 整理书包，认识学校用品。</span><p>Unit 1 · Our new school</p></div><span class="pill">Listen → Build → Speak</span><button class="secondary" id="review"><span class="en-main">Let’s Review ↗</span><span class="zh-sub" lang="zh-CN">复习小口袋</span></button></div><div class="sectiontitle"><h2>My Adventure Map 🗺️<span class="zh-sub" lang="zh-CN">你的冒险地图</span></h2><small>Hello + 9 adventures<span class="zh-sub" lang="zh-CN">可自由选择已学内容</span></small></div><div class="grid" id="map"></div></main>
+<main id="home" class="view show"><section class="hero"><div><div class="eyebrow">POWER UP 1 · BELLA’S ADVENTURE</div><h1>Hi, <span id="nickname">Bella</span>!<br>Let’s play and learn!<small class="zh-sub" lang="zh-CN">你好，小探险家！农场朋友在等你。</small></h1><p class="intro-en">Join Jim, Jenny and Cameron.<br>Explore eight missions in every unit!</p><p class="intro-zh" lang="zh-CN">207 个词语条目 · 80 个分关任务 · 从课堂英语走进生活。</p><button class="primary" id="start"><span class="en-main">Let’s Go! ➜</span><span class="zh-sub" lang="zh-CN">开始冒险 · 从 Unit 1 出发</span></button><small>🌱 One little adventure · About 5 minutes<span class="zh-sub" lang="zh-CN">每次一小关 · 约 5 分钟 · 答错也可以再试</span></small></div><div class="scene" role="img" aria-label="农场原创示意插画：孩子、小猫和红色谷仓"><div class="sun">☀️</div><div class="cloud">☁</div><div class="hill"></div><div class="barn"></div><div class="char">👧🏻</div><div class="char cat">🐈</div><div class="speech">Hello! Let's play! 🌼</div></div></section><div class="daily"><div><b class="en-main" id="dailyTitle">🎒 Our new school</b><span class="zh-sub" lang="zh-CN" id="dailyZh">今日任务：选择一关开始探索。</span><p id="dailyUnit">Unit 1 · 8 missions</p></div><span class="pill">Learn → Play → Discover</span><button class="secondary" id="review"><span class="en-main">Let’s Review ↗</span><span class="zh-sub" lang="zh-CN">复习小口袋</span></button></div><div class="sectiontitle"><h2>My Adventure Map 🗺️<span class="zh-sub" lang="zh-CN">你的冒险地图</span></h2><small>Hello + 9 adventures<span class="zh-sub" lang="zh-CN">可自由选择已学内容</span></small></div><div class="grid" id="map"></div></main>
 <section id="collection" class="view"><div class="panel"><div class="eyebrow">MY LITTLE TREASURES</div><h2>每一次尝试，都值得收藏 ✨</h2><p id="treasureText"></p><div id="badges"></div><button class="primary" id="backmap">继续冒险 ➜</button></div></section>
-<section id="parent" class="view"><div class="panel"><div class="eyebrow">FOR GROWN-UPS</div><h2>家长小站 🌱</h2><p>先在这里选择她的学习进度。每关 6 个小任务，不设倒计时，不扣生命值。</p><label>孩子的昵称　<input id="nameinput" maxlength="12" placeholder="小探险家"></label><label>目前学习的单元　<select id="unitselect"></select></label><button class="primary" id="save">保存设置</button><h3>Listen & Choose <span class="zh-sub">试听声音</span></h3><label>English voice · 英语声音 <select id="voiceselect"></select></label><label>Speed · 语速 <select id="speechrate"><option value="0.95">Natural · 自然（推荐）</option><option value="0.85">A little slower · 稍慢</option><option value="1">Normal · 正常</option></select></label><button class="primary" id="voicetest">🔊 Hello, Bella! <span class="zh-sub">试听这款声音</span></button><p class="muted" id="voicestatus" aria-live="polite"></p><p class="muted">优先尝试设备提供的英式女声。可切换声音试听，选择会自动保存；音色取决于设备，仍使用系统朗读。</p><h3>学习足迹</h3><div id="reports"></div><p class="muted">进度保存在当前浏览器。换设备或清理浏览器后不会同步。英语朗读使用设备语音，首次需点击播放；无可用语音时可看文字完成。开口任务由孩子或家长确认，不自动评价发音，也不采集录音。</p><details><summary>教材对应与使用说明</summary><p class="muted">依据 Cambridge Power Up 1 的主题与基础句型编写原创练习。Friendly 家庭、Jim、Jenny、Cameron 为教材角色名称；本应用为家庭学习辅助，非剑桥官方产品。页面人物为原创示意，不是教材原画。Hello、学校、家庭、农场、食物、玩具、出游、运动、家、假日依次对应各主题；具体课时请与手中教材核对。<a href="https://assets.cambridge.org/97810090/63517/frontmatter/9781009063517_frontmatter.pdf" target="_blank" rel="noopener">官方课程参考</a></p></details></div></section><footer>Made for a little explorer, with a lot of love. 🌼　·　家庭英语练习 · Power Up 1 主题配套</footer></div>
+<section id="parent" class="view"><div class="panel"><div class="eyebrow">FOR GROWN-UPS</div><h2>家长小站 🌱</h2><p>先在这里选择她的学习进度。每个单元 8 个任务：两组听辨、认读、拼词、句型、拼句、故事知识和生活实践。不设倒计时，可自由选择。</p><label>孩子的昵称　<input id="nameinput" maxlength="12" placeholder="小探险家"></label><label>目前学习的单元　<select id="unitselect"></select></label><button class="primary" id="save">保存设置</button><h3>Listen & Choose <span class="zh-sub">试听声音</span></h3><label>English voice · 英语声音 <select id="voiceselect"></select></label><label>Speed · 语速 <select id="speechrate"><option value="0.95">Natural · 自然（推荐）</option><option value="0.85">A little slower · 稍慢</option><option value="1">Normal · 正常</option></select></label><button class="primary" id="voicetest">🔊 Hello, Bella! <span class="zh-sub">试听这款声音</span></button><p class="muted" id="voicestatus" aria-live="polite"></p><p class="muted">优先尝试设备提供的英式女声。可切换声音试听，选择会自动保存；音色取决于设备，仍使用系统朗读。</p><h3>学习足迹</h3><div id="reports"></div><p class="muted">进度保存在当前浏览器。换设备或清理浏览器后不会同步。英语朗读使用设备语音，首次需点击播放；无可用语音时可看文字完成。开口任务由孩子或家长确认，不自动评价发音，也不采集录音。</p><details><summary>教材对应与使用说明</summary><p class="muted">依据你提供的 Power Up 1 Pupil’s Book 核对单元目录、两组词汇与语言练习及跨学科页面。Hello 对应第 4–5 页；U1 第 6–17 页；U2 第 18–29 页；U3 第 30–43 页；U4 第 44–55 页；U5 第 56–67 页；U6 第 68–81 页；U7 第 82–93 页；U8 第 94–105 页；U9 第 106–117 页。共 207 个词语条目（不同单元有重复词）、60 组句型练习。练习、简短故事和生活任务为原创改编，非课文原文或考试真题；并非收录教材全部练习。页面示意图不是教材原画，朗读不是教材原声。本应用为家庭辅助，非剑桥官方产品。</p></details></div></section><footer>Made for a little explorer, with a lot of love. 🌼　·　家庭英语练习 · Power Up 1 主题配套</footer></div>
 <div class="overlay" id="overlay"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="qtitle"><div class="modalhead"><b id="levelname"></b><button class="close" id="close" aria-label="退出本关">✕</button></div><div class="progress"><i id="bar"></i></div><div id="play"></div></div></div><div class="toast" id="toast"></div><script>
-const units=[
-['Hello','你好，农场朋友','🌈','Jim & Jenny',['red|🔴','blue|🔵','green|🟢','yellow|🟡','one|1️⃣','two|2️⃣'],"I am seven .","I am seven.",'告诉 Jim 你几岁了'],
-['Our new school','新学校寻宝','🎒','Jenny',['pencil|✏️','book|📕','bag|🎒','chair|🪑','ruler|📏','crayon|🖍️'],"It is a book .","It is a book.",'拿起一本书，说说这是什么'],
-['All about us','认识我的家人','🏡','Jim',['mother|👩','father|👨','grandma|👵','grandpa|👴','eyes|👀','ear|👂'],"She is my mother .","She is my mother.",'介绍你的妈妈'],
-['Fun on the farm','农场动物派对','🐑','Cameron',['cow|🐄','sheep|🐑','horse|🐎','duck|🦆','chicken|🐔','goat|🐐'],"It has got long ears .","It has got long ears.",'指着一只玩具动物，描述它的耳朵'],
-['Food with friends','朋友的野餐篮','🍎','Jenny',['apple|🍎','banana|🍌','bread|🍞','milk|🥛','fish|🐟','ice cream|🍦'],"I like apples .","I like apples.",'说说你喜欢的食物'],
-['My favourite toys','玩具礼物屋','🧸','Jim',['ball|⚽','bike|🚲','teddy|🧸','robot|🤖','kite|🪁','helicopter|🚁'],"It is my bike .","It is my bike.",'找一件玩具，告诉朋友这是谁的'],
-['A day out','一起去动物园','🦁','Jenny',['car|🚗','bus|🚌','train|🚂','elephant|🐘','giraffe|🦒','lion|🦁'],"There is a bus .","There is a bus.",'假装站在车站，说出你看见了什么'],
-["Let’s play!",'运动快乐岛','⚽','Jim',['swimming|🏊','running|🏃','football|⚽','tennis|🎾','basketball|🏀','riding a horse|🏇'],"I am swimming .","I am swimming.",'做一个游泳动作，再说英语'],
-['At home','家里的捉迷藏','🛋️','Cameron',['bed|🛏️','bath|🛁','sofa|🛋️','lamp|💡','door|🚪','clock|🕒'],"I can swim .","I can swim.",'告诉朋友你会做的一件事'],
-['Happy holidays','假日宝藏海湾','🏖️','Jenny',['T-shirt|👕','shoes|👟','hat|🧢','dress|👗','beach|🏖️','shell|🐚'],"I like flying my kite .","I like flying my kite.",'做放风筝动作，说说假日喜欢做什么']
+const curriculum=[
+  {
+    "title": "Hello",
+    "zh": "认识农场朋友",
+    "icon": "🌈",
+    "pages": "4–5",
+    "core": [
+      {
+        "word": "red",
+        "zh": "红色",
+        "icon": "🔴"
+      },
+      {
+        "word": "blue",
+        "zh": "蓝色",
+        "icon": "🔵"
+      },
+      {
+        "word": "yellow",
+        "zh": "黄色",
+        "icon": "🟡"
+      },
+      {
+        "word": "green",
+        "zh": "绿色",
+        "icon": "🟢"
+      },
+      {
+        "word": "orange",
+        "zh": "橙色",
+        "icon": "🟠"
+      },
+      {
+        "word": "purple",
+        "zh": "紫色",
+        "icon": "🟣"
+      },
+      {
+        "word": "pink",
+        "zh": "粉色",
+        "icon": "🩷"
+      },
+      {
+        "word": "grey",
+        "zh": "灰色",
+        "icon": "⚪"
+      },
+      {
+        "word": "black",
+        "zh": "黑色",
+        "icon": "⚫"
+      },
+      {
+        "word": "white",
+        "zh": "白色",
+        "icon": "⬜"
+      },
+      {
+        "word": "brown",
+        "zh": "棕色",
+        "icon": "🟤"
+      }
+    ],
+    "extra": [
+      {
+        "word": "one",
+        "zh": "一",
+        "icon": "1️⃣"
+      },
+      {
+        "word": "two",
+        "zh": "二",
+        "icon": "2️⃣"
+      },
+      {
+        "word": "three",
+        "zh": "三",
+        "icon": "3️⃣"
+      },
+      {
+        "word": "four",
+        "zh": "四",
+        "icon": "4️⃣"
+      },
+      {
+        "word": "five",
+        "zh": "五",
+        "icon": "5️⃣"
+      },
+      {
+        "word": "six",
+        "zh": "六",
+        "icon": "6️⃣"
+      },
+      {
+        "word": "seven",
+        "zh": "七",
+        "icon": "7️⃣"
+      },
+      {
+        "word": "eight",
+        "zh": "八",
+        "icon": "8️⃣"
+      },
+      {
+        "word": "nine",
+        "zh": "九",
+        "icon": "9️⃣"
+      },
+      {
+        "word": "ten",
+        "zh": "十",
+        "icon": "🔟"
+      }
+    ],
+    "grammar": [
+      {
+        "text": "My name is Bella.",
+        "zh": "我叫 Bella。",
+        "blank": "My name ___ Bella.",
+        "answer": "is",
+        "wrong": [
+          "are",
+          "am"
+        ]
+      },
+      {
+        "text": "I am seven.",
+        "zh": "我七岁。",
+        "blank": "I ___ seven.",
+        "answer": "am",
+        "wrong": [
+          "is",
+          "are"
+        ]
+      },
+      {
+        "text": "What is your name?",
+        "zh": "你叫什么名字？",
+        "blank": "What is ___ name?",
+        "answer": "your",
+        "wrong": [
+          "you",
+          "I"
+        ]
+      },
+      {
+        "text": "How old are you?",
+        "zh": "你几岁？",
+        "blank": "How old ___ you?",
+        "answer": "are",
+        "wrong": [
+          "is",
+          "am"
+        ]
+      }
+    ],
+    "dialogs": [
+      {
+        "prompt": "What is your name?",
+        "answer": "My name is Bella.",
+        "wrong": [
+          "I am seven.",
+          "It is blue."
+        ],
+        "hint": "问名字时介绍自己。"
+      },
+      {
+        "prompt": "How old are you?",
+        "answer": "I am seven.",
+        "wrong": [
+          "My name is Jim.",
+          "It is red."
+        ],
+        "hint": "问年龄，用数字回答。"
+      },
+      {
+        "prompt": "Hello, Bella!",
+        "answer": "Hello, Jenny!",
+        "wrong": [
+          "It is a book.",
+          "I like apples."
+        ],
+        "hint": "用 Hello 打招呼。"
+      }
+    ],
+    "knowledge": [
+      {
+        "prompt": "Which number comes after six?",
+        "answer": "seven",
+        "wrong": [
+          "five",
+          "three"
+        ],
+        "hint": "six 后面是 seven。"
+      },
+      {
+        "prompt": "Two and three make ...",
+        "answer": "five",
+        "wrong": [
+          "four",
+          "six"
+        ],
+        "hint": "2 + 3 = 5。"
+      },
+      {
+        "prompt": "Which colour is a banana?",
+        "answer": "yellow",
+        "wrong": [
+          "purple",
+          "blue"
+        ],
+        "hint": "成熟香蕉通常是黄色。"
+      }
+    ],
+    "project": [
+      "向家人介绍名字和年龄。",
+      "找到家里三种颜色，用英语说出名称。",
+      "用英语从 one 数到 ten。"
+    ],
+    "story": [
+      "Bella meets Jenny at the farm.",
+      "Jenny has a red bag and two books.",
+      "Bella says hello and tells Jenny her name."
+    ]
+  },
+  {
+    "title": "Our new school",
+    "zh": "教室寻宝",
+    "icon": "🎒",
+    "pages": "6–17",
+    "core": [
+      {
+        "word": "classroom",
+        "zh": "教室",
+        "icon": "🏫"
+      },
+      {
+        "word": "teacher",
+        "zh": "老师",
+        "icon": "👩‍🏫"
+      },
+      {
+        "word": "pencil",
+        "zh": "铅笔",
+        "icon": "✏️"
+      },
+      {
+        "word": "rubber",
+        "zh": "橡皮",
+        "icon": "🧽"
+      },
+      {
+        "word": "bag",
+        "zh": "书包",
+        "icon": "🎒"
+      },
+      {
+        "word": "crayon",
+        "zh": "蜡笔",
+        "icon": "🖍️"
+      },
+      {
+        "word": "desk",
+        "zh": "课桌",
+        "icon": "🪑"
+      },
+      {
+        "word": "chair",
+        "zh": "椅子",
+        "icon": "🪑"
+      },
+      {
+        "word": "book",
+        "zh": "书",
+        "icon": "📕"
+      },
+      {
+        "word": "pen",
+        "zh": "钢笔",
+        "icon": "🖊️"
+      },
+      {
+        "word": "pencil case",
+        "zh": "铅笔盒",
+        "icon": "👝"
+      }
+    ],
+    "extra": [
+      {
+        "word": "board",
+        "zh": "黑板",
+        "icon": "🔲"
+      },
+      {
+        "word": "door",
+        "zh": "门",
+        "icon": "🚪"
+      },
+      {
+        "word": "window",
+        "zh": "窗户",
+        "icon": "🪟"
+      },
+      {
+        "word": "playground",
+        "zh": "操场",
+        "icon": "🛝"
+      },
+      {
+        "word": "bookcase",
+        "zh": "书架",
+        "icon": "📚"
+      },
+      {
+        "word": "paper",
+        "zh": "纸",
+        "icon": "📄"
+      },
+      {
+        "word": "ruler",
+        "zh": "尺子",
+        "icon": "📏"
+      },
+      {
+        "word": "cupboard",
+        "zh": "柜子",
+        "icon": "🗄️"
+      },
+      {
+        "word": "wall",
+        "zh": "墙",
+        "icon": "🧱"
+      }
+    ],
+    "grammar": [
+      {
+        "text": "The pencil is in the bag.",
+        "zh": "铅笔在书包里面。",
+        "blank": "The pencil is ___ the bag.",
+        "answer": "in",
+        "wrong": [
+          "on",
+          "under"
+        ]
+      },
+      {
+        "text": "The book is on the desk.",
+        "zh": "书在课桌上面。",
+        "blank": "The book is ___ the desk.",
+        "answer": "on",
+        "wrong": [
+          "in",
+          "under"
+        ]
+      },
+      {
+        "text": "The bag is under the chair.",
+        "zh": "书包在椅子下面。",
+        "blank": "The bag is ___ the chair.",
+        "answer": "under",
+        "wrong": [
+          "on",
+          "in"
+        ]
+      },
+      {
+        "text": "The ruler is next to the book.",
+        "zh": "尺子在书旁边。",
+        "blank": "The ruler is ___ the book.",
+        "answer": "next to",
+        "wrong": [
+          "under",
+          "in"
+        ]
+      },
+      {
+        "text": "What is this?",
+        "zh": "这是什么？",
+        "blank": "What ___ this?",
+        "answer": "is",
+        "wrong": [
+          "are",
+          "am"
+        ]
+      },
+      {
+        "text": "They are windows.",
+        "zh": "它们是窗户。",
+        "blank": "They ___ windows.",
+        "answer": "are",
+        "wrong": [
+          "is",
+          "am"
+        ]
+      },
+      {
+        "text": "It is a pencil.",
+        "zh": "这是一支铅笔。",
+        "blank": "It is ___ pencil.",
+        "answer": "a",
+        "wrong": [
+          "an",
+          "two"
+        ]
+      },
+      {
+        "text": "These are books.",
+        "zh": "这些是书。",
+        "blank": "These are ___.",
+        "answer": "books",
+        "wrong": [
+          "book",
+          "a book"
+        ]
+      }
+    ],
+    "dialogs": [
+      {
+        "prompt": "Where is the pen?（钢笔在书包里）",
+        "answer": "It is in the bag.",
+        "wrong": [
+          "They are pens.",
+          "It is under the desk."
+        ],
+        "hint": "in 表示在里面。"
+      },
+      {
+        "prompt": "What are these?（两本书）",
+        "answer": "They are books.",
+        "wrong": [
+          "It is a book.",
+          "It is a window."
+        ],
+        "hint": "these 和复数回答相配。"
+      },
+      {
+        "prompt": "Your friend gives you a pencil. What do you say?",
+        "answer": "Thank you.",
+        "wrong": [
+          "Go away.",
+          "It is red."
+        ],
+        "hint": "收到帮助，向朋友道谢。"
+      },
+      {
+        "prompt": "What is this?（一扇窗户）",
+        "answer": "It is a window.",
+        "wrong": [
+          "They are windows.",
+          "They are books."
+        ],
+        "hint": "this 指一个物品。"
+      }
+    ],
+    "knowledge": [
+      {
+        "prompt": "A friend has no crayon. What can you do?",
+        "answer": "Share a crayon.",
+        "wrong": [
+          "Hide the crayons.",
+          "Laugh at your friend."
+        ],
+        "hint": "教材跨学科主题：友善、分享。"
+      },
+      {
+        "prompt": "Your friend falls over. What can you ask?",
+        "answer": "Are you OK?",
+        "wrong": [
+          "How many books?",
+          "What colour?"
+        ],
+        "hint": "先关心朋友的状态。"
+      },
+      {
+        "prompt": "How can we finish a class poster?",
+        "answer": "Work together.",
+        "wrong": [
+          "Hide the paper.",
+          "Take every pencil."
+        ],
+        "hint": "合作完成班级海报。"
+      }
+    ],
+    "project": [
+      "给家里五件学习用品制作英文标签。",
+      "藏一支铅笔，让家人用 Where is ...? 提问，再用位置词回答。",
+      "画一张友善海报，写上 Help 或 Share。"
+    ],
+    "story": [
+      "Jenny cannot find her pencil case.",
+      "Bella looks under the desk. The pencil case is next to the bag.",
+      "Bella gives it to Jenny. Jenny says thank you."
+    ]
+  },
+  {
+    "title": "All about us",
+    "zh": "家庭与身体",
+    "icon": "🏡",
+    "pages": "18–29",
+    "core": [
+      {
+        "word": "family",
+        "zh": "家庭",
+        "icon": "👨‍👩‍👧"
+      },
+      {
+        "word": "father",
+        "zh": "爸爸",
+        "icon": "👨"
+      },
+      {
+        "word": "dad",
+        "zh": "爸爸（口语）",
+        "icon": "👨"
+      },
+      {
+        "word": "mother",
+        "zh": "妈妈",
+        "icon": "👩"
+      },
+      {
+        "word": "mum",
+        "zh": "妈妈（英式口语）",
+        "icon": "👩"
+      },
+      {
+        "word": "grandfather",
+        "zh": "祖父或外祖父",
+        "icon": "👴"
+      },
+      {
+        "word": "grandpa",
+        "zh": "爷爷或外公（口语）",
+        "icon": "👴"
+      },
+      {
+        "word": "grandmother",
+        "zh": "祖母或外祖母",
+        "icon": "👵"
+      },
+      {
+        "word": "grandma",
+        "zh": "奶奶或外婆（口语）",
+        "icon": "👵"
+      },
+      {
+        "word": "sister",
+        "zh": "姐妹",
+        "icon": "👧"
+      },
+      {
+        "word": "brother",
+        "zh": "兄弟",
+        "icon": "👦"
+      }
+    ],
+    "extra": [
+      {
+        "word": "head",
+        "zh": "头",
+        "icon": "🙂"
+      },
+      {
+        "word": "nose",
+        "zh": "鼻子",
+        "icon": "👃"
+      },
+      {
+        "word": "ear",
+        "zh": "耳朵",
+        "icon": "👂"
+      },
+      {
+        "word": "arm",
+        "zh": "胳膊",
+        "icon": "💪"
+      },
+      {
+        "word": "hand",
+        "zh": "手",
+        "icon": "✋"
+      },
+      {
+        "word": "body",
+        "zh": "身体",
+        "icon": "🧍"
+      },
+      {
+        "word": "hair",
+        "zh": "头发",
+        "icon": "💇"
+      },
+      {
+        "word": "foot",
+        "zh": "脚（单数）",
+        "icon": "🦶"
+      },
+      {
+        "word": "feet",
+        "zh": "脚（复数）",
+        "icon": "🦶🦶"
+      },
+      {
+        "word": "leg",
+        "zh": "腿",
+        "icon": "🦵"
+      },
+      {
+        "word": "eye",
+        "zh": "眼睛",
+        "icon": "👁️"
+      },
+      {
+        "word": "mouth",
+        "zh": "嘴",
+        "icon": "👄"
+      },
+      {
+        "word": "face",
+        "zh": "脸",
+        "icon": "🙂"
+      },
+      {
+        "word": "tail",
+        "zh": "尾巴",
+        "icon": "🐈"
+      }
+    ],
+    "grammar": [
+      {
+        "text": "She is my sister.",
+        "zh": "她是我的姐妹。",
+        "blank": "___ is my sister.",
+        "answer": "She",
+        "wrong": [
+          "He",
+          "They"
+        ]
+      },
+      {
+        "text": "He is my brother.",
+        "zh": "他是我的兄弟。",
+        "blank": "He ___ my brother.",
+        "answer": "is",
+        "wrong": [
+          "are",
+          "am"
+        ]
+      },
+      {
+        "text": "I have got brown hair.",
+        "zh": "我有棕色头发。",
+        "blank": "I ___ got brown hair.",
+        "answer": "have",
+        "wrong": [
+          "has",
+          "is"
+        ]
+      },
+      {
+        "text": "They have got blue eyes.",
+        "zh": "他们有蓝色眼睛。",
+        "blank": "They have ___ blue eyes.",
+        "answer": "got",
+        "wrong": [
+          "get",
+          "has"
+        ]
+      },
+      {
+        "text": "I have not got green eyes.",
+        "zh": "我没有绿色眼睛。",
+        "blank": "I have ___ got green eyes.",
+        "answer": "not",
+        "wrong": [
+          "no",
+          "is"
+        ]
+      },
+      {
+        "text": "These are my feet.",
+        "zh": "这些是我的脚。",
+        "blank": "These are my ___.",
+        "answer": "feet",
+        "wrong": [
+          "foot",
+          "a foot"
+        ]
+      }
+    ],
+    "dialogs": [
+      {
+        "prompt": "Who is she?（我的妈妈）",
+        "answer": "She is my mother.",
+        "wrong": [
+          "He is my father.",
+          "They are my feet."
+        ],
+        "hint": "she 对应女性。"
+      },
+      {
+        "prompt": "Have you got a sister?（有）",
+        "answer": "Yes, I have.",
+        "wrong": [
+          "Yes, it is.",
+          "Yes, he does."
+        ],
+        "hint": "Have you got ...? 用 have 回答。"
+      },
+      {
+        "prompt": "Have you got green eyes?（没有）",
+        "answer": "No, I have not.",
+        "wrong": [
+          "No, I am not.",
+          "No, he does not."
+        ],
+        "hint": "保留 have，与提问一致。"
+      }
+    ],
+    "knowledge": [
+      {
+        "prompt": "What do we use to hear?",
+        "answer": "ears",
+        "wrong": [
+          "eyes",
+          "nose"
+        ],
+        "hint": "耳朵帮助我们听声音。"
+      },
+      {
+        "prompt": "What do we use to smell?",
+        "answer": "nose",
+        "wrong": [
+          "hands",
+          "ears"
+        ],
+        "hint": "鼻子帮助我们闻气味。"
+      },
+      {
+        "prompt": "What do we use to see?",
+        "answer": "eyes",
+        "wrong": [
+          "feet",
+          "mouth"
+        ],
+        "hint": "眼睛帮助我们看。"
+      }
+    ],
+    "project": [
+      "画一张家庭图，介绍三位家人。",
+      "指身体部位，让家人猜英文。",
+      "找一样柔软物品，描述触摸的感受。"
+    ],
+    "story": [
+      "Bella makes a family book.",
+      "She draws her mother and her father.",
+      "She adds a picture of herself and writes about her hair."
+    ]
+  },
+  {
+    "title": "Fun on the farm",
+    "zh": "农场小侦探",
+    "icon": "🐑",
+    "pages": "30–43",
+    "core": [
+      {
+        "word": "cow",
+        "zh": "奶牛",
+        "icon": "🐄"
+      },
+      {
+        "word": "donkey",
+        "zh": "驴",
+        "icon": "🫏"
+      },
+      {
+        "word": "horse",
+        "zh": "马",
+        "icon": "🐎"
+      },
+      {
+        "word": "spider",
+        "zh": "蜘蛛",
+        "icon": "🕷️"
+      },
+      {
+        "word": "sheep",
+        "zh": "绵羊",
+        "icon": "🐑"
+      },
+      {
+        "word": "goat",
+        "zh": "山羊",
+        "icon": "🐐"
+      },
+      {
+        "word": "cat",
+        "zh": "猫",
+        "icon": "🐈"
+      },
+      {
+        "word": "chicken",
+        "zh": "鸡",
+        "icon": "🐔"
+      },
+      {
+        "word": "dog",
+        "zh": "狗",
+        "icon": "🐕"
+      },
+      {
+        "word": "duck",
+        "zh": "鸭",
+        "icon": "🦆"
+      }
+    ],
+    "extra": [
+      {
+        "word": "big",
+        "zh": "大的",
+        "icon": "🐘"
+      },
+      {
+        "word": "small",
+        "zh": "小的",
+        "icon": "🐁"
+      },
+      {
+        "word": "long",
+        "zh": "长的",
+        "icon": "📏"
+      },
+      {
+        "word": "short",
+        "zh": "短的",
+        "icon": "↔️"
+      },
+      {
+        "word": "old",
+        "zh": "年老的或旧的",
+        "icon": "👴"
+      },
+      {
+        "word": "young",
+        "zh": "年幼的",
+        "icon": "👶"
+      },
+      {
+        "word": "new",
+        "zh": "新的",
+        "icon": "✨"
+      },
+      {
+        "word": "nice",
+        "zh": "友好的或不错的",
+        "icon": "😊"
+      },
+      {
+        "word": "funny",
+        "zh": "滑稽的",
+        "icon": "😆"
+      },
+      {
+        "word": "sad",
+        "zh": "难过的",
+        "icon": "😢"
+      },
+      {
+        "word": "happy",
+        "zh": "开心的",
+        "icon": "😄"
+      },
+      {
+        "word": "angry",
+        "zh": "生气的",
+        "icon": "😠"
+      },
+      {
+        "word": "beautiful",
+        "zh": "美丽的",
+        "icon": "🌸"
+      },
+      {
+        "word": "ugly",
+        "zh": "难看的",
+        "icon": "👹"
+      }
+    ],
+    "grammar": [
+      {
+        "text": "It is a small cat.",
+        "zh": "它是一只小猫。",
+        "blank": "It is a ___ cat.",
+        "answer": "small",
+        "wrong": [
+          "cat",
+          "cats"
+        ]
+      },
+      {
+        "text": "The horse has got a long tail.",
+        "zh": "这匹马有长尾巴。",
+        "blank": "The horse ___ got a long tail.",
+        "answer": "has",
+        "wrong": [
+          "have",
+          "are"
+        ]
+      },
+      {
+        "text": "It has not got small ears.",
+        "zh": "它没有小耳朵。",
+        "blank": "It has ___ got small ears.",
+        "answer": "not",
+        "wrong": [
+          "no",
+          "are"
+        ]
+      },
+      {
+        "text": "They are young chickens.",
+        "zh": "它们是小鸡。",
+        "blank": "They ___ young chickens.",
+        "answer": "are",
+        "wrong": [
+          "is",
+          "am"
+        ]
+      },
+      {
+        "text": "The cow is big.",
+        "zh": "这头奶牛很大。",
+        "blank": "The cow ___ big.",
+        "answer": "is",
+        "wrong": [
+          "are",
+          "am"
+        ]
+      },
+      {
+        "text": "It is an old dog.",
+        "zh": "它是一只老狗。",
+        "blank": "It is ___ old dog.",
+        "answer": "an",
+        "wrong": [
+          "a",
+          "two"
+        ]
+      }
+    ],
+    "dialogs": [
+      {
+        "prompt": "Has it got a long tail?（有）",
+        "answer": "Yes, it has.",
+        "wrong": [
+          "Yes, I have.",
+          "Yes, they are."
+        ],
+        "hint": "has 开头的提问用 has 回答。"
+      },
+      {
+        "prompt": "Has it got small feet?（没有）",
+        "answer": "No, it has not.",
+        "wrong": [
+          "No, I do not.",
+          "No, it is not."
+        ],
+        "hint": "has not 表示没有。"
+      },
+      {
+        "prompt": "Your friend looks sad. What can you ask?",
+        "answer": "Are you OK?",
+        "wrong": [
+          "Are you a chair?",
+          "Where is my toy?"
+        ],
+        "hint": "观察和关心朋友的感受。"
+      }
+    ],
+    "knowledge": [
+      {
+        "prompt": "Which animal gives us milk?",
+        "answer": "cow",
+        "wrong": [
+          "spider",
+          "cat"
+        ],
+        "hint": "奶牛为人们提供牛奶。"
+      },
+      {
+        "prompt": "Which animal gives us wool?",
+        "answer": "sheep",
+        "wrong": [
+          "duck",
+          "horse"
+        ],
+        "hint": "羊毛来自绵羊。"
+      },
+      {
+        "prompt": "Which animal gives us eggs?",
+        "answer": "chicken",
+        "wrong": [
+          "dog",
+          "donkey"
+        ],
+        "hint": "鸡产鸡蛋。"
+      }
+    ],
+    "project": [
+      "画一只农场动物，用 big / small / long / short 描述。",
+      "用玩具搭建小农场。",
+      "和家人玩 Has it got ...? 猜动物。"
+    ],
+    "story": [
+      "Bella sees a small sheep and a big horse.",
+      "The horse has got a long tail.",
+      "A little cat looks sad. Bella asks, Are you OK?"
+    ]
+  },
+  {
+    "title": "Food with friends",
+    "zh": "野餐准备站",
+    "icon": "🍎",
+    "pages": "44–55",
+    "core": [
+      {
+        "word": "chicken",
+        "zh": "鸡肉",
+        "icon": "🍗"
+      },
+      {
+        "word": "burger",
+        "zh": "汉堡",
+        "icon": "🍔"
+      },
+      {
+        "word": "cake",
+        "zh": "蛋糕",
+        "icon": "🍰"
+      },
+      {
+        "word": "chocolate",
+        "zh": "巧克力",
+        "icon": "🍫"
+      },
+      {
+        "word": "bread",
+        "zh": "面包",
+        "icon": "🍞"
+      },
+      {
+        "word": "lemonade",
+        "zh": "柠檬饮料",
+        "icon": "🍋"
+      },
+      {
+        "word": "water",
+        "zh": "水",
+        "icon": "💧"
+      },
+      {
+        "word": "banana",
+        "zh": "香蕉",
+        "icon": "🍌"
+      },
+      {
+        "word": "mango",
+        "zh": "芒果",
+        "icon": "🥭"
+      },
+      {
+        "word": "salad",
+        "zh": "沙拉",
+        "icon": "🥗"
+      }
+    ],
+    "extra": [
+      {
+        "word": "fruit",
+        "zh": "水果",
+        "icon": "🍎"
+      },
+      {
+        "word": "grapes",
+        "zh": "葡萄",
+        "icon": "🍇"
+      },
+      {
+        "word": "apple",
+        "zh": "苹果",
+        "icon": "🍎"
+      },
+      {
+        "word": "orange",
+        "zh": "橙子",
+        "icon": "🍊"
+      },
+      {
+        "word": "juice",
+        "zh": "果汁",
+        "icon": "🧃"
+      },
+      {
+        "word": "meat",
+        "zh": "肉",
+        "icon": "🥩"
+      },
+      {
+        "word": "meatballs",
+        "zh": "肉丸",
+        "icon": "🧆"
+      },
+      {
+        "word": "beans",
+        "zh": "豆子",
+        "icon": "🫘"
+      },
+      {
+        "word": "sausage",
+        "zh": "香肠",
+        "icon": "🌭"
+      },
+      {
+        "word": "ice cream",
+        "zh": "冰淇淋",
+        "icon": "🍦"
+      }
+    ],
+    "grammar": [
+      {
+        "text": "I like apples.",
+        "zh": "我喜欢苹果。",
+        "blank": "I ___ apples.",
+        "answer": "like",
+        "wrong": [
+          "likes",
+          "liking"
+        ]
+      },
+      {
+        "text": "I do not like juice.",
+        "zh": "我不喜欢果汁。",
+        "blank": "I ___ not like juice.",
+        "answer": "do",
+        "wrong": [
+          "does",
+          "am"
+        ]
+      },
+      {
+        "text": "He does not like chocolate.",
+        "zh": "他不喜欢巧克力。",
+        "blank": "He ___ not like chocolate.",
+        "answer": "does",
+        "wrong": [
+          "do",
+          "is"
+        ]
+      },
+      {
+        "text": "Can I have some bread, please?",
+        "zh": "请给我一些面包好吗？",
+        "blank": "Can I have ___ bread, please?",
+        "answer": "some",
+        "wrong": [
+          "a",
+          "an"
+        ]
+      },
+      {
+        "text": "Would you like some water?",
+        "zh": "你想喝些水吗？",
+        "blank": "Would you ___ some water?",
+        "answer": "like",
+        "wrong": [
+          "likes",
+          "liking"
+        ]
+      },
+      {
+        "text": "She likes bananas.",
+        "zh": "她喜欢香蕉。",
+        "blank": "She ___ bananas.",
+        "answer": "likes",
+        "wrong": [
+          "like",
+          "liking"
+        ]
+      }
+    ],
+    "dialogs": [
+      {
+        "prompt": "Would you like some bread?（礼貌接受）",
+        "answer": "Yes, please.",
+        "wrong": [
+          "Yes, I am.",
+          "Yes, it has."
+        ],
+        "hint": "接受食物可以说 Yes, please。"
+      },
+      {
+        "prompt": "Would you like some juice?（礼貌拒绝）",
+        "answer": "No, thank you.",
+        "wrong": [
+          "Go away.",
+          "No, it is not."
+        ],
+        "hint": "拒绝也要礼貌。"
+      },
+      {
+        "prompt": "Can I have some water, please?",
+        "answer": "Here you are.",
+        "wrong": [
+          "I am seven.",
+          "It is a pencil."
+        ],
+        "hint": "递给对方东西时说 Here you are。"
+      },
+      {
+        "prompt": "Do you like apples?（喜欢）",
+        "answer": "Yes, I do.",
+        "wrong": [
+          "Yes, she does.",
+          "Yes, I have."
+        ],
+        "hint": "Do you ...? 用 do 回答。"
+      }
+    ],
+    "knowledge": [
+      {
+        "prompt": "Which is a drink?",
+        "answer": "water",
+        "wrong": [
+          "bread",
+          "cake"
+        ],
+        "hint": "water 是饮品。"
+      },
+      {
+        "prompt": "Which food comes from a plant?",
+        "answer": "apple",
+        "wrong": [
+          "chicken",
+          "meat"
+        ],
+        "hint": "苹果来自植物。"
+      },
+      {
+        "prompt": "Before making a snack, what should we do?",
+        "answer": "Wash our hands.",
+        "wrong": [
+          "Hide the food.",
+          "Touch dirty shoes."
+        ],
+        "hint": "制作点心前先洗手。"
+      }
+    ],
+    "project": [
+      "问两位家人 Do you like ...?，画一张喜好表。",
+      "设计野餐菜单，包含食物和饮品。",
+      "和家人演一段买食物的对话。"
+    ],
+    "story": [
+      "Bella and Jim are getting ready for a picnic.",
+      "Bella likes bananas. Jim wants some bread.",
+      "They share the food and say thank you."
+    ]
+  },
+  {
+    "title": "Happy birthday!",
+    "zh": "生日礼物工坊",
+    "icon": "🎁",
+    "pages": "56–67",
+    "core": [
+      {
+        "word": "plane",
+        "zh": "飞机（玩具）",
+        "icon": "✈️"
+      },
+      {
+        "word": "kite",
+        "zh": "风筝",
+        "icon": "🪁"
+      },
+      {
+        "word": "doll",
+        "zh": "玩偶",
+        "icon": "🪆"
+      },
+      {
+        "word": "robot",
+        "zh": "机器人",
+        "icon": "🤖"
+      },
+      {
+        "word": "ball",
+        "zh": "球",
+        "icon": "⚽"
+      },
+      {
+        "word": "house",
+        "zh": "房子（玩具）",
+        "icon": "🏠"
+      },
+      {
+        "word": "car",
+        "zh": "汽车（玩具）",
+        "icon": "🚗"
+      },
+      {
+        "word": "bike",
+        "zh": "自行车",
+        "icon": "🚲"
+      }
+    ],
+    "extra": [
+      {
+        "word": "balloon",
+        "zh": "气球",
+        "icon": "🎈"
+      },
+      {
+        "word": "computer",
+        "zh": "电脑",
+        "icon": "💻"
+      },
+      {
+        "word": "mouse",
+        "zh": "鼠标",
+        "icon": "🖱️"
+      },
+      {
+        "word": "keyboard",
+        "zh": "键盘",
+        "icon": "⌨️"
+      },
+      {
+        "word": "board game",
+        "zh": "桌游",
+        "icon": "🎲"
+      },
+      {
+        "word": "helicopter",
+        "zh": "直升机",
+        "icon": "🚁"
+      },
+      {
+        "word": "teddy",
+        "zh": "玩具熊",
+        "icon": "🧸"
+      },
+      {
+        "word": "radio",
+        "zh": "收音机",
+        "icon": "📻"
+      },
+      {
+        "word": "box",
+        "zh": "盒子",
+        "icon": "📦"
+      },
+      {
+        "word": "ship",
+        "zh": "轮船（玩具）",
+        "icon": "🚢"
+      }
+    ],
+    "grammar": [
+      {
+        "text": "It is Jim's bike.",
+        "zh": "这是 Jim 的自行车。",
+        "blank": "It is ___ bike.",
+        "answer": "Jim's",
+        "wrong": [
+          "Jim",
+          "Jims"
+        ]
+      },
+      {
+        "text": "His robot is green.",
+        "zh": "他的机器人是绿色的。",
+        "blank": "___ robot is green.",
+        "answer": "His",
+        "wrong": [
+          "He",
+          "Him"
+        ]
+      },
+      {
+        "text": "Her doll is small.",
+        "zh": "她的玩偶很小。",
+        "blank": "___ doll is small.",
+        "answer": "Her",
+        "wrong": [
+          "She",
+          "Hers"
+        ]
+      },
+      {
+        "text": "He wants a kite.",
+        "zh": "他想要一个风筝。",
+        "blank": "He ___ a kite.",
+        "answer": "wants",
+        "wrong": [
+          "want",
+          "wanting"
+        ]
+      },
+      {
+        "text": "Our computer is new.",
+        "zh": "我们的电脑是新的。",
+        "blank": "___ computer is new.",
+        "answer": "Our",
+        "wrong": [
+          "We",
+          "Us"
+        ]
+      },
+      {
+        "text": "Does she want a teddy?",
+        "zh": "她想要一个玩具熊吗？",
+        "blank": "___ she want a teddy?",
+        "answer": "Does",
+        "wrong": [
+          "Do",
+          "Is"
+        ]
+      }
+    ],
+    "dialogs": [
+      {
+        "prompt": "Whose bike is this?（Jim 的）",
+        "answer": "It is Jim's bike.",
+        "wrong": [
+          "He wants a bike.",
+          "It is a car."
+        ],
+        "hint": "Whose 用来问物品属于谁。"
+      },
+      {
+        "prompt": "Does he want a teddy?（想要）",
+        "answer": "Yes, he does.",
+        "wrong": [
+          "Yes, he is.",
+          "Yes, I have."
+        ],
+        "hint": "Does ... want? 用 does 回答。"
+      },
+      {
+        "prompt": "What does she want?（风筝）",
+        "answer": "She wants a kite.",
+        "wrong": [
+          "She is a kite.",
+          "She want a kite."
+        ],
+        "hint": "she 后面用 wants。"
+      }
+    ],
+    "knowledge": [
+      {
+        "prompt": "How many sides has a triangle got?",
+        "answer": "three",
+        "wrong": [
+          "four",
+          "two"
+        ],
+        "hint": "三角形有三条边。"
+      },
+      {
+        "prompt": "Which shape has no corners?",
+        "answer": "circle",
+        "wrong": [
+          "square",
+          "triangle"
+        ],
+        "hint": "圆形没有角。"
+      },
+      {
+        "prompt": "Which shape has four equal sides?",
+        "answer": "square",
+        "wrong": [
+          "circle",
+          "triangle"
+        ],
+        "hint": "正方形四条边一样长。"
+      }
+    ],
+    "project": [
+      "询问朋友想要什么礼物。",
+      "画一张生日卡，加入 circle / square / triangle。",
+      "用英语介绍礼物属于谁。"
+    ],
+    "story": [
+      "Bella is choosing a present for Jenny.",
+      "Jenny wants a kite. Jim wants a robot.",
+      "Bella makes a birthday card with three circles."
+    ]
+  },
+  {
+    "title": "A day out",
+    "zh": "动物园探险",
+    "icon": "🦒",
+    "pages": "68–81",
+    "core": [
+      {
+        "word": "tree",
+        "zh": "树",
+        "icon": "🌳"
+      },
+      {
+        "word": "train",
+        "zh": "火车",
+        "icon": "🚂"
+      },
+      {
+        "word": "garden",
+        "zh": "花园",
+        "icon": "🌷"
+      },
+      {
+        "word": "bus stop",
+        "zh": "公交站",
+        "icon": "🚏"
+      },
+      {
+        "word": "bus",
+        "zh": "公交车",
+        "icon": "🚌"
+      },
+      {
+        "word": "shop",
+        "zh": "商店",
+        "icon": "🏪"
+      },
+      {
+        "word": "motorbike",
+        "zh": "摩托车",
+        "icon": "🏍️"
+      },
+      {
+        "word": "lorry",
+        "zh": "卡车（英式）",
+        "icon": "🚚"
+      },
+      {
+        "word": "car",
+        "zh": "汽车",
+        "icon": "🚗"
+      },
+      {
+        "word": "park",
+        "zh": "公园",
+        "icon": "🏞️"
+      },
+      {
+        "word": "flower",
+        "zh": "花",
+        "icon": "🌸"
+      }
+    ],
+    "extra": [
+      {
+        "word": "hippo",
+        "zh": "河马",
+        "icon": "🦛"
+      },
+      {
+        "word": "giraffe",
+        "zh": "长颈鹿",
+        "icon": "🦒"
+      },
+      {
+        "word": "polar bear",
+        "zh": "北极熊",
+        "icon": "🐻‍❄️"
+      },
+      {
+        "word": "bear",
+        "zh": "熊",
+        "icon": "🐻"
+      },
+      {
+        "word": "elephant",
+        "zh": "大象",
+        "icon": "🐘"
+      },
+      {
+        "word": "crocodile",
+        "zh": "鳄鱼",
+        "icon": "🐊"
+      },
+      {
+        "word": "zebra",
+        "zh": "斑马",
+        "icon": "🦓"
+      },
+      {
+        "word": "lizard",
+        "zh": "蜥蜴",
+        "icon": "🦎"
+      },
+      {
+        "word": "monkey",
+        "zh": "猴子",
+        "icon": "🐒"
+      },
+      {
+        "word": "snake",
+        "zh": "蛇",
+        "icon": "🐍"
+      },
+      {
+        "word": "tiger",
+        "zh": "老虎",
+        "icon": "🐅"
+      }
+    ],
+    "grammar": [
+      {
+        "text": "There is a bus.",
+        "zh": "有一辆公交车。",
+        "blank": "There ___ a bus.",
+        "answer": "is",
+        "wrong": [
+          "are",
+          "am"
+        ]
+      },
+      {
+        "text": "There are two zebras.",
+        "zh": "有两只斑马。",
+        "blank": "There ___ two zebras.",
+        "answer": "are",
+        "wrong": [
+          "is",
+          "am"
+        ]
+      },
+      {
+        "text": "There are not any shops.",
+        "zh": "没有商店。",
+        "blank": "There are ___ any shops.",
+        "answer": "not",
+        "wrong": [
+          "no",
+          "a"
+        ]
+      },
+      {
+        "text": "Are there any animals?",
+        "zh": "有动物吗？",
+        "blank": "___ there any animals?",
+        "answer": "Are",
+        "wrong": [
+          "Is",
+          "Am"
+        ]
+      },
+      {
+        "text": "Let us look at the monkeys.",
+        "zh": "我们看看猴子吧。",
+        "blank": "Let us ___ at the monkeys.",
+        "answer": "look",
+        "wrong": [
+          "looks",
+          "looking"
+        ]
+      },
+      {
+        "text": "Is there a garden?",
+        "zh": "有花园吗？",
+        "blank": "___ there a garden?",
+        "answer": "Is",
+        "wrong": [
+          "Are",
+          "Am"
+        ]
+      }
+    ],
+    "dialogs": [
+      {
+        "prompt": "Are there any zebras?（有）",
+        "answer": "Yes, there are.",
+        "wrong": [
+          "Yes, there is.",
+          "Yes, they do."
+        ],
+        "hint": "复数 zebras 对应 there are。"
+      },
+      {
+        "prompt": "Is there a shop?（没有）",
+        "answer": "No, there is not.",
+        "wrong": [
+          "No, there are not.",
+          "No, I am not."
+        ],
+        "hint": "单数 a shop 对应 there is。"
+      },
+      {
+        "prompt": "Let's look at the elephants.",
+        "answer": "That's a good idea.",
+        "wrong": [
+          "It is my pencil.",
+          "I am seven."
+        ],
+        "hint": "可以用这句话赞同建议。"
+      }
+    ],
+    "knowledge": [
+      {
+        "prompt": "Which animal lives in cold Arctic places?",
+        "answer": "polar bear",
+        "wrong": [
+          "monkey",
+          "crocodile"
+        ],
+        "hint": "北极熊生活在北极地区。"
+      },
+      {
+        "prompt": "Where does a dolphin live?",
+        "answer": "in the sea",
+        "wrong": [
+          "in a cupboard",
+          "in a classroom"
+        ],
+        "hint": "海豚生活在水里。"
+      },
+      {
+        "prompt": "Which animal has no legs?",
+        "answer": "snake",
+        "wrong": [
+          "giraffe",
+          "tiger"
+        ],
+        "hint": "蛇没有腿。"
+      }
+    ],
+    "project": [
+      "画一张动物园地图，标上三个英文地点。",
+      "用 There is / There are 介绍地图。",
+      "为三种动物选择合适的栖息地。"
+    ],
+    "story": [
+      "Bella and Jenny take a bus to the park.",
+      "There are two zebras and a giraffe.",
+      "They look at the animals and draw a map."
+    ]
+  },
+  {
+    "title": "Let's play!",
+    "zh": "运动与音乐日",
+    "icon": "⚽",
+    "pages": "82–93",
+    "core": [
+      {
+        "word": "play tennis",
+        "zh": "打网球",
+        "icon": "🎾"
+      },
+      {
+        "word": "play football",
+        "zh": "踢足球",
+        "icon": "⚽"
+      },
+      {
+        "word": "ride a bike",
+        "zh": "骑自行车",
+        "icon": "🚲"
+      },
+      {
+        "word": "play the guitar",
+        "zh": "弹吉他",
+        "icon": "🎸"
+      },
+      {
+        "word": "play the piano",
+        "zh": "弹钢琴",
+        "icon": "🎹"
+      },
+      {
+        "word": "swim",
+        "zh": "游泳",
+        "icon": "🏊"
+      },
+      {
+        "word": "play basketball",
+        "zh": "打篮球",
+        "icon": "🏀"
+      },
+      {
+        "word": "watch television",
+        "zh": "看电视",
+        "icon": "📺"
+      }
+    ],
+    "extra": [
+      {
+        "word": "throw",
+        "zh": "扔",
+        "icon": "🤾"
+      },
+      {
+        "word": "catch",
+        "zh": "接住",
+        "icon": "👐"
+      },
+      {
+        "word": "badminton",
+        "zh": "羽毛球",
+        "icon": "🏸"
+      },
+      {
+        "word": "ride a skateboard",
+        "zh": "滑滑板",
+        "icon": "🛹"
+      },
+      {
+        "word": "hockey",
+        "zh": "曲棍球",
+        "icon": "🏑"
+      },
+      {
+        "word": "hit",
+        "zh": "击打",
+        "icon": "🏏"
+      },
+      {
+        "word": "run",
+        "zh": "跑步",
+        "icon": "🏃"
+      },
+      {
+        "word": "kick",
+        "zh": "踢",
+        "icon": "🦵"
+      }
+    ],
+    "grammar": [
+      {
+        "text": "I am swimming.",
+        "zh": "我正在游泳。",
+        "blank": "I ___ swimming.",
+        "answer": "am",
+        "wrong": [
+          "is",
+          "are"
+        ]
+      },
+      {
+        "text": "She is playing the piano.",
+        "zh": "她正在弹钢琴。",
+        "blank": "She ___ playing the piano.",
+        "answer": "is",
+        "wrong": [
+          "am",
+          "are"
+        ]
+      },
+      {
+        "text": "They are playing football.",
+        "zh": "他们正在踢足球。",
+        "blank": "They ___ playing football.",
+        "answer": "are",
+        "wrong": [
+          "is",
+          "am"
+        ]
+      },
+      {
+        "text": "He is riding a bike.",
+        "zh": "他正在骑自行车。",
+        "blank": "He is ___ a bike.",
+        "answer": "riding",
+        "wrong": [
+          "ride",
+          "rides"
+        ]
+      },
+      {
+        "text": "Can we play tennis?",
+        "zh": "我们可以打网球吗？",
+        "blank": "Can we ___ tennis?",
+        "answer": "play",
+        "wrong": [
+          "playing",
+          "plays"
+        ]
+      },
+      {
+        "text": "We are running.",
+        "zh": "我们正在跑步。",
+        "blank": "We are ___.",
+        "answer": "running",
+        "wrong": [
+          "run",
+          "runs"
+        ]
+      }
+    ],
+    "dialogs": [
+      {
+        "prompt": "What are you doing?（正在游泳）",
+        "answer": "I am swimming.",
+        "wrong": [
+          "I can swim.",
+          "I swim every day."
+        ],
+        "hint": "正在做，用 am + swimming。"
+      },
+      {
+        "prompt": "What is she doing?（正在弹吉他）",
+        "answer": "She is playing the guitar.",
+        "wrong": [
+          "She are playing the guitar.",
+          "She play the guitar."
+        ],
+        "hint": "she 对应 is。"
+      },
+      {
+        "prompt": "Can we play football here?（不允许）",
+        "answer": "No, you cannot.",
+        "wrong": [
+          "No, you are not.",
+          "No, it has not."
+        ],
+        "hint": "这里 can 用来征求许可。"
+      }
+    ],
+    "knowledge": [
+      {
+        "prompt": "Before a sports game, what can we do?",
+        "answer": "Warm up.",
+        "wrong": [
+          "Hide the ball.",
+          "Stop drinking water."
+        ],
+        "hint": "运动前先热身。"
+      },
+      {
+        "prompt": "What should we drink after exercise?",
+        "answer": "water",
+        "wrong": [
+          "sand",
+          "paint"
+        ],
+        "hint": "运动后适当补水。"
+      },
+      {
+        "prompt": "Which is a musical instrument?",
+        "answer": "guitar",
+        "wrong": [
+          "football",
+          "bike"
+        ],
+        "hint": "吉他属于乐器。"
+      }
+    ],
+    "project": [
+      "做动作让家人猜，再用 I am ... 描述。",
+      "和家人设计三个轻松的热身动作。",
+      "礼貌地询问 Can we play ...?。"
+    ],
+    "story": [
+      "Bella is playing the piano. Jim is playing the guitar.",
+      "Jenny is running in the park.",
+      "They drink water and get ready for a game."
+    ]
+  },
+  {
+    "title": "At home",
+    "zh": "家里的捉迷藏",
+    "icon": "🛋️",
+    "pages": "94–105",
+    "core": [
+      {
+        "word": "bed",
+        "zh": "床",
+        "icon": "🛏️"
+      },
+      {
+        "word": "radio",
+        "zh": "收音机",
+        "icon": "📻"
+      },
+      {
+        "word": "bedroom",
+        "zh": "卧室",
+        "icon": "🛏️"
+      },
+      {
+        "word": "bath",
+        "zh": "浴缸",
+        "icon": "🛁"
+      },
+      {
+        "word": "mirror",
+        "zh": "镜子",
+        "icon": "🪞"
+      },
+      {
+        "word": "bathroom",
+        "zh": "浴室",
+        "icon": "🚿"
+      },
+      {
+        "word": "kitchen",
+        "zh": "厨房",
+        "icon": "🍳"
+      },
+      {
+        "word": "dining room",
+        "zh": "餐厅",
+        "icon": "🍽️"
+      },
+      {
+        "word": "living room",
+        "zh": "客厅",
+        "icon": "🛋️"
+      }
+    ],
+    "extra": [
+      {
+        "word": "clock",
+        "zh": "时钟",
+        "icon": "🕒"
+      },
+      {
+        "word": "painting",
+        "zh": "画作",
+        "icon": "🖼️"
+      },
+      {
+        "word": "hall",
+        "zh": "门厅",
+        "icon": "🚪"
+      },
+      {
+        "word": "rug",
+        "zh": "小地毯",
+        "icon": "▰"
+      },
+      {
+        "word": "lamp",
+        "zh": "灯",
+        "icon": "💡"
+      },
+      {
+        "word": "phone",
+        "zh": "电话",
+        "icon": "☎️"
+      },
+      {
+        "word": "floor",
+        "zh": "地板",
+        "icon": "🟫"
+      },
+      {
+        "word": "sofa",
+        "zh": "沙发",
+        "icon": "🛋️"
+      },
+      {
+        "word": "armchair",
+        "zh": "扶手椅",
+        "icon": "🪑"
+      }
+    ],
+    "grammar": [
+      {
+        "text": "I can swim.",
+        "zh": "我会游泳。",
+        "blank": "I ___ swim.",
+        "answer": "can",
+        "wrong": [
+          "am",
+          "have"
+        ]
+      },
+      {
+        "text": "He cannot sing.",
+        "zh": "他不会唱歌。",
+        "blank": "He cannot ___.",
+        "answer": "sing",
+        "wrong": [
+          "sings",
+          "singing"
+        ]
+      },
+      {
+        "text": "The lamp is between the beds.",
+        "zh": "灯在两张床之间。",
+        "blank": "The lamp is ___ the beds.",
+        "answer": "between",
+        "wrong": [
+          "behind",
+          "in front of"
+        ]
+      },
+      {
+        "text": "The rug is in front of the sofa.",
+        "zh": "地毯在沙发前面。",
+        "blank": "The rug is ___ the sofa.",
+        "answer": "in front of",
+        "wrong": [
+          "between",
+          "in"
+        ]
+      },
+      {
+        "text": "The clock is behind the chair.",
+        "zh": "时钟在椅子后面。",
+        "blank": "The clock is ___ the chair.",
+        "answer": "behind",
+        "wrong": [
+          "on",
+          "in"
+        ]
+      },
+      {
+        "text": "Can you ride a bike?",
+        "zh": "你会骑自行车吗？",
+        "blank": "Can you ___ a bike?",
+        "answer": "ride",
+        "wrong": [
+          "riding",
+          "rides"
+        ]
+      }
+    ],
+    "dialogs": [
+      {
+        "prompt": "Can you sing?（会）",
+        "answer": "Yes, I can.",
+        "wrong": [
+          "Yes, I am.",
+          "Yes, I have."
+        ],
+        "hint": "问能力，用 can 回答。"
+      },
+      {
+        "prompt": "Can he swim?（不会）",
+        "answer": "No, he cannot.",
+        "wrong": [
+          "No, he is not.",
+          "No, he does not."
+        ],
+        "hint": "cannot 表示不会。"
+      },
+      {
+        "prompt": "Where is the lamp?（在两张床之间）",
+        "answer": "It is between the beds.",
+        "wrong": [
+          "It is under the bed.",
+          "It is on the sofa."
+        ],
+        "hint": "between 表示在两者之间。"
+      }
+    ],
+    "knowledge": [
+      {
+        "prompt": "Which home floats on water?",
+        "answer": "houseboat",
+        "wrong": [
+          "flat",
+          "hut"
+        ],
+        "hint": "houseboat 是水上船屋。"
+      },
+      {
+        "prompt": "Where do we usually cook?",
+        "answer": "kitchen",
+        "wrong": [
+          "bedroom",
+          "hall"
+        ],
+        "hint": "通常在厨房做饭。"
+      },
+      {
+        "prompt": "Where do we usually sleep?",
+        "answer": "bedroom",
+        "wrong": [
+          "kitchen",
+          "bathroom"
+        ],
+        "hint": "通常在卧室睡觉。"
+      }
+    ],
+    "project": [
+      "画自己家的一个房间并标注物品。",
+      "摆放三个玩具，练习 between / behind / in front of。",
+      "邀请家人听你介绍会做的三件事。"
+    ],
+    "story": [
+      "Bella invites Jenny to her home.",
+      "There is a rug in front of the sofa.",
+      "They can play a board game in the living room."
+    ]
+  },
+  {
+    "title": "Happy holidays",
+    "zh": "假日探索护照",
+    "icon": "🏖️",
+    "pages": "106–117",
+    "core": [
+      {
+        "word": "hat",
+        "zh": "帽子",
+        "icon": "👒"
+      },
+      {
+        "word": "trousers",
+        "zh": "长裤",
+        "icon": "👖"
+      },
+      {
+        "word": "sunglasses",
+        "zh": "太阳镜",
+        "icon": "🕶️"
+      },
+      {
+        "word": "dress",
+        "zh": "连衣裙",
+        "icon": "👗"
+      },
+      {
+        "word": "shirt",
+        "zh": "衬衫",
+        "icon": "👔"
+      },
+      {
+        "word": "shorts",
+        "zh": "短裤",
+        "icon": "🩳"
+      },
+      {
+        "word": "baseball cap",
+        "zh": "棒球帽",
+        "icon": "🧢"
+      },
+      {
+        "word": "T-shirt",
+        "zh": "T恤",
+        "icon": "👕"
+      },
+      {
+        "word": "boots",
+        "zh": "靴子",
+        "icon": "🥾"
+      },
+      {
+        "word": "jacket",
+        "zh": "夹克",
+        "icon": "🧥"
+      },
+      {
+        "word": "skirt",
+        "zh": "裙子",
+        "icon": "👗"
+      },
+      {
+        "word": "jeans",
+        "zh": "牛仔裤",
+        "icon": "👖"
+      },
+      {
+        "word": "shoes",
+        "zh": "鞋子",
+        "icon": "👟"
+      }
+    ],
+    "extra": [
+      {
+        "word": "sun",
+        "zh": "太阳",
+        "icon": "☀️"
+      },
+      {
+        "word": "jellyfish",
+        "zh": "水母",
+        "icon": "🪼"
+      },
+      {
+        "word": "fishing",
+        "zh": "钓鱼",
+        "icon": "🎣"
+      },
+      {
+        "word": "fish",
+        "zh": "鱼",
+        "icon": "🐟"
+      },
+      {
+        "word": "sea",
+        "zh": "海",
+        "icon": "🌊"
+      },
+      {
+        "word": "boat",
+        "zh": "小船",
+        "icon": "⛵"
+      },
+      {
+        "word": "beach",
+        "zh": "海滩",
+        "icon": "🏖️"
+      },
+      {
+        "word": "camera",
+        "zh": "相机",
+        "icon": "📷"
+      },
+      {
+        "word": "sand",
+        "zh": "沙子",
+        "icon": "🏝️"
+      },
+      {
+        "word": "shell",
+        "zh": "贝壳",
+        "icon": "🐚"
+      }
+    ],
+    "grammar": [
+      {
+        "text": "Look at this T-shirt.",
+        "zh": "看这件T恤。",
+        "blank": "Look ___ this T-shirt.",
+        "answer": "at",
+        "wrong": [
+          "in",
+          "under"
+        ]
+      },
+      {
+        "text": "Clean those shoes.",
+        "zh": "把那些鞋子清理干净。",
+        "blank": "Clean ___ shoes.",
+        "answer": "those",
+        "wrong": [
+          "that",
+          "a"
+        ]
+      },
+      {
+        "text": "I like flying my kite.",
+        "zh": "我喜欢放风筝。",
+        "blank": "I like ___ my kite.",
+        "answer": "flying",
+        "wrong": [
+          "fly",
+          "flies"
+        ]
+      },
+      {
+        "text": "I enjoy taking photos.",
+        "zh": "我喜欢拍照。",
+        "blank": "I enjoy ___ photos.",
+        "answer": "taking",
+        "wrong": [
+          "take",
+          "takes"
+        ]
+      },
+      {
+        "text": "Look at these shells.",
+        "zh": "看这些贝壳。",
+        "blank": "Look at ___ shells.",
+        "answer": "these",
+        "wrong": [
+          "this",
+          "a"
+        ]
+      },
+      {
+        "text": "I like swimming in the sea.",
+        "zh": "我喜欢在海里游泳。",
+        "blank": "I like ___ in the sea.",
+        "answer": "swimming",
+        "wrong": [
+          "swim",
+          "swims"
+        ]
+      }
+    ],
+    "dialogs": [
+      {
+        "prompt": "I like collecting shells.（你也喜欢）",
+        "answer": "So do I.",
+        "wrong": [
+          "So am I.",
+          "Yes, it is."
+        ],
+        "hint": "表达同样喜好可以说 So do I。"
+      },
+      {
+        "prompt": "I enjoy taking photos.（你也喜欢）",
+        "answer": "Me too.",
+        "wrong": [
+          "I am a photo.",
+          "It is a camera."
+        ],
+        "hint": "Me too 表示我也是。"
+      },
+      {
+        "prompt": "What do you like doing?（放风筝）",
+        "answer": "I like flying my kite.",
+        "wrong": [
+          "I like fly my kite.",
+          "I am a kite."
+        ],
+        "hint": "like 后接动作时可用 -ing。"
+      }
+    ],
+    "knowledge": [
+      {
+        "prompt": "Where can you usually find shells?",
+        "answer": "at the beach",
+        "wrong": [
+          "in a cupboard",
+          "on a keyboard"
+        ],
+        "hint": "海滩上常能看到贝壳。"
+      },
+      {
+        "prompt": "Where can you see lots of trees?",
+        "answer": "in a forest",
+        "wrong": [
+          "in a pencil case",
+          "in a bath"
+        ],
+        "hint": "森林里有很多树。"
+      },
+      {
+        "prompt": "Which place can have snow high up?",
+        "answer": "a mountain",
+        "wrong": [
+          "a sofa",
+          "a school bag"
+        ],
+        "hint": "高山上可能有积雪。"
+      }
+    ],
+    "project": [
+      "画一张旅行明信片，写一句英文。",
+      "用英语列出三件旅行要带的衣服。",
+      "向家人介绍两项喜欢的假日活动。"
+    ],
+    "story": [
+      "Bella takes a camera and a hat on holiday.",
+      "She likes collecting shells at the beach.",
+      "She writes a postcard and draws the sea."
+    ]
+  }
 ];
-let state;try{state=JSON.parse(localStorage.getItem('friendlyFarmV1')||'{}')}catch{state={}}state={name:'Bella',unit:1,done:{},mistakes:[],...state};if(!state.done||typeof state.done!=='object')state.done={};if(!Array.isArray(state.mistakes))state.mistakes=[];state.unit=Math.min(9,Math.max(0,Number(state.unit)||0));
-if(!state.bellaSetup){state.name='Bella';state.unit=1;state.bellaSetup=true;}
-const $=id=>document.getElementById(id),escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};let current=1,step=0,sessionStars=0,questions=[],reviewMode=false,answered=false,words=[],chosen=[],returnFocus=null;
-function persist(){try{localStorage.setItem('friendlyFarmV1',JSON.stringify(state))}catch{toast('当前浏览器无法保存进度，本次仍可以继续玩')}}
-function toast(t){$('toast').textContent=t;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',2500)}
+const storyQuiz=[
+[['What colour is Jenny\'s bag?','red',['blue','green'],'The bag is red.'],['How many books has Jenny got?','two',['three','five'],'Jenny has two books.']],
+[['What is Jenny looking for?','her pencil case',['her bike','her lunch'],'Jenny cannot find her pencil case.'],['Where is the pencil case?','next to the bag',['on the chair','in the cupboard'],'Bella finds it next to the bag.']],
+[['What is Bella making?','a family book',['a toy car','a cake'],'Bella makes a family book.'],['Who does Bella draw?','her mother and father',['two teachers','three monkeys'],'She draws her mother and her father.']],
+[['Which animal has a long tail in the story?','the horse',['the sheep','the duck'],'The horse has got a long tail.'],['How does the little cat feel?','sad',['angry','happy'],'The little cat looks sad.']],
+[['Where are Bella and Jim going?','on a picnic',['to a toy shop','to a classroom'],'They are getting ready for a picnic.'],['What does Jim want?','some bread',['a ruler','some juice'],'Jim wants some bread.']],
+[['What does Jenny want?','a kite',['a doll','a bike'],'Jenny wants a kite.'],['How many circles are on the card?','three',['two','four'],'Bella makes a card with three circles.']],
+[['How do Bella and Jenny go to the park?','by bus',['by boat','by train'],'They take a bus.'],['How many zebras are there?','two',['one','three'],'There are two zebras.']],
+[['What is Bella doing?','playing the piano',['running','playing football'],'Bella is playing the piano.'],['Where is Jenny running?','in the park',['in the kitchen','at the beach'],'Jenny is running in the park.']],
+[['Where is the rug?','in front of the sofa',['behind the bed','in the kitchen'],'There is a rug in front of the sofa.'],['What can they play?','a board game',['football in the kitchen','tennis in the bedroom'],'They can play a board game in the living room.']],
+[['What does Bella like collecting?','shells',['books','toys'],'She likes collecting shells.'],['What does Bella write?','a postcard',['a shopping list','a birthday card'],'She writes a postcard.']]
+];
+const projectExamples=[
+['My name is Bella. I am seven.','It is blue.','One, two, three, four, five.'],
+['This is a pencil.','Where is the pencil? It is under the book.','Let us help our friends.'],
+['This is my mother.','This is my nose.','I can touch it with my hands.'],
+['It is a small sheep.','There is a cow on my farm.','Has it got a long tail?'],
+['Do you like bananas?','I like bread and water.','Can I have some bread, please?'],
+['What do you want?','Happy birthday! This is a circle.','It is my kite.'],
+['There is a shop in the park.','There are two buses.','The monkeys are in the jungle.'],
+['I am playing the piano.','Let us stretch our arms.','Can we play tennis?'],
+['There is a bed in my bedroom.','The lamp is between the beds.','I can sing.'],
+['I am at the beach.','I have got a hat and a T-shirt.','I like swimming and taking photos.']
+];
+
+const $=id=>document.getElementById(id),escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+let state={};try{state=JSON.parse(localStorage.getItem('friendlyFarmV1')||'{}')||{}}catch{}
+state={name:'Bella',unit:1,done:{},mistakes:[],missions:{},reviewItems:[],...state};if(!state.missions||typeof state.missions!=='object')state.missions={};if(!Array.isArray(state.reviewItems))state.reviewItems=[];state.unit=Math.max(0,Math.min(9,Number(state.unit)||0));
+function persist(){try{localStorage.setItem('friendlyFarmV1',JSON.stringify(state))}catch{toast('当前浏览器无法保存进度，本次仍能继续玩')}}
+let toastTimer;function toast(t){$('toast').textContent=t;$('toast').style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.display='none',3000)}
 // Device voices vary; prefer known British female voices, then English fallbacks.
 let speechRequest=0,activeUtterance=null;
 function englishVoices(){return 'speechSynthesis' in window?speechSynthesis.getVoices().filter(v=>/^en(?:[-_]|$)/i.test(v.lang)):[]}
@@ -38,17 +2509,46 @@ $('speechrate').value=String(state.speechRate||.95);
 $('speechrate').onchange=()=>{state.speechRate=Number($('speechrate').value);persist()};
 $('voicetest').onclick=()=>speak(`Hello, ${state.name||'Bella'}! Welcome to our new school. It's a book. It's a pencil. Well done!`);
 updateVoiceOptions();
-
-function render(){let stars=Object.values(state.done).reduce((a,b)=>a+b,0);$('stars').textContent=stars;$('nickname').textContent=state.name||'Bella';$('nameinput').value=state.name;$('unitselect').innerHTML=units.map((u,i)=>`<option value="${i}">${i?'Unit '+i:'Hello'} · ${u[0]}</option>`).join('');$('unitselect').value=state.unit;$('map').innerHTML=units.map((u,i)=>`<button class="card ${i===state.unit?'first':''}" data-unit="${i}" aria-label="${i?'Unit '+i:'Hello'} ${u[1]}"><span class="icon" style="--tint:${['#f7ecd7','#e5eddb','#f4e3dc','#e7edda'][i%4]}">${u[2]}</span><span class="unit">${i?'UNIT 0'+i:'WELCOME'}</span><h3 lang="en">${u[0]}</h3><span class="zh-sub" lang="zh-CN">${u[1]}</span><div class="cardbottom"><span>${state.done[i]?'⭐'.repeat(state.done[i]):i===state.unit?'Start here · 从这里开始':'6 tasks · 约 5 分钟'}</span><b>↗</b></div></button>`).join('');document.querySelectorAll('[data-unit]').forEach(b=>b.onclick=()=>start(+b.dataset.unit));$('treasureText').textContent=`你已经走过 ${Object.keys(state.done).length} 个主题站，收集了 ${stars} 颗星星。每个主题最多获得 3 颗星，可反复练习。`;$('badges').innerHTML=Object.keys(state.done).length?Object.keys(state.done).map(i=>`<div class="badge" title="${units[i][1]}">${units[i][2]}<div class="muted">${units[i][1]}</div></div>`).join(''):'<p>完成第一关，领取你的第一枚主题徽章。</p>';$('reports').innerHTML=units.map((u,i)=>`<div class="report"><span>${i?'Unit '+i:'Hello'} · ${u[1]}</span><b>${state.done[i]?'⭐'.repeat(state.done[i]):'尚未完成'}</b></div>`).join('')+`<p>复习小口袋：${state.mistakes.length} 个待巩固词语</p>`}
-function view(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('show',v.id===id));document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.view===id));render()}
-document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>view(b.dataset.view));$('backmap').onclick=()=>view('home');$('save').onclick=()=>{state.name=$('nameinput').value.trim()||'小探险家';state.unit=+$('unitselect').value;persist();render();toast('保存好啦，新的冒险准备出发！')};$('start').onclick=()=>start(state.unit);$('review').onclick=()=>{if(!state.mistakes.length){toast('小口袋空空的！先完成一关吧');return}start(state.unit,true)};
-function start(i,review=false){returnFocus=document.activeElement;current=i;step=0;sessionStars=0;reviewMode=review;const vocab=review?state.mistakes.map(m=>units[m.unit][4].find(v=>v.split('|')[0]===m.word)).filter(Boolean):units[i][4];questions=shuffle(vocab).slice(0,4).map(v=>{const [word,emoji]=v.split('|');let origin=review?state.mistakes.find(m=>m.word===word).unit:i;return {word,emoji,origin}});$('overlay').classList.add('open');draw();$('close').focus()}
-function close(){stopSpeech();$('overlay').classList.remove('open');render();returnFocus?.focus()}$('close').onclick=close;document.addEventListener('keydown',e=>{if(!$('overlay').classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='Tab'){const a=[...$('overlay').querySelectorAll('button:not([disabled]),a,input,select')].filter(e=>e.offsetParent!==null);if(e.shiftKey&&document.activeElement===a[0]){e.preventDefault();a.at(-1).focus()}else if(!e.shiftKey&&document.activeElement===a.at(-1)){e.preventDefault();a[0].focus()}}});
-function draw(){answered=false;let u=units[current],n=questions.length+2;$('levelname').textContent=`${reviewMode?'复习小口袋':u[1]} · ${Math.min(step+1,n)}/${n}`;$('bar').style.width=(step/n*100)+'%';if(step<questions.length){const q=questions[step];const pool=units[q.origin][4].filter(v=>v.split('|')[0]!==q.word);const opts=shuffle([q.word+'|'+q.emoji,...shuffle(pool).slice(0,3)]);$('play').innerHTML=`<div class="eyebrow">听音找朋友 · ${escapeHTML(u[3])} 的小任务</div><h2 class="question" id="qtitle">听一听，找到它！</h2><button class="listen" id="listen">🔊 播放英语</button><details><summary class="muted">需要一点文字提示？</summary><p>${escapeHTML(q.word)}</p></details><div class="answers">${opts.map(v=>`<button class="answer" data-word="${escapeHTML(v.split('|')[0])}" aria-label="选择图片 ${v.split('|')[1]}"><span style="font-size:49px">${v.split('|')[1]}</span></button>`).join('')}</div><div class="feedback" id="feedback" aria-live="polite">点一下小喇叭，再选图片</div><button class="primary" id="next" hidden>下一步 ➜</button>`;$('listen').onclick=()=>speak(q.word);document.querySelectorAll('.answer').forEach(b=>b.onclick=()=>{if(answered)return;if(b.dataset.word===q.word){answered=true;b.classList.add('good');sessionStars++;state.mistakes=state.mistakes.filter(m=>!(m.word===q.word&&m.unit===q.origin));persist();$('feedback').textContent='找到了！'+q.word+' ✨';$('next').hidden=false;speak(q.word)}else{b.classList.add('bad');b.disabled=true;$('feedback').textContent='再听一次，你一定能找到 🌱';if(!state.mistakes.some(m=>m.word===q.word&&m.unit===q.origin)){state.mistakes.push({word:q.word,unit:q.origin});persist()}speak(q.word)}});$('next').onclick=next;
-}else if(step===questions.length){words=shuffle(u[5].split(' '));chosen=[];drawSentence()}else if(step===questions.length+1){$('play').innerHTML=`<div class="eyebrow">开口小任务 · SAY IT WITH ME</div><div class="bigemoji">${u[2]}</div><h2 class="question" id="qtitle">${u[7]}</h2><p style="font-size:24px;color:#285d4e">${u[6]}</p><button class="listen" id="listen">🔊 听示范</button><p>听一遍，跟着说，再试着自己说。<br>可以请爸爸妈妈做你的小听众。</p><button class="primary" id="said">我开口说啦！ ✨</button><p class="muted">自己确认的小挑战，不自动评分</p>`;$('listen').onclick=()=>speak(u[6]);$('said').onclick=next}else finish()}
-function drawSentence(){const u=units[current];$('play').innerHTML=`<div class="eyebrow">句子拼拼乐 · BUILD A SENTENCE</div><h2 class="question" id="qtitle">把词语排好队</h2><button class="listen" id="listen">🔊 听完整句子</button><p>${['我七岁了。','这是一本书。','她是我的妈妈。','它有长耳朵。','我喜欢苹果。','这是我的自行车。','有一辆公共汽车。','我正在游泳。','我会游泳。','我喜欢放风筝。'][current]}</p><div class="built">${chosen.map((v,i)=>`<button class="word" data-remove="${i}" aria-label="移回 ${escapeHTML(v)}">${escapeHTML(v)}</button>`).join('')}</div><div>${words.map((v,i)=>`<button class="word" data-add="${i}">${escapeHTML(v)}</button>`).join('')}</div><p class="muted">点下面的词加入句子，点上面的词可以退回。</p><div id="feedback" class="feedback" aria-live="polite"></div><button class="primary" id="check">检查一下 ✓</button><button class="primary" id="next" hidden>下一步 ➜</button>`;$('listen').onclick=()=>speak(u[6]);document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{chosen.push(words.splice(+b.dataset.add,1)[0]);drawSentence()});document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{words.push(chosen.splice(+b.dataset.remove,1)[0]);drawSentence()});$('check').onclick=()=>{if(chosen.join(' ')===u[5]){$('feedback').textContent='句子拼好啦！太棒了 🌟';$('check').hidden=true;$('next').hidden=false;document.querySelectorAll('.word').forEach(b=>b.disabled=true);speak(u[6])}else $('feedback').textContent='再听听完整句子，调整一下顺序吧。'};$('next').onclick=next}
-function next(){step++;draw()}
-function finish(){if(!reviewMode){state.done[current]=Math.max(state.done[current]||0,3);persist()}$('bar').style.width='100%';$('levelname').textContent='今天的小冒险完成啦';$('play').innerHTML=`<div class="bigemoji">🏆</div><h2 class="question" id="qtitle">You did it, ${escapeHTML(state.name)}!</h2><p style="font-size:35px">⭐ ⭐ ⭐</p><p>你完成了听音、拼句和开口挑战。<br>${reviewMode?'复习过的词语已经从小口袋移走啦。':'主题徽章 '+units[current][2]+' 已经放进你的宝藏盒。'}</p><button class="primary" id="finish">收好星星，休息一下 🌿</button><p class="muted">看看远处，和家人分享今天学会的一句话。</p>`;$('finish').onclick=close;render()}
+const missions=[
+['listenA','🎧','Word Hunt 1','核心词汇听辨','Listen to a word. Find its meaning.','先听单词，再选图片和中文意思。'],
+['listenB','🔎','Word Hunt 2','拓展词汇听辨','Discover more words.','把本单元第二组词语也找齐。'],
+['read','🧩','Word Match','认读配对','Read and match.','看英文，选择对应的中文意思。'],
+['spell','✏️','Word Builder','字母拼拼乐','Build the word.','看提示，点击字母拼出单词。'],
+['grammar','🌱','Grammar Garden','句型小花园','Choose the missing word.','根据情境，补全句子。'],
+['order','🚂','Sentence Train','句子小火车','Put the words in order.','听一听，把词语排成完整句子。'],
+['quest','🗺️','Story Quest','故事与知识挑战','Read, think and choose.','读原创小故事，完成对话与知识任务。'],
+['talk','🎤','Real-life Mission','开口与生活任务','Take English into your world.','离开屏幕，在生活中用一用；由家长确认。']
+];
+let current=state.unit,activeMode=null,questions=[],step=0,firstCorrect=0,missed=[],attempted=false,answered=false,returnFocus=null,selected=[],pool=[],sessionFinished=false;
+const allVocab=u=>[...u.core,...u.extra];
+function keyFor(i,mode){return i+':'+mode}
+function bind(selector,handler){document.querySelectorAll(selector).forEach(b=>b.onclick=()=>handler(b))}
+function render(){const scored=Object.entries(state.missions).filter(([k])=>!k.endsWith(':talk'));$('stars').textContent=scored.reduce((n,[,r])=>n+(r.stars||0),0);$('nickname').textContent=state.name||'Bella';$('nameinput').value=state.name;$('unitselect').innerHTML=curriculum.map((u,i)=>`<option value="${i}">${i?'Unit '+i:'Hello'} · ${escapeHTML(u.title)}</option>`).join('');$('unitselect').value=state.unit;
+$('map').innerHTML=curriculum.map((u,i)=>{const count=missions.filter(m=>state.missions[keyFor(i,m[0])]).length;return `<button class="card ${i===state.unit?'first':''}" data-unit="${i}"><span class="icon">${u.icon}</span><span class="unit">${i?'UNIT '+i:'WELCOME'}</span><h3 lang="en">${escapeHTML(u.title)}</h3><span class="zh-sub">${u.zh} · ${allVocab(u).length} 个词语</span><div class="cardbottom"><span>${count}/8 missions · ${count?'继续探索':'选择小任务'}</span><b>↗</b></div></button>`}).join('');bind('[data-unit]',b=>openUnit(+b.dataset.unit));
+const doneUnits=curriculum.filter((u,i)=>missions.every(m=>state.missions[keyFor(i,m[0])])).length;$('treasureText').textContent=`已完成 ${Object.keys(state.missions).length} 个任务，收集 ${$('stars').textContent} 颗挑战星。${doneUnits} 个单元获得全任务徽章。生活任务只记录确认完成，不评价发音。`;
+$('badges').innerHTML=curriculum.map((u,i)=>{const n=missions.filter(m=>state.missions[keyFor(i,m[0])]).length;return `<div class="badge ${n===8?'earned':''}">${u.icon}<div class="muted">${i?'Unit '+i:'Hello'} · ${n}/8</div></div>`}).join('');
+$('reports').innerHTML=curriculum.map((u,i)=>`<div class="report"><span>${i?'Unit '+i:'Hello'} · ${u.zh}</span><b>${missions.filter(m=>state.missions[keyFor(i,m[0])]).length}/8</b></div>`).join('')+`<p>复习小口袋：${state.reviewItems.length} 道待巩固题。${state.done&&Object.keys(state.done).length?'旧版通关记录已保留；新版任务重新记录。':''}</p>`;
+const u=curriculum[state.unit];$('dailyTitle').textContent=u.icon+' '+u.title;$('dailyZh').textContent='今天的冒险：'+u.zh+' · 选择一个小任务开始';$('dailyUnit').textContent=(state.unit?'Unit '+state.unit:'Hello')+' · 8 missions';}
+function view(id){stopSpeech();document.querySelectorAll('.view').forEach(v=>v.classList.toggle('show',v.id===id));document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.view===id));render()}
+bind('.nav',b=>view(b.dataset.view));$('backmap').onclick=()=>view('home');$('save').onclick=()=>{state.name=$('nameinput').value.trim()||'Bella';state.unit=+$('unitselect').value;persist();render();toast('Saved! 设置已保存')};$('start').onclick=()=>openUnit(state.unit);$('review').onclick=openReview;
+function openOverlay(){returnFocus=document.activeElement;$('overlay').classList.add('open');$('close').focus()}
+function close(){stopSpeech();$('overlay').classList.remove('open');render();returnFocus?.focus()}
+$('close').onclick=close;document.addEventListener('keydown',e=>{if(!$('overlay').classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='Tab'){const a=[...$('overlay').querySelectorAll('button:not([disabled]),a,input,select,summary')].filter(e=>e.offsetParent!==null);if(e.shiftKey&&document.activeElement===a[0]){e.preventDefault();a.at(-1).focus()}else if(!e.shiftKey&&document.activeElement===a.at(-1)){e.preventDefault();a[0].focus()}}});
+function openUnit(i){current=i;activeMode=null;stopSpeech();if(!$('overlay').classList.contains('open'))openOverlay();const u=curriculum[i];$('levelname').textContent=(i?'Unit '+i:'Hello')+' · '+u.title;$('bar').style.width='0%';$('play').innerHTML=`<div class="bigemoji">${u.icon}</div><h2 id="qtitle">Choose your mission!<span class="zh-sub">${u.zh} · 教材第 ${u.pages} 页</span></h2><p class="muted">每次选一个任务即可，约 3–8 分钟。两组听辨覆盖本单元的词语。</p><button class="secondary" id="wordbook">📚 My Word Book<span class="zh-sub">查看 ${allVocab(u).length} 个词语与句型</span></button><div class="missiongrid">${missions.map(m=>{const r=state.missions[keyFor(i,m[0])];return `<button class="mission" data-mission="${m[0]}"><span>${m[1]}</span><b>${m[2]}</b><small>${m[3]}</small><em>${r?(m[0]==='talk'?'✓ 家长已确认':'⭐'.repeat(r.stars)):'Start ➜'}</em></button>`}).join('')}</div><p class="muted">前两组：教材词汇；句型、对话和知识关：依据本单元目标改编；小故事与生活任务为原创。</p>`;bind('[data-mission]',b=>startMission(b.dataset.mission));$('wordbook').onclick=showWordbook;}
+function showWordbook(){stopSpeech();const u=curriculum[current];$('play').innerHTML=`<h2 id="qtitle">My Word Book<span class="zh-sub">点卡片听朗读 · ${u.zh}</span></h2><div class="wordgrid">${allVocab(u).map((v,i)=>`<button class="wordcard" data-vocab="${i}"><span>${v.icon}</span><b>${escapeHTML(v.word)}</b><small>${v.zh}</small></button>`).join('')}</div><h3>Sentence Bank <span class="zh-sub">本单元句型练习</span></h3>${u.grammar.map((g,i)=>`<button class="sentencecard" data-sentence="${i}">${escapeHTML(g.text)}<span class="zh-sub">${g.zh}</span></button>`).join('')}<button class="primary" id="missionsback">Back to Missions<span class="zh-sub">返回任务地图</span></button>`;bind('[data-vocab]',b=>speak(allVocab(u)[+b.dataset.vocab].word));bind('[data-sentence]',b=>speak(u.grammar[+b.dataset.sentence].text));$('missionsback').onclick=()=>openUnit(current);}
+function chooseOptions(answer,wrong){return shuffle([...new Set([answer,...wrong])])}
+function vocabQuestion(v,i,mode){const u=curriculum[i];let wrong=shuffle(allVocab(u).filter(x=>x.zh!==v.zh)).slice(0,3);return {type:'choice',id:i+':'+mode+':'+v.word,unit:i,title:mode==='read'?v.word:'Listen and find it!',zh:mode==='read'?'读英文，选择它的意思。':'先点小喇叭，再选对应意思。',audio:v.word,answer:v.zh,options:chooseOptions(v.zh,wrong.map(x=>x.zh)),visuals:Object.fromEntries([v,...wrong].map(x=>[x.zh,x.icon])),hint:v.word+' = '+v.zh,word:v.word,listen:mode!=='read'}}
+function questionBank(i,mode){const u=curriculum[i];if(mode==='listenA'||mode==='listenB')return shuffle(mode==='listenA'?u.core:u.extra).map(v=>vocabQuestion(v,i,mode));if(mode==='read')return shuffle(allVocab(u)).slice(0,10).map(v=>vocabQuestion(v,i,mode));if(mode==='spell')return shuffle(allVocab(u).filter(v=>v.word.replace(/[^a-z]/gi,'').length<=12)).slice(0,6).map(v=>({type:'spell',id:i+':spell:'+v.word,unit:i,title:'Build the word!',zh:v.zh,icon:v.icon,answer:v.word,audio:v.word,hint:v.word,word:v.word}));if(mode==='grammar')return shuffle(u.grammar).map((g,j)=>({type:'choice',id:i+':grammar:'+g.text,unit:i,title:g.blank,zh:g.zh,answer:g.answer,options:chooseOptions(g.answer,g.wrong),hint:g.text,audio:g.text}));if(mode==='order')return shuffle(u.grammar).slice(0,6).map(g=>({type:'order',id:i+':order:'+g.text,unit:i,title:'Build a sentence!',zh:g.zh,answer:g.text,audio:g.text,hint:g.text}));if(mode==='quest'){const storyQuestions=storyQuiz[i].map(([prompt,answer,wrong,hint])=>({prompt,answer,wrong,hint}));return shuffle([...u.dialogs.map((d,j)=>({...d,section:'Talk with a friend · 情境对话',qid:'dialog'+j})),...u.knowledge.map((d,j)=>({...d,section:'Discover the world · 知识任务',qid:'knowledge'+j})),...storyQuestions.map((d,j)=>({...d,section:'Read a little story · 原创故事',qid:'story'+j,story:u.story}))]).map(d=>({type:'choice',id:i+':quest:'+d.qid,unit:i,title:d.prompt,zh:d.section,answer:d.answer,options:chooseOptions(d.answer,d.wrong),hint:d.hint,audio:d.answer,story:d.story}));}if(mode==='talk')return u.project.map((p,j)=>({type:'talk',id:i+':talk:'+j,unit:i,title:'Your real-life mission',zh:p,audio:projectExamples[i][j],answer:projectExamples[i][j]}));return []}
+function startMission(mode){stopSpeech();activeMode=mode;questions=questionBank(current,mode);step=0;firstCorrect=0;missed=[];sessionFinished=false;drawQuestion()}
+function openReview(){if(!state.reviewItems.length){toast('复习口袋空空的，先去探索一个任务吧！');return}openOverlay();activeMode='review';questions=shuffle(state.reviewItems).slice(0,10);step=0;firstCorrect=0;missed=[];sessionFinished=false;drawQuestion()}
+function resetTokens(q){const tokens=q.type==='spell'?[...q.answer]:q.answer.split(' ');pool=shuffle(tokens.map((text,i)=>({text,id:i})));selected=[]}
+function baseShell(q){$('levelname').textContent=(activeMode==='review'?'Review':missions.find(m=>m[0]===activeMode)?.[2]||'Mission')+' · '+(step+1)+'/'+questions.length;$('bar').style.width=(step/questions.length*100)+'%';return `<button class="textbutton" id="missionhome">← Missions · 返回任务</button><div class="eyebrow">${escapeHTML(q.zh)}</div><h2 class="question" id="qtitle">${escapeHTML(q.title)}</h2>${q.story?`<div class="storybox">${q.story.map(s=>`<p lang="en">${escapeHTML(s)}</p>`).join('')}</div>`:''}`}
+function drawQuestion(){if(step>=questions.length){finishMission();return}stopSpeech();answered=false;attempted=false;const q=questions[step];let html=baseShell(q);if(q.type==='choice'){html+=`<button class="listen" id="listen">🔊 ${q.listen?'Play word · 听单词':'Listen · 听一听'}</button>${q.listen?`<details><summary>Hint · 文字提示</summary><p>${escapeHTML(q.word)}</p></details>`:''}<div class="answers">${q.options.map((o,i)=>`<button class="answer" data-choice="${i}">${q.visuals?`<span class="optionicon">${q.visuals[o]}</span>`:''}<span>${escapeHTML(o)}</span></button>`).join('')}</div>`;}else if(q.type==='talk'){html+=`<div class="bigemoji">🎤</div><p>可以用这句话开始，再替换成自己的内容：</p><p class="example">${escapeHTML(q.answer)}</p><button class="listen" id="listen">🔊 Hear an example · 听示范</button><p class="muted">真实任务请离开屏幕完成。参考句只是支架，不是唯一答案。无需上传照片或录音。</p><button class="primary" id="confirmtalk">Grown-up confirms ✓<span class="zh-sub">家长确认：已尝试表达或完成任务</span></button>`;}else{resetTokens(q);html+=`${q.icon?`<div class="bigemoji">${q.icon}</div>`:''}<button class="listen" id="listen">🔊 Listen · 听示范</button><div class="built" id="built"></div><div id="tokens"></div><button class="secondary" id="undo">Undo · 退回一步</button> <button class="secondary" id="resetwords">Reset · 重新排列</button><details id="tokenhint"><summary>Show a hint · 看提示</summary><p>${escapeHTML(q.answer)}</p></details><button class="primary" id="check">Check ✓<span class="zh-sub">检查答案</span></button>`;}
+html+='<div class="feedback" id="feedback" role="status" aria-live="polite"></div><button class="primary" id="next" hidden>Next ➜<span class="zh-sub">下一题</span></button>';$('play').innerHTML=html;$('missionhome').onclick=()=>openUnit(current);$('listen').onclick=()=>speak(q.audio);$('next').onclick=()=>{step++;drawQuestion()};if(q.type==='choice')bind('[data-choice]',b=>{if(answered)return;if(q.options[+b.dataset.choice]===q.answer){b.classList.add('good');success(q)}else{b.classList.add('bad');b.disabled=true;markMistake(q);$('feedback').textContent='Try again · '+(q.word?'再听一遍，或看看文字提示。':q.hint)}});else if(q.type==='talk')$('confirmtalk').onclick=()=>{step++;drawQuestion()};else{renderTokens(q);$('undo').onclick=()=>{if(answered)return;const x=selected.pop();if(x)pool.push(x);renderTokens(q)};$('resetwords').onclick=()=>{if(answered)return;pool.push(...selected);selected=[];renderTokens(q)};$('tokenhint').ontoggle=()=>{if($('tokenhint').open&&!answered)markMistake(q)};$('check').onclick=()=>{if(answered)return;const value=selected.map(t=>t.text).join(q.type==='spell'?'':' ');if(value===q.answer)success(q);else{markMistake(q);$('feedback').textContent='Try again · 再听听，或打开提示调整一下。'}};}const modal=$('play').closest('.modal');if(modal)modal.scrollTop=0;}
+function renderTokens(q){$('built').innerHTML=selected.length?selected.map((t,i)=>`<button class="word" data-remove="${i}" ${answered?'disabled':''}>${escapeHTML(t.text===' '?'␣':t.text)}</button>`).join(''):'<span class="muted">Tap the tiles · 点击下面的字块</span>';$('tokens').innerHTML=pool.map((t,i)=>`<button class="word" data-add="${i}" ${answered?'disabled':''} aria-label="${t.text===' '?'空格':escapeHTML(t.text)}">${escapeHTML(t.text===' '?'␣':t.text)}</button>`).join('');bind('[data-add]',b=>{if(answered)return;selected.push(pool.splice(+b.dataset.add,1)[0]);renderTokens(q)});bind('[data-remove]',b=>{if(answered)return;pool.push(selected.splice(+b.dataset.remove,1)[0]);renderTokens(q)});}
+function markMistake(q){attempted=true;if(!missed.some(x=>x.id===q.id))missed.push(q);if(!state.reviewItems.some(x=>x.id===q.id)){state.reviewItems.push(q);persist()}}
+function success(q){answered=true;if(!attempted){firstCorrect++;state.reviewItems=state.reviewItems.filter(x=>x.id!==q.id);persist()}$('feedback').textContent='Well done! · '+(q.word?q.word+' = '+(q.type==='spell'?q.zh:q.answer):q.hint);$('next').hidden=false;if($('check'))$('check').hidden=true;if(q.type==='spell'||q.type==='order')renderTokens(q);}
+function finishMission(){if(sessionFinished)return;sessionFinished=true;stopSpeech();const manual=activeMode==='talk',stars=manual?0:Math.max(1,Math.ceil(firstCorrect/questions.length*3));if(activeMode!=='review'){const k=keyFor(current,activeMode),prev=state.missions[k];state.missions[k]={stars:Math.max(prev?.stars||0,stars),date:new Date().toISOString(),firstCorrect,total:questions.length,manual};persist()}$('bar').style.width='100%';$('levelname').textContent='Mission complete';$('play').innerHTML=`<div class="bigemoji">${manual?'🌿':'🏆'}</div><h2 id="qtitle">Well done, ${escapeHTML(state.name)}!</h2><p class="example">${manual?'✓ Life mission recorded':'⭐'.repeat(stars)}</p><p>${manual?'已记录家长确认的生活任务，不代表自动评估口语。':`首答正确 ${firstCorrect}/${questions.length} 题；本次有 ${missed.length} 题需要再巩固。`}</p><p class="muted">${manual?'和家人聊聊今天最喜欢的部分。':'打开提示或重试过的题会保留在复习口袋；下次独立答对即可移走。'}</p><div class="endbuttons">${missed.length?'<button class="secondary" id="retry">Practise these · 再练错题</button>':''}<button class="primary" id="chooseagain">More Missions<span class="zh-sub">返回任务地图</span></button><button class="secondary" id="finishclose">Take a break · 休息一下</button></div>`;if($('retry'))$('retry').onclick=()=>{questions=shuffle(missed);activeMode='review';step=0;missed=[];firstCorrect=0;sessionFinished=false;drawQuestion()};$('chooseagain').onclick=()=>openUnit(current);$('finishclose').onclick=close;render();}
 render();
 
 </script></html>
