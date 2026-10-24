@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e3f1ed">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>单词乐园</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Fredoka:wght@500;600;700&display=swap">
+<style>
+/* Layout concept: a single-column play sheet. Chunky outlined tiles with hard offset shadows, like stickers.
+   Two games (flip-and-match, tap-to-clear) share one tile language and are switched with tabs. */
+:root {
+  --bg: #e3f1ed;
+  --surface: #ffffff;
+  --word-bg: #fff0b8;
+  --good-bg: #cdf0ea;
+  --ink: #17263c;
+  --ink-soft: #4b5c75;
+  --line: #17263c;
+  --shadow: #17263c;
+  --coral: #ff6a55;
+  --sun: #ffc83d;
+  --teal: #12a091;
+  --on-accent: #17263c;
+  --overlay: rgba(14, 22, 38, 0.55);
+  --font-display: 'Fredoka', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-word: 'Andika', 'Trebuchet MS', 'Comic Sans MS', system-ui, sans-serif;
+  --font-ui: system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1625; --surface: #1a2538; --word-bg: #3a3118; --good-bg: #12403b;
+    --ink: #eaf1ff; --ink-soft: #a9b9d3; --line: #8ea6cc; --shadow: #04070d;
+    --coral: #ff7e6a; --sun: #ffd25e; --teal: #35c6b6;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1625; --surface: #1a2538; --word-bg: #3a3118; --good-bg: #12403b;
+  --ink: #eaf1ff; --ink-soft: #a9b9d3; --line: #8ea6cc; --shadow: #04070d;
+  --coral: #ff7e6a; --sun: #ffd25e; --teal: #35c6b6;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 4px solid var(--teal); outline-offset: 3px; }
+
+.app {
+  max-width: 520px;
+  margin: 0 auto;
+  padding-block: 16px 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* shared chunky control look */
+.chunk {
+  border: 3px solid var(--line);
+  background: var(--surface);
+  box-shadow: 0 4px 0 var(--shadow);
+  transition: transform 0.08s, box-shadow 0.08s, background 0.15s;
+}
+.chunk:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--shadow); }
+
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.sticker {
+  font-family: var(--font-word); font-weight: 700; font-size: 14px; letter-spacing: 0.06em;
+  background: var(--sun); color: var(--on-accent);
+  border: 3px solid var(--line); border-radius: 10px; padding: 4px 8px;
+  transform: rotate(-6deg); box-shadow: 0 3px 0 var(--shadow); flex: none;
+}
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-height: 1.1; margin: 0; }
+.sub { margin: 2px 0 0; font-size: 13px; color: var(--ink-soft); }
+.icon-btn { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; flex: none; padding: 0; }
+.tools { display: flex; gap: 10px; flex: none; }
+.voice { display: grid; gap: 10px; margin-bottom: 18px; padding: 14px; border: 3px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: 0 4px 0 var(--shadow); }
+.voice label { font-family: var(--font-display); font-weight: 600; font-size: 17px; }
+.voice select { width: 100%; min-width: 0; font: inherit; font-size: 16px; color: var(--ink); background: var(--word-bg); border: 3px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.voice .btn { justify-self: start; }
+.voice-note { margin: 0; font-size: 13px; color: var(--ink-soft); }
+
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.tab { font-family: var(--font-display); font-weight: 600; font-size: 17px; padding: 11px 8px; border-radius: 14px; }
+.tab[aria-selected="true"] { background: var(--coral); color: var(--on-accent); }
+
+.controls { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-size: 15px; font-weight: 600; padding: 7px 14px; border-radius: 999px; }
+.chip[aria-pressed="true"] { background: var(--sun); color: var(--on-accent); }
+
+.stats { display: flex; gap: 8px; margin: 14px 0 10px; }
+.stat { flex: 1; min-width: 0; border: 3px solid var(--line); border-radius: 14px; background: var(--surface); padding: 5px 10px 6px; }
+.stat span { display: block; font-size: 12px; color: var(--ink-soft); line-height: 1.3; }
+.stat b { display: block; font-family: var(--font-display); font-weight: 600; font-size: 21px; line-height: 1.2; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tip { font-size: 14px; color: var(--ink-soft); margin: 0 0 14px; }
+
+.board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+
+/* memory cards */
+.card { position: relative; width: 100%; aspect-ratio: 1 / 1.12; padding: 0; border: 0; background: none; perspective: 700px; }
+.card-inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform 0.45s cubic-bezier(0.3, 0.7, 0.3, 1.1); }
+.card.flipped .card-inner, .card.matched .card-inner { transform: rotateY(180deg); }
+.face {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  border: 3px solid var(--line); border-radius: 16px; box-shadow: 0 4px 0 var(--shadow);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+.face.back {
+  background-color: var(--coral);
+  background-image:
+    radial-gradient(circle at 20% 24%, rgba(255, 255, 255, 0.4) 0 4px, transparent 5px),
+    radial-gradient(circle at 78% 72%, rgba(255, 255, 255, 0.4) 0 4px, transparent 5px);
+}
+.mark { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 9vw, 44px); color: var(--on-accent); }
+.face.front { transform: rotateY(180deg); background: var(--surface); }
+.face.front.kind-word { background: var(--word-bg); }
+.card.matched .face.front { background: var(--good-bg); border-color: var(--teal); }
+
+.emoji { font-size: clamp(30px, 9vw, 50px); line-height: 1; }
+.word { font-family: var(--font-word); font-weight: 700; font-size: clamp(13px, 3.7vw, 20px); padding: 0 4px; text-align: center; line-height: 1.2; }
+.word.long { font-size: clamp(10px, 2.7vw, 15px); }
+
+/* clear-game tiles */
+.tile {
+  width: 100%; aspect-ratio: 1 / 1; padding: 0; display: grid; place-items: center;
+  border: 3px solid var(--line); border-radius: 16px; background: var(--surface);
+  box-shadow: 0 4px 0 var(--shadow);
+  transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
+}
+.tile.kind-word { background: var(--word-bg); }
+.tile.sel { background: var(--sun); color: var(--on-accent); transform: translateY(-4px); box-shadow: 0 8px 0 var(--shadow); outline: 4px solid var(--teal); outline-offset: 2px; }
+.tile.wrong { background: var(--coral); color: var(--on-accent); animation: shake 0.35s; }
+.tile.hint { animation: pulse 0.6s ease-in-out 3; }
+.tile.gone { animation: pop 0.35s forwards; pointer-events: none; }
+
+@keyframes shake { 20% { transform: translateX(-7px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+@keyframes pulse { 50% { transform: scale(1.1); background: var(--sun); color: var(--on-accent); } }
+@keyframes pop { 40% { transform: scale(1.18); } 100% { transform: scale(0); opacity: 0; visibility: hidden; } }
+
+.foot { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.btn { font-family: var(--font-display); font-weight: 600; font-size: 17px; padding: 10px 18px; border-radius: 14px; }
+.btn.primary { background: var(--coral); color: var(--on-accent); }
+
+/* win dialog */
+.overlay {
+  position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; background: var(--overlay);
+  padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.modal {
+  width: min(100%, 420px); max-height: 100%; overflow: auto; min-width: 0;
+  background: var(--surface); border: 3px solid var(--line); border-radius: 24px;
+  box-shadow: 0 8px 0 var(--shadow); padding: 22px 20px 20px;
+}
+.modal h2 { font-family: var(--font-display); font-weight: 700; font-size: 26px; line-height: 1.2; margin: 0; text-wrap: balance; }
+.stars { display: flex; gap: 6px; margin: 10px 0 8px; }
+.star { width: 46px; height: 46px; fill: none; stroke: var(--ink-soft); stroke-width: 1.6; stroke-linejoin: round; }
+.star.on { fill: var(--sun); stroke: var(--line); stroke-width: 1.8; animation: starpop 0.5s both; animation-delay: calc(var(--i) * 0.18s); }
+@keyframes starpop { 0% { transform: scale(0) rotate(-40deg); } 70% { transform: scale(1.25) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
+.line { margin: 0; font-size: 16px; font-variant-numeric: tabular-nums; }
+.note { margin: 4px 0 0; font-weight: 700; color: var(--teal); }
+.learned-h { margin: 16px 0 0; font-size: 13px; color: var(--ink-soft); }
+.learned { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 18px; }
+.pill { font-family: var(--font-word); font-size: 14px; padding: 4px 10px; border: 2px solid var(--line); border-radius: 999px; background: var(--word-bg); }
+.pill small { font-family: var(--font-ui); font-size: 12px; color: var(--ink-soft); margin-left: 4px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 30; overflow: hidden; }
+.confetti i { position: absolute; top: -16px; width: 10px; height: 14px; border-radius: 2px; animation: fall linear forwards; }
+.confetti i:nth-child(4n+1) { background: var(--coral); }
+.confetti i:nth-child(4n+2) { background: var(--sun); }
+.confetti i:nth-child(4n+3) { background: var(--teal); }
+.confetti i:nth-child(4n) { background: var(--ink-soft); }
+@keyframes fall { to { transform: translate3d(var(--dx), 110vh, 0) rotate(var(--rot)); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+</style>
+</head>
+<body>
+
+<main class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="sticker" aria-hidden="true">KET</span>
+      <div>
+        <h1>单词乐园</h1>
+        <p class="sub">翻牌记忆 · 单词消消乐</p>
+      </div>
+    </div>
+    <div class="tools">
+    <button class="icon-btn chunk" id="voiceBtn" type="button" aria-expanded="false" aria-controls="voicePanel" aria-label="词库和朗读声音设置">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 5h14a2 2 0 012 2v8a2 2 0 01-2 2h-7l-4 3v-3H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>
+        <path d="M8 10h8M8 13h5"/>
+      </svg>
+    </button>
+    <button class="icon-btn chunk" id="soundBtn" type="button" aria-pressed="true" aria-label="声音开关">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor"/>
+        <path id="icoOn" d="M15.5 9a4 4 0 010 6M18 6.5a8 8 0 010 11"/>
+        <path id="icoOff" d="M16 9.5l5 5M21 9.5l-5 5" hidden/>
+      </svg>
+    </button>
+    </div>
+  </header>
+
+  <section class="voice" id="voicePanel" hidden aria-label="词库和朗读声音设置">
+    <label for="topicSel">词库主题</label>
+    <select id="topicSel"></select>
+    <label for="voiceSel">朗读声音</label>
+    <select id="voiceSel"></select>
+    <button class="btn chunk" type="button" id="voiceTest">试听 apple</button>
+    <p class="voice-note" id="voiceNote"></p>
+  </section>
+
+  <div class="tabs" role="tablist" aria-label="选择游戏">
+    <button class="tab chunk" role="tab" id="tabMem" type="button" aria-selected="true" aria-controls="panelMem">翻牌记忆</button>
+    <button class="tab chunk" role="tab" id="tabMt" type="button" aria-selected="false" aria-controls="panelMt">单词消消乐</button>
+  </div>
+
+  <section id="panelMem" role="tabpanel" aria-labelledby="tabMem">
+    <div class="controls" role="group" aria-label="难度">
+      <button class="chip chunk" type="button" data-diff="easy" aria-pressed="false">简单 · 4对</button>
+      <button class="chip chunk" type="button" data-diff="normal" aria-pressed="true">普通 · 6对</button>
+      <button class="chip chunk" type="button" data-diff="hard" aria-pressed="false">挑战 · 8对</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>步数</span><b id="memMoves">0</b></div>
+      <div class="stat"><span>用时</span><b id="memTime">00:00</b></div>
+      <div class="stat"><span>最佳</span><b id="memBest">—</b></div>
+    </div>
+    <p class="tip">每次翻开两张牌，图片和它的单词是一对。翻到的牌会读出发音。</p>
+    <div class="board" id="memBoard"></div>
+    <div class="foot">
+      <button class="btn chunk" type="button" id="memReset">重新洗牌</button>
+    </div>
+  </section>
+
+  <section id="panelMt" role="tabpanel" aria-labelledby="tabMt" hidden>
+    <div class="stats" style="margin-top:0">
+      <div class="stat"><span>关卡</span><b id="mtLevel">第1关</b></div>
+      <div class="stat"><span>得分</span><b id="mtScore">0</b></div>
+      <div class="stat"><span>连击</span><b id="mtCombo">—</b></div>
+      <div class="stat"><span>用时</span><b id="mtTime">00:00</b></div>
+    </div>
+    <p class="tip">先点一张图片，再点它的单词，配对成功就消掉。连续配对对分数加倍。</p>
+    <div class="board" id="mtBoard"></div>
+    <div class="foot">
+      <button class="btn chunk" type="button" id="mtHint">提示</button>
+      <button class="btn chunk" type="button" id="mtReset">重玩本关</button>
+    </div>
+  </section>
+</main>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="wTitle">
+    <h2 id="wTitle"></h2>
+    <div class="stars" id="wStars" role="img"></div>
+    <p class="line" id="wLine"></p>
+    <p class="note" id="wNote" hidden></p>
+    <p class="learned-h">这局学到的单词（点一下听发音）</p>
+    <div class="learned" id="wWords"></div>
+    <div class="actions">
+      <button class="btn chunk primary" type="button" id="wPrimary"></button>
+      <button class="btn chunk" type="button" id="wSecondary" hidden></button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var TOPICS = [
+    { k: 'food', n: '食物饮料', w: [
+      ['apple','🍎','苹果'],['banana','🍌','香蕉'],['grape','🍇','葡萄'],['orange','🍊','橙子'],['melon','🍈','甜瓜'],
+      ['peach','🍑','桃子'],['strawberry','🍓','草莓'],['cherry','🍒','樱桃'],['lemon','🍋','柠檬'],['pineapple','🍍','菠萝'],
+      ['coconut','🥥','椰子'],['milk','🥛','牛奶'],['bread','🍞','面包'],['egg','🥚','鸡蛋'],['cake','🍰','蛋糕'],
+      ['cheese','🧀','奶酪'],['sandwich','🥪','三明治'],['vegetable','🥦','蔬菜'],['pizza','🍕','披萨'],['hamburger','🍔','汉堡包'],
+      ['chicken','🍗','鸡肉'],['rice','🍚','米饭'],['noodles','🍜','面条'],['soup','🍲','汤'],['salad','🥗','沙拉'],
+      ['chocolate','🍫','巧克力'],['biscuit','🍪','饼干'],['tea','🍵','茶'],['coffee','☕','咖啡'],['juice','🧃','果汁'],
+      ['potato','🥔','土豆'],['tomato','🍅','西红柿'],['carrot','🥕','胡萝卜'],['onion','🧅','洋葱'],['mushroom','🍄','蘑菇'],
+      ['chips','🍟','薯条'],['popcorn','🍿','爆米花'],['meat','🥩','肉'],['pasta','🍝','意大利面'],['breakfast','🥞','早餐']
+    ] },
+    { k: 'animals', n: '动物', w: [
+      ['cat','🐱','猫'],['dog','🐶','狗'],['bird','🐦','鸟'],['fish','🐟','鱼'],['rabbit','🐰','兔子'],['tiger','🐯','老虎'],
+      ['duck','🦆','鸭子'],['pig','🐷','猪'],['cow','🐮','奶牛'],['elephant','🐘','大象'],['monkey','🐵','猴子'],['bear','🐻','熊'],
+      ['panda','🐼','熊猫'],['penguin','🐧','企鹅'],['lion','🦁','狮子'],['horse','🐴','马'],['frog','🐸','青蛙'],['bee','🐝','蜜蜂'],
+      ['sheep','🐑','绵羊'],['snake','🐍','蛇'],['spider','🕷️','蜘蛛'],['mouse','🐭','老鼠'],['shark','🦈','鲨鱼'],['giraffe','🦒','长颈鹿'],
+      ['zebra','🦓','斑马'],['crocodile','🐊','鳄鱼'],['parrot','🦜','鹦鹉'],['owl','🦉','猫头鹰'],['ant','🐜','蚂蚁'],
+      ['butterfly','🦋','蝴蝶'],['dolphin','🐬','海豚'],['kangaroo','🦘','袋鼠']
+    ] },
+    { k: 'clothes', n: '衣物配饰', w: [
+      ['hat','🎩','帽子'],['cap','🧢','鸭舌帽'],['shoe','👞','鞋'],['trainers','👟','运动鞋'],['boots','🥾','靴子'],['socks','🧦','袜子'],
+      ['shirt','👕','衬衫'],['dress','👗','连衣裙'],['jeans','👖','牛仔裤'],['shorts','🩳','短裤'],['jacket','🧥','夹克'],['scarf','🧣','围巾'],
+      ['gloves','🧤','手套'],['glasses','👓','眼镜'],['watch','⌚','手表'],['bag','👜','包'],['ring','💍','戒指'],['backpack','🎒','背包'],
+      ['umbrella','☂️','雨伞']
+    ] },
+    { k: 'home', n: '家居', w: [
+      ['bedroom','🛏️','卧室'],['bathroom','🛁','浴室'],['kitchen','🍳','厨房'],['sofa','🛋️','沙发'],['chair','🪑','椅子'],['door','🚪','门'],
+      ['toilet','🚽','厕所'],['shower','🚿','淋浴'],['house','🏠','房子'],['garden','🏡','花园'],['light','💡','灯'],['key','🔑','钥匙'],
+      ['clock','⏰','时钟']
+    ] },
+    { k: 'tech', n: '科技电器', w: [
+      ['television','📺','电视'],['radio','📻','收音机'],['computer','🖥️','电脑'],['laptop','💻','笔记本电脑'],['phone','📱','手机'],
+      ['camera','📷','相机'],['email','📧','电子邮件'],['website','🌐','网站'],['robot','🤖','机器人'],['headphones','🎧','耳机'],
+      ['battery','🔋','电池']
+    ] },
+    { k: 'school', n: '学校文件', w: [
+      ['school','🏫','学校'],['pen','🖊️','钢笔'],['pencil','✏️','铅笔'],['book','📖','书'],['ruler','📏','尺子'],['scissors','✂️','剪刀'],
+      ['homework','📝','作业'],['notebook','📓','笔记本'],['calendar','📅','日历'],['paper','📄','纸'],['library','📚','图书馆'],
+      ['letter','✉️','信'],['ticket','🎫','票'],['passport','🛂','护照'],['newspaper','📰','报纸'],['map','🗺️','地图']
+    ] },
+    { k: 'fun', n: '娱乐爱好', w: [
+      ['cinema','🎬','电影院'],['film','🎞️','电影'],['music','🎵','音乐'],['theatre','🎭','剧院'],['guitar','🎸','吉他'],['piano','🎹','钢琴'],
+      ['drum','🥁','鼓'],['game','🎮','游戏'],['painting','🎨','绘画'],['party','🎉','聚会'],['puzzle','🧩','拼图'],['picture','🖼️','图片'],
+      ['photograph','📸','照片'],['camping','⛺','露营'],['cycling','🚴','骑行'],['fishing','🎣','钓鱼'],['dancing','💃','跳舞']
+    ] },
+    { k: 'sport', n: '运动', w: [
+      ['football','⚽','足球'],['basketball','🏀','篮球'],['tennis','🎾','网球'],['volleyball','🏐','排球'],['baseball','⚾','棒球'],
+      ['rugby','🏉','橄榄球'],['badminton','🏸','羽毛球'],['swimming','🏊','游泳'],['running','🏃','跑步'],['skiing','🎿','滑雪'],
+      ['golf','⛳','高尔夫'],['skating','⛸️','滑冰']
+    ] },
+    { k: 'people', n: '人物职业', w: [
+      ['baby','👶','婴儿'],['boy','👦','男孩'],['girl','👧','女孩'],['man','👨','男人'],['woman','👩','女人'],['grandma','👵','奶奶'],
+      ['grandpa','👴','爷爷'],['teacher','👩‍🏫','老师'],['farmer','👨‍🌾','农民'],['cook','👨‍🍳','厨师'],['pilot','👨‍✈️','飞行员'],
+      ['artist','👨‍🎨','艺术家'],['singer','🎤','歌手'],['police','👮','警察'],['doctor','👩‍⚕️','医生']
+    ] },
+    { k: 'health', n: '健康感受', w: [
+      ['hospital','🏥','医院'],['medicine','💊','药'],['ambulance','🚑','救护车'],['dentist','🦷','牙医'],['headache','🤕','头痛'],
+      ['ill','🤒','生病的'],['angry','😠','生气的'],['happy','😀','开心的'],['sad','😢','难过的'],['tired','😴','累的'],
+      ['afraid','😨','害怕的'],['worried','😟','担心的'],['bored','🥱','无聊的'],['excited','🤩','兴奋的'],['surprised','😮','惊讶的'],
+      ['hot','🥵','热的'],['cold','🥶','冷的']
+    ] },
+    { k: 'town', n: '城镇地点', w: [
+      ['bank','🏦','银行'],['hotel','🏨','酒店'],['castle','🏰','城堡'],['church','⛪','教堂'],['museum','🏛️','博物馆'],
+      ['factory','🏭','工厂'],['shop','🏪','商店'],['restaurant','🍽️','餐厅'],['bridge','🌉','桥'],['road','🛣️','马路'],
+      ['station','🚉','车站']
+    ] },
+    { k: 'nature', n: '自然天气', w: [
+      ['forest','🌲','森林'],['island','🏝️','岛'],['mountain','⛰️','山'],['river','🏞️','河'],['beach','🏖️','海滩'],['sea','🌊','大海'],
+      ['flower','🌸','花'],['tree','🌳','树'],['leaf','🍃','叶子'],['fire','🔥','火'],['world','🌍','世界'],['sun','☀️','太阳'],
+      ['moon','🌙','月亮'],['star','⭐','星星'],['rain','🌧️','雨'],['cloudy','☁️','多云的'],['sunny','🌤️','晴朗的'],
+      ['windy','💨','有风的'],['snow','❄️','雪'],['storm','⛈️','暴风雨'],['ice','🧊','冰']
+    ] },
+    { k: 'travel', n: '交通出行', w: [
+      ['car','🚗','汽车'],['bus','🚌','公交车'],['bike','🚲','自行车'],['taxi','🚕','出租车'],['train','🚆','火车'],['boat','⛵','小船'],
+      ['ship','🚢','轮船'],['plane','✈️','飞机'],['airport','🛫','机场'],['motorbike','🏍️','摩托车'],['truck','🚚','卡车'],
+      ['suitcase','🧳','行李箱']
+    ] },
+    { k: 'colour', n: '颜色购物', w: [
+      ['red','🔴','红色'],['blue','🔵','蓝色'],['green','🟢','绿色'],['yellow','🟡','黄色'],['purple','🟣','紫色'],['black','⚫','黑色'],
+      ['white','⚪','白色'],['brown','🟤','棕色'],['money','💰','钱'],['price','🏷️','价格'],['shopping','🛍️','购物'],['present','🎁','礼物']
+    ] }
+  ];
+  var WORDS = [];
+  TOPICS.forEach(function (t) { t.w.forEach(function (x) { WORDS.push({ w: x[0], e: x[1], zh: x[2], t: t.k }); }); });
+  var STAR_PATH = 'M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z';
+
+  function $(s) { return document.querySelector(s); }
+  function $$(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var store = {
+    get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+  var state = { tab: 'mem', sound: store.get('wg.sound') !== '0', topic: store.get('wg.topic') || '' };
+  if (!TOPICS.some(function (t) { return t.k === state.topic; })) state.topic = '';
+
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function pool() {
+    return state.topic ? WORDS.filter(function (x) { return x.t === state.topic; }) : WORDS;
+  }
+  function pick(n) { return shuffle(pool()).slice(0, n); }
+  function wordCls(w) { return 'word' + (w.length > 8 ? ' long' : ''); }
+  function fmt(s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
+
+  /* ---------- sound ---------- */
+  var ac = null;
+  function tone(freq, dur, type, vol, when) {
+    if (!state.sound) return;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state === 'suspended') ac.resume();
+      var o = ac.createOscillator(), g = ac.createGain();
+      var t = ac.currentTime + (when || 0);
+      o.type = type || 'sine';
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol || 0.12, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(ac.destination);
+      o.start(t); o.stop(t + dur + 0.02);
+    } catch (e) {}
+  }
+  var sfx = {
+    flip: function () { tone(520, 0.08, 'triangle', 0.1); },
+    match: function () { tone(660, 0.12, 'sine', 0.12); tone(880, 0.18, 'sine', 0.12, 0.1); },
+    wrong: function () { tone(190, 0.22, 'sawtooth', 0.05); },
+    win: function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.22, 'triangle', 0.12, i * 0.12); }); }
+  };
+  var voice = { list: [], uri: store.get('wg.voice') || '', built: -1 };
+  function refreshVoices() {
+    try { voice.list = window.speechSynthesis ? window.speechSynthesis.getVoices() : []; } catch (e) { voice.list = []; }
+  }
+  function findVoice() {
+    if (!voice.uri) return null;
+    return voice.list.filter(function (x) { return x.voiceURI === voice.uri; })[0] || null;
+  }
+  function autoVoice() {
+    var vs = voice.list;
+    return vs.filter(function (x) { return /^en[-_]US/i.test(x.lang); })[0] ||
+      vs.filter(function (x) { return /^en/i.test(x.lang); })[0] || null;
+  }
+  function speak(word, force) {
+    if (!state.sound && !force) return;
+    try {
+      var s = window.speechSynthesis;
+      if (!s) return;
+      if (!voice.list.length) refreshVoices();
+      s.cancel();
+      var u = new SpeechSynthesisUtterance(word);
+      var v = findVoice() || autoVoice();
+      u.lang = v ? v.lang : 'en-US';
+      u.rate = 0.8;
+      if (v) u.voice = v;
+      s.speak(u);
+    } catch (e) {}
+  }
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function fillVoices(force) {
+    refreshVoices();
+    if (!force && voice.built === voice.list.length) return;
+    voice.built = voice.list.length;
+    var sel = $('#voiceSel'), note = $('#voiceNote');
+    var en = voice.list.filter(function (x) { return /^en/i.test(x.lang); });
+    var other = voice.list.filter(function (x) { return !/^en/i.test(x.lang); });
+    function opt(v) { return '<option value="' + esc(v.voiceURI) + '">' + esc(v.name) + '（' + esc(v.lang) + '）</option>'; }
+    sel.innerHTML = '<option value="">自动选择英语声音</option>' +
+      (en.length ? '<optgroup label="英语声音">' + en.map(opt).join('') + '</optgroup>' : '') +
+      (other.length ? '<optgroup label="其他语言">' + other.map(opt).join('') + '</optgroup>' : '');
+    sel.value = findVoice() ? voice.uri : '';
+    if (!window.speechSynthesis) {
+      note.textContent = '这个浏览器不支持朗读。可以换成手机自带的浏览器或 Chrome 试试。';
+    } else if (!voice.list.length) {
+      note.textContent = '暂时没有找到设备自带的声音。有的设备要等几秒才加载，可以稍后再点开这里；也可以去系统设置里下载英语语音。';
+    } else if (!en.length) {
+      note.textContent = '没有找到英语声音，只能用其他语言的声音读，会不太标准。可以去系统设置里下载英语语音。';
+    } else {
+      note.textContent = '选好后会自动试读一次，选择会记住。右上角的喇叭关闭时，点牌不会读单词。';
+    }
+  }
+
+  /* ---------- timer ---------- */
+  function makeTimer(el) {
+    var acc = 0, t0 = 0, id = 0;
+    function sec() { return Math.floor((acc + (t0 ? Date.now() - t0 : 0)) / 1000); }
+    function draw() { el.textContent = fmt(sec()); }
+    return {
+      start: function () { if (id || t0) return; t0 = Date.now(); id = setInterval(draw, 500); },
+      pause: function () { if (!t0) return; acc += Date.now() - t0; t0 = 0; clearInterval(id); id = 0; draw(); },
+      stop: function () { this.pause(); return sec(); },
+      reset: function () { clearInterval(id); id = 0; t0 = 0; acc = 0; draw(); }
+    };
+  }
+
+  /* ---------- win dialog ---------- */
+  function confetti() {
+    if (reduce) return;
+    var box = document.createElement('div');
+    box.className = 'confetti';
+    for (var i = 0; i < 36; i++) {
+      var p = document.createElement('i');
+      p.style.left = (Math.random() * 100) + '%';
+      p.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
+      p.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+      p.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
+      p.style.animationDelay = (Math.random() * 0.4) + 's';
+      box.appendChild(p);
+    }
+    document.body.appendChild(box);
+    setTimeout(function () { box.remove(); }, 3600);
+  }
+  function hideWin() { $('#overlay').hidden = true; }
+  function showWin(o) {
+    $('#wTitle').textContent = o.title;
+    $('#wLine').textContent = o.line;
+    var n = $('#wNote');
+    n.hidden = !o.note;
+    n.textContent = o.note || '';
+    var st = $('#wStars');
+    st.setAttribute('aria-label', o.stars + ' 颗星');
+    st.innerHTML = [0, 1, 2].map(function (i) {
+      return '<svg class="star' + (i < o.stars ? ' on' : '') + '" style="--i:' + i + '" viewBox="0 0 24 24" aria-hidden="true"><path d="' + STAR_PATH + '"/></svg>';
+    }).join('');
+    var w = $('#wWords');
+    w.textContent = '';
+    o.words.forEach(function (p) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'pill';
+      b.innerHTML = p.w + ' <small>' + p.zh + '</small>';
+      b.addEventListener('click', function () { speak(p.w); });
+      w.appendChild(b);
+    });
+    var p1 = $('#wPrimary'), p2 = $('#wSecondary');
+    p1.textContent = o.primary.label;
+    p1.onclick = function () { hideWin(); o.primary.fn(); };
+    if (o.secondary) {
+      p2.hidden = false;
+      p2.textContent = o.secondary.label;
+      p2.onclick = function () { hideWin(); o.secondary.fn(); };
+    } else {
+      p2.hidden = true;
+    }
+    $('#overlay').hidden = false;
+    sfx.win();
+    confetti();
+    setTimeout(function () { p1.focus(); }, 60);
+  }
+
+  /* ---------- game 1: memory flip ---------- */
+  var DIFF = { easy: 4, normal: 6, hard: 8 };
+  var NEXT_DIFF = { easy: 'normal', normal: 'hard' };
+  var mem = { diff: 'normal', cards: [], first: null, lock: false, moves: 0, matched: 0, picks: [], over: false, began: false, timer: null };
+
+  function updMem() {
+    $('#memMoves').textContent = mem.moves;
+    var b = store.get('wg.mem.best.' + DIFF[mem.diff]);
+    $('#memBest').textContent = b ? b + ' 步' : '—';
+  }
+  function setDiff(d) {
+    mem.diff = d;
+    $$('[data-diff]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.diff === d ? 'true' : 'false'); });
+    memNew();
+  }
+  function memNew() {
+    mem.timer.reset();
+    mem.first = null; mem.lock = false; mem.moves = 0; mem.matched = 0; mem.over = false; mem.began = false;
+    mem.picks = pick(DIFF[mem.diff]);
+    mem.cards = shuffle(mem.picks.reduce(function (a, p, i) {
+      a.push({ id: i, kind: 'pic', p: p }, { id: i, kind: 'word', p: p });
+      return a;
+    }, []));
+    var board = $('#memBoard');
+    board.textContent = '';
+    mem.cards.forEach(function (c, i) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'card';
+      btn.dataset.i = i;
+      btn.setAttribute('aria-label', '未翻开的牌');
+      btn.innerHTML =
+        '<span class="card-inner">' +
+        '<span class="face back" aria-hidden="true"><span class="mark">?</span></span>' +
+        '<span class="face front kind-' + c.kind + '">' +
+        (c.kind === 'pic' ? '<span class="emoji" aria-hidden="true">' + c.p.e + '</span>' : '<span class="' + wordCls(c.p.w) + '">' + c.p.w + '</span>') +
+        '</span></span>';
+      c.el = btn;
+      board.appendChild(btn);
+    });
+    updMem();
+  }
+  function memFlip(i) {
+    var c = mem.cards[i];
+    if (!c || mem.lock || mem.over) return;
+    if (c.el.classList.contains('flipped') || c.el.classList.contains('matched')) return;
+    mem.began = true;
+    mem.timer.start();
+    sfx.flip();
+    speak(c.p.w);
+    c.el.classList.add('flipped');
+    c.el.setAttribute('aria-label', c.kind === 'pic' ? '图片：' + c.p.w : c.p.w);
+    if (!mem.first) { mem.first = c; return; }
+    var a = mem.first;
+    mem.first = null;
+    mem.moves++;
+    updMem();
+    mem.lock = true;
+    if (a.id === c.id) {
+      setTimeout(function () {
+        a.el.classList.add('matched');
+        c.el.classList.add('matched');
+        sfx.match();
+        mem.matched++;
+        mem.lock = false;
+        if (mem.matched === mem.picks.length) memWin();
+      }, reduce ? 0 : 450);
+    } else {
+      setTimeout(function () {
+        [a, c].forEach(function (x) {
+          x.el.classList.remove('flipped');
+          x.el.setAttribute('aria-label', '未翻开的牌');
+        });
+        mem.lock = false;
+      }, 900);
+    }
+  }
+  function memWin() {
+    mem.over = true;
+    var sec = mem.timer.stop();
+    var n = mem.picks.length;
+    var stars = mem.moves <= n + 2 ? 3 : (mem.moves <= n * 2 ? 2 : 1);
+    var key = 'wg.mem.best.' + n;
+    var prev = parseInt(store.get(key) || '0', 10);
+    var note = '';
+    if (!prev) {
+      store.set(key, String(mem.moves));
+    } else if (mem.moves < prev) {
+      store.set(key, String(mem.moves));
+      note = '新纪录！比上次最好成绩少了 ' + (prev - mem.moves) + ' 步';
+    }
+    updMem();
+    var next = NEXT_DIFF[mem.diff];
+    showWin({
+      title: '全部配对成功！',
+      stars: stars,
+      line: '用了 ' + mem.moves + ' 步，' + sec + ' 秒',
+      note: note,
+      words: mem.picks,
+      primary: { label: '再玩一次', fn: memNew },
+      secondary: next ? { label: '更难一级', fn: function () { setDiff(next); } } : null
+    });
+  }
+
+  /* ---------- game 2: tap-to-clear ---------- */
+  var LV = [6, 8, 10];
+  var mt = { level: 1, base: 0, score: 0, combo: 0, mistakes: 0, left: 0, tiles: [], picks: [], sel: null, busy: false, over: false, began: false, timer: null };
+
+  function updMt() {
+    $('#mtLevel').textContent = '第' + mt.level + '关';
+    $('#mtScore').textContent = mt.score;
+    $('#mtCombo').textContent = mt.combo > 1 ? '×' + mt.combo : '—';
+  }
+  function mtNew() {
+    mt.timer.reset();
+    mt.over = false; mt.busy = false; mt.sel = null; mt.combo = 0; mt.mistakes = 0; mt.began = false;
+    mt.score = mt.base;
+    var n = LV[Math.min(mt.level, LV.length) - 1];
+    mt.picks = pick(n);
+    mt.left = mt.picks.length;
+    mt.tiles = shuffle(mt.picks.reduce(function (a, p, i) {
+      a.push({ id: i, kind: 'pic', p: p, gone: false }, { id: i, kind: 'word', p: p, gone: false });
+      return a;
+    }, []));
+    var board = $('#mtBoard');
+    board.textContent = '';
+    mt.tiles.forEach(function (t, i) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tile kind-' + t.kind;
+      btn.dataset.i = i;
+      btn.setAttribute('aria-label', t.p.w);
+      btn.innerHTML = t.kind === 'pic'
+        ? '<span class="emoji" aria-hidden="true">' + t.p.e + '</span>'
+        : '<span class="' + wordCls(t.p.w) + '">' + t.p.w + '</span>';
+      t.el = btn;
+      board.appendChild(btn);
+    });
+    updMt();
+  }
+  function clearHints() { $$('.tile.hint').forEach(function (e) { e.classList.remove('hint'); }); }
+  function mtTap(i) {
+    var t = mt.tiles[i];
+    if (!t || mt.over || mt.busy || t.gone) return;
+    mt.began = true;
+    mt.timer.start();
+    clearHints();
+    speak(t.p.w);
+    if (mt.sel === null) {
+      mt.sel = i; t.el.classList.add('sel'); sfx.flip();
+      return;
+    }
+    if (mt.sel === i) {
+      t.el.classList.remove('sel'); mt.sel = null;
+      return;
+    }
+    var a = mt.tiles[mt.sel];
+    if (a.kind === t.kind) {
+      a.el.classList.remove('sel');
+      mt.sel = i; t.el.classList.add('sel'); sfx.flip();
+      return;
+    }
+    if (a.id === t.id) {
+      mt.sel = null;
+      mt.combo++;
+      mt.score += 10 * Math.min(mt.combo, 5);
+      sfx.match();
+      [a, t].forEach(function (x) {
+        x.gone = true;
+        x.el.classList.remove('sel');
+        x.el.classList.add('gone');
+        x.el.disabled = true;
+      });
+      mt.left--;
+      updMt();
+      if (mt.left === 0) setTimeout(mtWin, reduce ? 0 : 450);
+    } else {
+      mt.mistakes++;
+      mt.combo = 0;
+      mt.sel = null;
+      mt.busy = true;
+      sfx.wrong();
+      a.el.classList.remove('sel');
+      [a, t].forEach(function (x) { x.el.classList.add('wrong'); });
+      updMt();
+      setTimeout(function () {
+        [a, t].forEach(function (x) { x.el.classList.remove('wrong'); });
+        mt.busy = false;
+      }, reduce ? 0 : 380);
+    }
+  }
+  function mtHint() {
+    if (mt.over) return;
+    var rem = mt.tiles.filter(function (t) { return !t.gone; });
+    if (!rem.length) return;
+    $$('.tile.sel').forEach(function (e) { e.classList.remove('sel'); });
+    mt.sel = null;
+    clearHints();
+    var id = rem[Math.floor(Math.random() * rem.length)].id;
+    rem.filter(function (t) { return t.id === id; }).forEach(function (t) { t.el.classList.add('hint'); });
+    mt.combo = 0;
+    updMt();
+    setTimeout(clearHints, 1900);
+  }
+  function mtWin() {
+    mt.over = true;
+    var sec = mt.timer.stop();
+    var stars = mt.mistakes <= 1 ? 3 : (mt.mistakes <= 4 ? 2 : 1);
+    var lvl = mt.level;
+    showWin({
+      title: '第' + lvl + '关 通关！',
+      stars: stars,
+      line: '得分 ' + mt.score + ' · 失误 ' + mt.mistakes + ' 次 · 用时 ' + fmt(sec),
+      note: '',
+      words: mt.picks,
+      primary: { label: '下一关', fn: function () { mt.level++; mt.base = mt.score; mtNew(); } },
+      secondary: { label: '再玩本关', fn: mtNew }
+    });
+  }
+
+  /* ---------- tabs, sound, boot ---------- */
+  function setTab(t) {
+    var prev = state.tab;
+    state.tab = t;
+    var isMem = t === 'mem';
+    $('#tabMem').setAttribute('aria-selected', isMem ? 'true' : 'false');
+    $('#tabMt').setAttribute('aria-selected', isMem ? 'false' : 'true');
+    $('#panelMem').hidden = !isMem;
+    $('#panelMt').hidden = isMem;
+    if (prev !== t) {
+      (prev === 'mem' ? mem : mt).timer.pause();
+      var cur = isMem ? mem : mt;
+      if (cur.began && !cur.over) cur.timer.start();
+    }
+  }
+  function drawSound() {
+    $('#soundBtn').setAttribute('aria-pressed', state.sound ? 'true' : 'false');
+    $('#icoOn').hidden = !state.sound;
+    $('#icoOff').hidden = state.sound;
+  }
+
+  function start(d) {
+    mem.timer = makeTimer($('#memTime'));
+    mt.timer = makeTimer($('#mtTime'));
+    if (d && DIFF[d.diff]) mem.diff = d.diff;
+    $$('[data-diff]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.diff === mem.diff ? 'true' : 'false'); });
+
+    $('#memBoard').addEventListener('click', function (e) {
+      var b = e.target.closest('.card');
+      if (b) memFlip(+b.dataset.i);
+    });
+    $('#mtBoard').addEventListener('click', function (e) {
+      var b = e.target.closest('.tile');
+      if (b) mtTap(+b.dataset.i);
+    });
+    $$('[data-diff]').forEach(function (b) { b.addEventListener('click', function () { setDiff(b.dataset.diff); }); });
+    $('#memReset').addEventListener('click', memNew);
+    $('#mtReset').addEventListener('click', mtNew);
+    $('#mtHint').addEventListener('click', mtHint);
+    $('#tabMem').addEventListener('click', function () { setTab('mem'); });
+    $('#tabMt').addEventListener('click', function () { setTab('mt'); });
+    $('#soundBtn').addEventListener('click', function () {
+      state.sound = !state.sound;
+      store.set('wg.sound', state.sound ? '1' : '0');
+      if (!state.sound) { try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {} }
+      drawSound();
+      sfx.flip();
+    });
+    $('#overlay').addEventListener('click', function (e) { if (e.target === this) hideWin(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hideWin(); });
+
+    $('#voiceBtn').addEventListener('click', function () {
+      var p = $('#voicePanel');
+      p.hidden = !p.hidden;
+      this.setAttribute('aria-expanded', p.hidden ? 'false' : 'true');
+      if (!p.hidden) fillVoices(true);
+    });
+    $('#voiceSel').addEventListener('change', function () {
+      voice.uri = this.value;
+      store.set('wg.voice', voice.uri);
+      speak('apple', true);
+    });
+    $('#voiceTest').addEventListener('click', function () { speak('apple', true); });
+    try {
+      if (window.speechSynthesis) window.speechSynthesis.addEventListener('voiceschanged', function () { fillVoices(); });
+    } catch (e) {}
+    var ts = $('#topicSel');
+    ts.innerHTML = '<option value="">全部主题（' + WORDS.length + ' 个词）</option>' +
+      TOPICS.map(function (t) { return '<option value="' + t.k + '">' + t.n + '（' + t.w.length + '）</option>'; }).join('');
+    ts.value = state.topic;
+    ts.addEventListener('change', function () {
+      state.topic = this.value;
+      store.set('wg.topic', state.topic);
+      memNew();
+      mt.level = 1;
+      mt.base = 0;
+      mtNew();
+    });
+    fillVoices(true);
+    setTimeout(function () { fillVoices(); }, 800);
+    setTimeout(function () { fillVoices(); }, 2500);
+
+    drawSound();
+    memNew();
+    mtNew();
+    if (d && d.tab === 'mt') setTab('mt');
+    try { window.claude && window.claude.hot && window.claude.hot.snapshot && window.claude.hot.snapshot(function () { return { tab: state.tab, diff: mem.diff }; }); } catch (e) {}
+  }
+
+  var hot = window.claude && window.claude.hot;
+  if (hot && hot.ready) hot.ready(start);
+  else start((hot && hot.data) || {});
+})();
+</script>
+</body>
+</html>
