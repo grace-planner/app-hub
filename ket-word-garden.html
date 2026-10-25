@@ -49,6 +49,7 @@ img{max-width:100%}
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body {
   background: var(--bg);
   color: var(--ink);
@@ -426,7 +427,38 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     wrong: function () { tone(190, 0.22, 'sawtooth', 0.05); },
     win: function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.22, 'triangle', 0.12, i * 0.12); }); }
   };
-  var voice = { list: [], uri: store.get('wg.voice') || '', built: -1 };
+  var CLIP = '__clip';
+  var voice = { list: [], uri: store.get('wg.voice') || CLIP, built: -1 };
+  var clips = {};
+  var nowClip = null;
+  function clipFor(word) {
+    var a = clips[word];
+    if (!a) {
+      a = new Audio('ket-audio/' + word + '.mp3');
+      a.preload = 'auto';
+      a.addEventListener('error', function () { a.bad = true; });
+      clips[word] = a;
+    }
+    return a;
+  }
+  function preload(list) { list.forEach(function (p) { clipFor(p.w); }); }
+  function stopSpeech() {
+    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
+    if (nowClip) { try { nowClip.pause(); nowClip.currentTime = 0; } catch (e) {} nowClip = null; }
+  }
+  function playClip(word) {
+    return new Promise(function (resolve) {
+      var a = clipFor(word);
+      if (a.bad) { resolve(false); return; }
+      try {
+        a.currentTime = 0;
+        nowClip = a;
+        var p = a.play();
+        if (p && p.then) p.then(function () { resolve(true); }, function () { resolve(false); });
+        else resolve(true);
+      } catch (e) { resolve(false); }
+    });
+  }
   function refreshVoices() {
     try { voice.list = window.speechSynthesis ? window.speechSynthesis.getVoices() : []; } catch (e) { voice.list = []; }
   }
@@ -441,6 +473,14 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
   }
   function speak(word, force) {
     if (!state.sound && !force) return;
+    stopSpeech();
+    if (voice.uri === CLIP) {
+      playClip(word).then(function (ok) { if (!ok) deviceSpeak(word); });
+      return;
+    }
+    deviceSpeak(word);
+  }
+  function deviceSpeak(word) {
     try {
       var s = window.speechSynthesis;
       if (!s) return;
@@ -465,11 +505,13 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     var en = voice.list.filter(function (x) { return /^en/i.test(x.lang); });
     var other = voice.list.filter(function (x) { return !/^en/i.test(x.lang); });
     function opt(v) { return '<option value="' + esc(v.voiceURI) + '">' + esc(v.name) + '（' + esc(v.lang) + '）</option>'; }
-    sel.innerHTML = '<option value="">自动选择英语声音</option>' +
+    sel.innerHTML = '<option value="' + CLIP + '">录好的声音（推荐）</option><option value="">自动选择设备自带的英语声音</option>' +
       (en.length ? '<optgroup label="英语声音">' + en.map(opt).join('') + '</optgroup>' : '') +
       (other.length ? '<optgroup label="其他语言">' + other.map(opt).join('') + '</optgroup>' : '');
-    sel.value = findVoice() ? voice.uri : '';
-    if (!window.speechSynthesis) {
+    sel.value = voice.uri === CLIP ? CLIP : (findVoice() ? voice.uri : '');
+    if (voice.uri === CLIP) {
+      note.textContent = '现在播放的是提前录好的自然发音。要改用设备自带的声音，在上面的下拉框里选。右上角的喇叭关闭时，点牌不会读单词。';
+    } else if (!window.speechSynthesis) {
       note.textContent = '这个浏览器不支持朗读。可以换成手机自带的浏览器或 Chrome 试试。';
     } else if (!voice.list.length) {
       note.textContent = '暂时没有找到设备自带的声音。有的设备要等几秒才加载，可以稍后再点开这里；也可以去系统设置里下载英语语音。';
@@ -567,6 +609,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     mem.timer.reset();
     mem.first = null; mem.lock = false; mem.moves = 0; mem.matched = 0; mem.over = false; mem.began = false;
     mem.picks = pick(DIFF[mem.diff]);
+    preload(mem.picks);
     mem.cards = shuffle(mem.picks.reduce(function (a, p, i) {
       a.push({ id: i, kind: 'pic', p: p }, { id: i, kind: 'word', p: p });
       return a;
@@ -667,6 +710,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     mt.score = mt.base;
     var n = LV[Math.min(mt.level, LV.length) - 1];
     mt.picks = pick(n);
+    preload(mt.picks);
     mt.left = mt.picks.length;
     mt.tiles = shuffle(mt.picks.reduce(function (a, p, i) {
       a.push({ id: i, kind: 'pic', p: p, gone: false }, { id: i, kind: 'word', p: p, gone: false });
@@ -812,7 +856,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     $('#soundBtn').addEventListener('click', function () {
       state.sound = !state.sound;
       store.set('wg.sound', state.sound ? '1' : '0');
-      if (!state.sound) { try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {} }
+      if (!state.sound) stopSpeech();
       drawSound();
       sfx.flip();
     });
