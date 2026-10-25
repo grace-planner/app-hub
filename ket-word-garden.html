@@ -435,7 +435,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
   function clipFor(word) {
     var a = clips[word];
     if (!a) {
-      a = new Audio('ket-audio/' + word + '.mp3?v=4');
+      a = new Audio('ket-audio/' + word + '.mp3?v=5');
       a.preload = 'auto';
       a.addEventListener('error', function () { a.bad = true; });
       clips[word] = a;
