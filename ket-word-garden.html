@@ -135,6 +135,10 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
 .emoji { font-size: clamp(30px, 9vw, 50px); line-height: 1; }
 .word { font-family: var(--font-word); font-weight: 700; font-size: clamp(13px, 3.7vw, 20px); padding: 0 4px; text-align: center; line-height: 1.2; }
 .word.long { font-size: clamp(10px, 2.7vw, 15px); }
+.zhtxt { font-family: var(--font-display); font-weight: 600; font-size: clamp(14px, 4.2vw, 21px); padding: 0 4px; text-align: center; line-height: 1.25; overflow-wrap: anywhere; }
+.libbar { display: grid; gap: 10px; margin-bottom: 4px; }
+.libbar select { width: 100%; min-width: 0; font: inherit; font-size: 16px; color: var(--ink); background: var(--word-bg); border: 3px solid var(--line); border-radius: 12px; padding: 9px 12px; }
+.libbar .voice-note { margin: 0; }
 
 /* clear-game tiles */
 .tile {
@@ -258,13 +262,21 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
   </section>
 
   <section id="panelMt" role="tabpanel" aria-labelledby="tabMt" hidden>
-    <div class="stats" style="margin-top:0">
+    <div class="libbar">
+      <div class="controls" role="group" aria-label="词库">
+        <button class="chip chunk" type="button" data-lib="ket" aria-pressed="true">KET · 图片配对</button>
+        <button class="chip chunk" type="button" data-lib="cet4" aria-pressed="false">四级 · 中文配对</button>
+      </div>
+      <select id="cetRange" aria-label="四级词汇范围" hidden></select>
+      <p class="voice-note" id="cetNote" hidden>四级词库整理自 KyleBing/english-vocabulary（BSD-3-Clause）。四级单词没有录好的声音，会用设备自带的英语声音朗读，可以在右上角的设置里换声音。</p>
+    </div>
+    <div class="stats">
       <div class="stat"><span>关卡</span><b id="mtLevel">第1关</b></div>
       <div class="stat"><span>得分</span><b id="mtScore">0</b></div>
       <div class="stat"><span>连击</span><b id="mtCombo">—</b></div>
       <div class="stat"><span>用时</span><b id="mtTime">00:00</b></div>
     </div>
-    <p class="tip">先点一张图片，再点它的单词，配对成功就消掉。连续配对对分数加倍。</p>
+    <p class="tip" id="mtTip">先点一张图片，再点它的单词，配对成功就消掉。连续配对对分数加倍。</p>
     <div class="board" id="mtBoard"></div>
     <div class="foot">
       <button class="btn chunk" type="button" id="mtHint">提示</button>
@@ -377,6 +389,9 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
   ];
   var WORDS = [];
   TOPICS.forEach(function (t) { t.w.forEach(function (x) { WORDS.push({ w: x[0], e: x[1], zh: x[2], t: t.k }); }); });
+  var KETSET = {};
+  WORDS.forEach(function (x) { KETSET[x.w] = true; });
+  var GROUPS = [['a','A'],['b','B'],['c','C'],['d','D'],['e','E'],['f','F'],['g','G'],['h','H'],['i','I'],['jk','J–K'],['l','L'],['m','M'],['no','N–O'],['p','P'],['qr','Q–R'],['s','S'],['t','T'],['uv','U–V'],['wxyz','W–Z']];
   var STAR_PATH = 'M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z';
 
   function $(s) { return document.querySelector(s); }
@@ -388,6 +403,8 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
   };
   var state = { tab: 'mem', sound: store.get('wg.sound') !== '0', topic: store.get('wg.topic') || '' };
   if (!TOPICS.some(function (t) { return t.k === state.topic; })) state.topic = '';
+  var LIB = { cur: store.get('wg.mtlib') === 'cet4' ? 'cet4' : 'ket', range: store.get('wg.cetrange') || 'all', data: null, loading: false };
+  if (LIB.range !== 'all' && !GROUPS.some(function (g) { return g[0] === LIB.range; })) LIB.range = 'all';
 
   function shuffle(a) {
     a = a.slice();
@@ -442,13 +459,14 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     }
     return a;
   }
-  function preload(list) { list.forEach(function (p) { clipFor(p.w); }); }
+  function preload(list) { list.forEach(function (p) { if (KETSET[p.w]) clipFor(p.w); }); }
   function stopSpeech() {
     try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
     if (nowClip) { try { nowClip.pause(); nowClip.currentTime = 0; } catch (e) {} nowClip = null; }
   }
   function playClip(word) {
     return new Promise(function (resolve) {
+      if (!KETSET[word]) { resolve(false); return; }
       var a = clipFor(word);
       if (a.bad) { resolve(false); return; }
       try {
@@ -700,7 +718,71 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
   var LV = [6, 8, 10];
   var mt = { level: 1, base: 0, score: 0, combo: 0, mistakes: 0, left: 0, tiles: [], picks: [], sel: null, busy: false, over: false, began: false, timer: null };
 
-  function progKey() { return 'wg.mt.' + (state.topic || 'all'); }
+  function progKey() {
+    if (LIB.cur === 'cet4') return 'wg.mt.cet4.' + LIB.range;
+    return 'wg.mt.' + (state.topic || 'all');
+  }
+  function cetPool() {
+    var list = LIB.data || [];
+    if (LIB.range === 'all') return list;
+    return list.filter(function (x) { return LIB.range.indexOf(x.w.charAt(0).toLowerCase()) >= 0; });
+  }
+  function pickCet(n) {
+    var used = {}, out = [];
+    shuffle(cetPool()).forEach(function (p) {
+      if (out.length >= n || used[p.zh]) return;
+      used[p.zh] = true; out.push(p);
+    });
+    return out;
+  }
+  function loadCet() {
+    if (LIB.loading) return;
+    LIB.loading = true;
+    $('#mtBoard').textContent = '';
+    $('#mtTip').textContent = '正在加载四级词库……';
+    fetch('cet4-words.json').then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }).then(function (arr) {
+      LIB.data = arr.map(function (x) { return { w: x[0], zh: x[1], e: '', t: 'cet4' }; });
+      LIB.loading = false;
+      fillRange();
+      drawLib();
+      loadProg();
+      mtNew();
+    }).catch(function () {
+      LIB.loading = false;
+      LIB.cur = 'ket';
+      store.set('wg.mtlib', 'ket');
+      drawLib();
+      loadProg();
+      mtNew();
+      $('#mtTip').textContent = '四级词库没有加载成功，已经切回 KET。刷新页面后再试一次。';
+    });
+  }
+  function fillRange() {
+    var sel = $('#cetRange');
+    var cnt = {};
+    var all = LIB.data || [];
+    GROUPS.forEach(function (g) { cnt[g[0]] = all.filter(function (x) { return g[0].indexOf(x.w.charAt(0).toLowerCase()) >= 0; }).length; });
+    sel.innerHTML = '<option value="all">全部乱序' + (all.length ? '（' + all.length + ' 个词）' : '') + '</option>' +
+      GROUPS.map(function (g) { return '<option value="' + g[0] + '">' + g[1] + ' 开头' + (all.length ? '（' + cnt[g[0]] + '）' : '') + '</option>'; }).join('');
+    sel.value = LIB.range;
+  }
+  function drawLib() {
+    var cet = LIB.cur === 'cet4';
+    $$('[data-lib]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.lib === LIB.cur ? 'true' : 'false'); });
+    $('#cetRange').hidden = !cet;
+    $('#cetNote').hidden = !cet;
+    $('#mtTip').textContent = cet
+      ? '先点一个中文意思，再点它对应的英文单词，配对成功就消掉。点一下会读出单词。'
+      : '先点一张图片，再点它的单词，配对成功就消掉。连续配对对分数加倍。';
+  }
+  function setLib(lib) {
+    if (LIB.cur === lib) return;
+    LIB.cur = lib;
+    store.set('wg.mtlib', lib);
+    drawLib();
+    loadProg();
+    mtNew();
+  }
   function loadProg() {
     var lv = 1, base = 0;
     try {
@@ -717,11 +799,12 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     $('#mtCombo').textContent = mt.combo > 1 ? '×' + mt.combo : '—';
   }
   function mtNew() {
+    if (LIB.cur === 'cet4' && !LIB.data) { loadCet(); return; }
     mt.timer.reset();
     mt.over = false; mt.busy = false; mt.sel = null; mt.combo = 0; mt.mistakes = 0; mt.began = false;
     mt.score = mt.base;
     var n = LV[Math.min(mt.level, LV.length) - 1];
-    mt.picks = pick(n);
+    mt.picks = LIB.cur === 'cet4' ? pickCet(n) : pick(n);
     preload(mt.picks);
     mt.left = mt.picks.length;
     mt.tiles = shuffle(mt.picks.reduce(function (a, p, i) {
@@ -735,9 +818,9 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
       btn.type = 'button';
       btn.className = 'tile kind-' + t.kind;
       btn.dataset.i = i;
-      btn.setAttribute('aria-label', t.p.w);
+      btn.setAttribute('aria-label', t.kind === 'pic' && !t.p.e ? t.p.zh : t.p.w);
       btn.innerHTML = t.kind === 'pic'
-        ? '<span class="emoji" aria-hidden="true">' + t.p.e + '</span>'
+        ? (t.p.e ? '<span class="emoji" aria-hidden="true">' + t.p.e + '</span>' : '<span class="zhtxt">' + t.p.zh + '</span>')
         : '<span class="' + wordCls(t.p.w) + '">' + t.p.w + '</span>';
       t.el = btn;
       board.appendChild(btn);
@@ -906,6 +989,15 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     setTimeout(function () { fillVoices(); }, 800);
     setTimeout(function () { fillVoices(); }, 2500);
 
+    $$('[data-lib]').forEach(function (b) { b.addEventListener('click', function () { setLib(b.dataset.lib); }); });
+    $('#cetRange').addEventListener('change', function () {
+      LIB.range = this.value;
+      store.set('wg.cetrange', LIB.range);
+      loadProg();
+      mtNew();
+    });
+    fillRange();
+    drawLib();
     $('#mtRestart').addEventListener('click', function () {
       saveProg(1, 0);
       mt.level = 1;
