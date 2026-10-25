@@ -269,6 +269,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     <div class="foot">
       <button class="btn chunk" type="button" id="mtHint">提示</button>
       <button class="btn chunk" type="button" id="mtReset">重玩本关</button>
+      <button class="btn chunk" type="button" id="mtRestart">回到第1关</button>
     </div>
   </section>
 </main>
@@ -699,6 +700,17 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
   var LV = [6, 8, 10];
   var mt = { level: 1, base: 0, score: 0, combo: 0, mistakes: 0, left: 0, tiles: [], picks: [], sel: null, busy: false, over: false, began: false, timer: null };
 
+  function progKey() { return 'wg.mt.' + (state.topic || 'all'); }
+  function loadProg() {
+    var lv = 1, base = 0;
+    try {
+      var d = JSON.parse(store.get(progKey()) || 'null');
+      if (d && d.level >= 1 && d.level < 1000) { lv = Math.floor(d.level); base = Math.max(0, Math.floor(d.base || 0)); }
+    } catch (e) {}
+    mt.level = lv;
+    mt.base = base;
+  }
+  function saveProg(level, base) { store.set(progKey(), JSON.stringify({ level: level, base: base })); }
   function updMt() {
     $('#mtLevel').textContent = '第' + mt.level + '关';
     $('#mtScore').textContent = mt.score;
@@ -801,6 +813,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     var sec = mt.timer.stop();
     var stars = mt.mistakes <= 1 ? 3 : (mt.mistakes <= 4 ? 2 : 1);
     var lvl = mt.level;
+    saveProg(lvl + 1, mt.score);
     showWin({
       title: '第' + lvl + '关 通关！',
       stars: stars,
@@ -886,16 +899,22 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
       state.topic = this.value;
       store.set('wg.topic', state.topic);
       memNew();
-      mt.level = 1;
-      mt.base = 0;
+      loadProg();
       mtNew();
     });
     fillVoices(true);
     setTimeout(function () { fillVoices(); }, 800);
     setTimeout(function () { fillVoices(); }, 2500);
 
+    $('#mtRestart').addEventListener('click', function () {
+      saveProg(1, 0);
+      mt.level = 1;
+      mt.base = 0;
+      mtNew();
+    });
     drawSound();
     memNew();
+    loadProg();
     mtNew();
     if (d && d.tab === 'mt') setTab('mt');
     try { window.claude && window.claude.hot && window.claude.hot.snapshot && window.claude.hot.snapshot(function () { return { tab: state.tab, diff: mem.diff }; }); } catch (e) {}
