@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一家人</title>
+<!-- 风格：手绘课堂笔记。配色=横线纸米白底+蓝黑笔迹+荧光黄/薄荷绿/番茄红高亮；字体=系统黑体正文、宋体标题；质感=横线、便利贴、手绘圈画；主视觉=铅笔淡彩速写。 -->
+<style>
+:root{
+  --paper:#fbf8ef; --line:#dfe6ef; --margin:#f1b8b8; --ink:#1f2a44; --ink2:#55607a; --pen:#2a4fa8;
+  --hl:#fff07a; --mint:#bfe8d4; --tomato:#e5553f; --note:#fff4b8; --card:#ffffff; --shadow:rgba(31,42,68,.12);
+  --ok:#1d8a5a; --bad:#c8402e;
+  --fs:17px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1b1f2a; --line:#262c3b; --margin:#4a2c34; --ink:#e9ecf3; --ink2:#a5aec2; --pen:#8fb0ff;
+    --hl:#6b5d10; --mint:#1f4a3a; --tomato:#ff7a62; --note:#3b3622; --card:#232838; --shadow:rgba(0,0,0,.4);
+    --ok:#5ed39b; --bad:#ff8a76;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1b1f2a; --line:#262c3b; --margin:#4a2c34; --ink:#e9ecf3; --ink2:#a5aec2; --pen:#8fb0ff;
+  --hl:#6b5d10; --mint:#1f4a3a; --tomato:#ff7a62; --note:#3b3622; --card:#232838; --shadow:rgba(0,0,0,.4);
+  --ok:#5ed39b; --bad:#ff8a76;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:64px}
+body{margin:0;background:var(--paper);color:var(--ink);font:var(--fs)/1.75 -apple-system,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 30px;overflow-x:hidden}
+h1,h2,h3{font-family:"Songti SC","STSong","Noto Serif CJK SC",SimSun,serif;line-height:1.35;margin:.2em 0 .5em}
+h2{font-size:1.5em}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 80px;border-left:2px solid var(--margin)}
+header.bar{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;padding:8px 16px}
+header.bar .t{font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{min-height:44px;min-width:44px;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-size:.95em;padding:6px 12px;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:none}
+.btn.sm{min-height:40px;padding:4px 10px;font-size:.85em}
+.btn:focus-visible,.chip:focus-visible{outline:3px solid var(--pen);outline-offset:2px}
+mark{background:linear-gradient(transparent 45%,var(--hl) 45%);color:inherit;padding:0 .1em}
+.en{font-family:"Avenir Next","Helvetica Neue",Arial,sans-serif;font-weight:600;color:var(--pen)}
+section{padding:28px 0 8px}
+.point{font-size:1.15em;font-weight:600;background:var(--note);padding:10px 14px;border-radius:4px;box-shadow:3px 3px 0 var(--shadow);transform:rotate(-.4deg);margin:0 0 16px}
+.lab{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:16px;box-shadow:4px 4px 0 var(--shadow);margin:12px 0}
+details{margin:12px 0;border:1px dashed var(--ink2);border-radius:10px;padding:8px 14px;background:color-mix(in srgb,var(--card) 70%,transparent)}
+summary{cursor:pointer;font-weight:600;min-height:32px}
+.cite{cursor:pointer;color:var(--pen);font-weight:700;font-size:.72em;padding:0 2px}
+.cite::before{content:"[原文]"}
+.tag{font-size:.7em;border:1px solid var(--ink2);border-radius:6px;padding:0 5px;margin-left:4px;color:var(--ink2);vertical-align:2px}
+.tag::before{content:attr(data-label)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;border:2px solid var(--ink);border-radius:22px;background:var(--card);color:var(--ink);padding:6px 14px;font:inherit;cursor:pointer;text-align:left}
+.chip.ok{background:var(--mint);border-color:var(--ok)}
+.chip.no{background:color-mix(in srgb,var(--tomato) 25%,var(--card));border-color:var(--bad)}
+.chip.sel{background:var(--hl)}
+.chip[disabled]{cursor:default}
+.fb{min-height:1.8em;font-weight:600}
+.fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+.reveal{background:var(--mint);border-radius:8px;padding:8px 12px}
+figure{margin:12px 0}
+figure svg{width:100%;height:auto;display:block;border-radius:12px}
+figcaption{font-size:.85em;color:var(--ink2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.bin{border:2px dashed var(--ink2);border-radius:12px;padding:10px;min-height:100px;cursor:pointer}
+.bin h3{font-size:1em;margin:0 0 6px}
+.bin .chips{gap:6px}
+.map{display:block;width:100%}
+.map .node{cursor:pointer}
+.map .node:hover rect,.map .node:focus rect{fill:var(--hl)}
+.big{font-size:1.25em;font-weight:700}
+.sent{font-size:1.2em;padding:10px 12px;background:var(--paper);border-radius:8px;border-left:4px solid var(--pen);margin:10px 0}
+.blank{display:inline-block;min-width:3em;border-bottom:2px solid currentColor}
+input[type=range]{width:100%;min-height:44px;accent-color:var(--pen)}
+select{font:inherit;min-height:44px;border:2px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink);padding:4px 8px}
+table.t{border-collapse:collapse;width:100%;font-size:.95em}
+table.t td,table.t th{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+#pop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+#pop[hidden]{display:none}
+#pop .box{background:var(--card);color:var(--ink);max-width:520px;width:100%;border-radius:14px;padding:18px;border:2px solid var(--ink)}
+#pop blockquote{margin:8px 0;padding:8px 12px;border-left:4px solid var(--pen);background:var(--paper);font-family:Georgia,"Times New Roman",serif}
+#back{position:fixed;right:16px;bottom:16px;z-index:30}
+#resume{background:var(--note);padding:8px 14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+#resume[hidden]{display:none}
+nav.dots{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 0}
+.q{margin:14px 0}
+.small{font-size:.85em;color:var(--ink2)}
+.units{display:flex;gap:6px;flex-wrap:wrap;font-size:.85em}
+.units a{color:var(--pen)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+.tree .node{cursor:pointer}
+.tree .node:hover rect,.tree .node:focus rect,.tree .node.on rect{fill:var(--hl)}
+.seq .chip{display:block;width:100%}
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="t">思辨英语 1A · Unit 4 All in the family</span>
+  <button class="btn sm" id="fsDown" aria-label="缩小字号">A−</button>
+  <button class="btn sm" id="fsUp" aria-label="放大字号">A+</button>
+  <button class="btn sm" id="theme" aria-label="切换明暗">◐</button>
+</header>
+<div id="resume" hidden><span>上次读到一半，要接着读吗？</span><button class="btn sm" id="resumeGo">接着读</button><button class="btn sm" id="resumeNo">从头开始</button></div>
+
+<main class="wrap">
+<section data-hero id="hero">
+  <h1>一家人</h1>
+  <p class="point">30 秒版：说「谁的」，名词前用 <mark>my / your / her…</mark>，单独用时换成 <mark>mine / yours / hers…</mark>，问「谁的」用 <b>Whose</b>，人名后加 <b>'s</b>。说过去的状态用 <mark>was / were</mark>。<sup class="cite" data-cite="rule_poss"></sup></p>
+  <p>本单元有电影里的家庭、一棵家谱树、4 岁的 Suzie 打 999 救妈妈，还有世界各地的家庭传统。</p>
+  <div class="lab">
+    <p class="small" style="margin:0 0 6px">全局图：「谁的」三种说法。点方框跳过去。</p>
+    <svg class="map" viewBox="0 0 760 170" role="img" aria-label="表示所属的三种说法">
+      <g font-family="-apple-system,PingFang SC,sans-serif" font-size="17" fill="var(--ink)" text-anchor="middle">
+        <g class="node" tabindex="0" data-jump="s2"><rect x="20" y="20" width="230" height="130" rx="12" fill="var(--note)" stroke="var(--ink)" stroke-width="2"/><text x="135" y="52" font-weight="700">名词前面</text><text x="135" y="84">形容词性物主代词</text><text x="135" y="120" fill="var(--pen)">It's my book.</text></g>
+        <g class="node" tabindex="0" data-jump="s2"><rect x="265" y="20" width="230" height="130" rx="12" fill="var(--mint)" stroke="var(--ink)" stroke-width="2"/><text x="380" y="52" font-weight="700">单独使用</text><text x="380" y="84">名词性物主代词</text><text x="380" y="120" fill="var(--pen)">The book is mine.</text></g>
+        <g class="node" tabindex="0" data-jump="s2"><rect x="510" y="20" width="230" height="130" rx="12" fill="var(--note)" stroke="var(--ink)" stroke-width="2"/><text x="625" y="52" font-weight="700">名字 + 's</text><text x="625" y="84">问：Whose…?</text><text x="625" y="120" fill="var(--pen)">It's Max's book.</text></g>
+      </g>
+    </svg>
+  </div>
+  <nav class="dots" aria-label="场景目录">
+    <button class="btn sm" data-jump="s1">① 电影家庭</button><button class="btn sm" data-jump="s2">② 谁的</button><button class="btn sm" data-jump="s3">③ 家谱树</button><button class="btn sm" data-jump="s4">④ 我可以…吗</button><button class="btn sm" data-jump="s5">⑤ Suzie 救妈妈</button><button class="btn sm" data-jump="s6">⑥ was / were 与心情</button><button class="btn sm" data-jump="s7">⑦ 家庭传统</button><button class="btn sm" data-jump="quiz">自测</button>
+  </nav>
+</section>
+
+<section data-scene="1" id="s1">
+  <h2>① 电影里的家庭</h2>
+  <p class="point">一篇博客问大家：你最喜欢哪部讲家庭的老电影？三位网友分别推荐了《小鬼当家》《超人总动员》和《亚当斯一家》。<sup class="cite" data-cite="blog_intro"></sup></p>
+  <div data-guess class="lab" data-unit=" 岁">
+    <p class="big">先猜：《小鬼当家》里被家人忘在家的 Kevin 几岁？</p>
+    <input type="range" min="4" max="16" step="1" value="12" aria-label="猜年龄"> <output class="big">12 岁</output>
+    <button class="btn">揭晓</button>
+    <p class="reveal" hidden><b>8 岁</b>。爸妈去度圣诞假时忘了带上他。一开始他挺高兴，一个人霸占整个家，还赶走了两个笨贼；后来想家了，圣诞节早上全家都回来了。<sup class="cite" data-cite="home_alone"></sup></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>超人一家 Parr：</b>每个人有什么超能力？</p>
+    <div class="sorter" data-bins='["Dad","Mum","Violet","Dash","Jack-Jack"]' data-items='[["力大无穷 super strong",0,"爸爸。"],["身体能拉长 super stretchy",1,"妈妈。"],["能隐身 invisible",2,"Violet 是老大，会隐身。"],["跑得飞快 super fast",3,"Dash 是 Violet 的弟弟。"],["眼睛能射激光 laser eyes",4,"Jack-Jack 是最小的宝宝。"]]'></div>
+    <p class="small">来自课本博客<sup class="cite" data-cite="parrs"></sup></p>
+  </div>
+  <details><summary>《亚当斯一家》是什么样的家庭？</summary>
+    <p>一个很怪的家庭，住在普通小镇的一座大老房子里，全家都穿黑衣服。别人觉得他们有点吓人，可他们不在乎，乐于与众不同。爸爸 Gomez、妈妈 Morticia，孩子 Wednesday 和 Pugsley；还有全身是毛的 Cousin Itt（没人确定是男是女），以及 Gomez 的哥哥（或弟弟）Uncle Fester。<sup class="cite" data-cite="addams"></sup></p>
+    <p>课本讨论题：你最喜欢的电影家庭会互相帮助吗？常吵架吗？常一起笑吗？他们算是好家庭吗？</p>
+  </details>
+</section>
+
+<section data-scene="2" id="s2">
+  <h2>② 谁的？my 还是 mine</h2>
+  <p class="point"><b>形容词性</b>物主代词放在名词前（It's <b>my</b> book）；<b>名词性</b>物主代词能代替「形容词 + 名词」单独用（The book is <b>mine</b>）。<sup class="cite" data-cite="rule_poss"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0">点一个人，看两种说法：</p>
+    <div class="chips" id="possWho"></div>
+    <div class="sent en" id="possA"></div>
+    <div class="sent en" id="possB"></div>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>Whose 和 Who's 别搞混：</b>Whose = 属于谁；Who's = who is。问「谁的」用 <b>Whose</b>；说「某人的」在名字后加 <b>'s</b>；名字以 -s 结尾就只加 <b>'</b>。<sup class="cite" data-cite="rule_whose"></sup></p>
+    <div class="drill" data-items='[["___ tablet is this?",["Whose","Who&#39;s"],"Whose","问东西属于谁，用 Whose。"],["___ that person?",["Whose","Who&#39;s"],"Who&#39;s","Who&#39;s = Who is：那个人是谁？"],["That&#39;s my sandwich, not ___ !",["your","yours"],"yours","后面没有名词，用名词性 yours。"],["Is that ___ dog? (他父母的)",["your parents&#39;","your parent&#39;s"],"your parents&#39;","parents 以 -s 结尾，只加撇号。"],["The Parrs are ___ favourite.",["Max&#39;s","Maxs&#39;"],"Max&#39;s","Max 是一个人的名字，加 &#39;s。"],["I think it&#39;s ___ .",["her","hers"],"hers","句末没有名词，用 hers。"]]'></div>
+  </div>
+</section>
+
+<section data-scene="3" id="s3">
+  <h2>③ 家谱树：叔叔、婶婶、堂兄弟</h2>
+  <p class="point">「我」介绍爸爸那边的亲戚：爸爸的哥哥 Bob 是 <span class="en">uncle</span>，他太太 Jemma 是 <span class="en">aunt</span>，他们的两个儿子是我的 <span class="en">cousins</span>。<sup class="cite" data-cite="family"></sup></p>
+  <figure data-figure>
+    <svg class="tree" viewBox="0 0 800 380" role="img" aria-label="家谱树：祖父母 Roger 和 Diana，下面是爸爸和伯伯 Bob 及伯母 Jemma，再下面是我和堂兄弟 Jimmy、Robin">
+      <rect width="800" height="380" rx="12" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>
+      <g stroke="var(--ink)" stroke-width="2" fill="none">
+        <path d="M300 70 H500"/><path d="M400 70 V130 H200 V160 M400 130 H600 V160"/>
+        <path d="M600 182 H700"/><path d="M650 182 V250 H560 V280 M650 250 H740 V280"/><path d="M200 205 V280"/>
+      </g>
+      <g font-family="-apple-system,PingFang SC,sans-serif" font-size="16" text-anchor="middle" fill="var(--ink)">
+        <g class="node" tabindex="0" data-r="Grandpa Roger：我的祖父（grandfather）。我叫他 Grandpa。"><rect x="200" y="46" width="110" height="48" rx="10" fill="var(--note)" stroke="var(--ink)"/><text x="255" y="76">Roger</text></g>
+        <g class="node" tabindex="0" data-r="Grandma Diana：我的祖母（grandmother），也是 Roger 的妻子。"><rect x="490" y="46" width="110" height="48" rx="10" fill="var(--note)" stroke="var(--ink)"/><text x="545" y="76">Diana</text></g>
+        <g class="node" tabindex="0" data-r="My dad：我的爸爸。他和 Bob 是同一对父母生的亲兄弟。"><rect x="145" y="158" width="110" height="48" rx="10" fill="var(--mint)" stroke="var(--ink)"/><text x="200" y="188">Dad</text></g>
+        <g class="node" tabindex="0" data-r="Bob：爸爸的哥哥，我的 uncle（伯伯）。他很风趣。"><rect x="545" y="158" width="110" height="48" rx="10" fill="var(--mint)" stroke="var(--ink)"/><text x="600" y="188">Bob</text></g>
+        <g class="node" tabindex="0" data-r="Jemma：Bob 的妻子，我的 aunt（伯母）。她人也很好。"><rect x="680" y="158" width="100" height="48" rx="10" fill="var(--mint)" stroke="var(--ink)"/><text x="730" y="188">Jemma</text></g>
+        <g class="node" tabindex="0" data-r="我：祖父母唯一的孙女（granddaughter）。"><rect x="145" y="280" width="110" height="48" rx="10" fill="var(--hl)" stroke="var(--ink)"/><text x="200" y="310">我 me</text></g>
+        <g class="node" tabindex="0" data-r="Jimmy：Bob 和 Jemma 的儿子，我的 cousin（堂哥/堂弟），也是我最好的朋友。"><rect x="505" y="280" width="110" height="48" rx="10" fill="var(--card)" stroke="var(--ink)"/><text x="560" y="310">Jimmy</text></g>
+        <g class="node" tabindex="0" data-r="Robin：Jimmy 的弟弟（little brother），也是我的 cousin。"><rect x="685" y="280" width="100" height="48" rx="10" fill="var(--card)" stroke="var(--ink)"/><text x="735" y="310">Robin</text></g>
+      </g>
+      <text x="30" y="360" font-family="-apple-system,sans-serif" font-size="13" fill="var(--ink2)">点一个人看关系</text>
+    </svg>
+    <figcaption>按课本文字画的家谱树。中文的伯伯、伯母、堂兄弟是编者按「爸爸的哥哥」译的；英语不分，都叫 uncle、aunt、cousin。<span class="tag" data-label="示意"></span></figcaption>
+  </figure>
+  <p class="fb" id="treeOut" aria-live="polite">点上面家谱树里的人。</p>
+  <div data-guess class="lab">
+    <p class="big">推理一下：说这段话的「我」是男孩还是女孩？</p>
+    <div class="chips"><button class="chip" data-v="0">男孩</button><button class="chip" data-v="1">女孩</button><button class="chip" data-v="0">看不出来</button></div>
+    <p class="reveal" hidden>女孩。她说祖父母对她很好，因为她是他们唯一的 <span class="en">granddaughter</span>（孙女）。<sup class="cite" data-cite="family"></sup></p>
+  </div>
+</section>
+
+<section data-scene="4" id="s4">
+  <h2>④ 我可以……吗？</h2>
+  <p class="point">请求允许：<b>Can I</b> borrow your red boots? 同意：<b>Of course you can.</b> 拒绝：<b>No, you can't.</b><sup class="cite" data-cite="permission"></sup></p>
+  <div class="lab">
+    <div class="drill" data-items='[["___ I borrow your bike?",["Can","Do"],"Can","请求允许用 Can I…?"],["Can I have some juice? — Of course you ___ .",["can","do"],"can","同意时用 can 回答。"],["Can I watch TV now? — No, you ___ . It&#39;s late.",["can&#39;t","don&#39;t"],"can&#39;t","拒绝：No, you can&#39;t."],["Can I ___ your phone?",["borrow","borrowing"],"borrow","Can I 后面接动词原形。"]]'></div>
+    <p class="small">课本例句只给了一组<sup class="cite" data-cite="permission"></sup>；这几句是编者仿写的练习。</p>
+  </div>
+  <details><summary>为什么我爱我的家（课本 p41 读物）</summary>
+    <p>几个孩子说家人为他们做的事：妈妈开车送去派对、爸爸周末做最棒的早餐、阿姨周六带大家攀岩、姐姐 Olivia 借衣服给妹妹、爷爷讲最好笑的笑话、哥哥帮忙做数学作业。<sup class="cite" data-cite="love_family"></sup></p>
+  </details>
+</section>
+
+<section data-scene="5" id="s5">
+  <h2>⑤ Suzie 救了妈妈</h2>
+  <p class="point">英国小女孩 Suzie 和妈妈逛街回家后，妈妈躺在沙发上，眼睛闭着，呼吸困难。邻居不在家，Suzie 拨打了 999。<sup class="cite" data-cite="suzie1"></sup></p>
+  <figure data-figure>
+    <svg viewBox="0 0 800 320" role="img" aria-label="插画：一部座机电话的屏幕上显示 999">
+      <rect width="800" height="320" fill="#dfe8f1"/>
+      <rect y="240" width="800" height="80" fill="#c7b299"/>
+      <g transform="translate(260 40)">
+        <rect x="0" y="150" width="280" height="60" rx="14" fill="#2b2f36"/>
+        <rect x="90" y="0" width="100" height="230" rx="24" fill="#3a3f48" stroke="#1d2026" stroke-width="3"/>
+        <rect x="104" y="30" width="72" height="44" rx="6" fill="#9fd4b0"/>
+        <text x="140" y="62" font-family="Menlo,monospace" font-size="26" font-weight="700" text-anchor="middle" fill="#1d3a28">999</text>
+        <g fill="#5b616c">
+          <rect x="106" y="90" width="18" height="12" rx="3"/><rect x="131" y="90" width="18" height="12" rx="3"/><rect x="156" y="90" width="18" height="12" rx="3"/>
+          <rect x="106" y="110" width="18" height="12" rx="3"/><rect x="131" y="110" width="18" height="12" rx="3"/><rect x="156" y="110" width="18" height="12" rx="3"/>
+          <rect x="106" y="130" width="18" height="12" rx="3"/><rect x="131" y="130" width="18" height="12" rx="3"/><rect x="156" y="130" width="18" height="12" rx="3"/>
+          <rect x="131" y="150" width="18" height="12" rx="3"/>
+        </g>
+        <g fill="#fff" font-family="-apple-system,sans-serif" font-size="9" text-anchor="middle"><text x="115" y="100">1</text><text x="140" y="100">2</text><text x="165" y="100">3</text><text x="115" y="120">4</text><text x="140" y="120">5</text><text x="165" y="120">6</text><text x="115" y="140">7</text><text x="140" y="140">8</text><text x="165" y="140" fill="#ffd36b">9</text><text x="140" y="160">0</text></g>
+      </g>
+      <g stroke="#e5553f" stroke-width="4" fill="none" stroke-linecap="round"><path d="M560 70 q20 20 0 40"/><path d="M580 55 q32 35 0 70"/><path d="M600 40 q44 50 0 100"/></g>
+      <text x="40" y="60" font-family="Songti SC,STSong,serif" font-size="26" font-weight="700" fill="#1f2a44">999</text>
+      <text x="40" y="90" font-family="-apple-system,PingFang SC,sans-serif" font-size="16" fill="#33415c">英国的紧急求助电话</text>
+    </svg>
+    <figcaption>Suzie 拨出的 999。示意<span class="tag" data-label="示意"></span></figcaption>
+  </figure>
+  <div data-guess class="lab" data-unit=" 岁">
+    <p class="big">先猜：那时 Suzie 几岁？</p>
+    <input type="range" min="3" max="12" step="1" value="8" aria-label="猜年龄"> <output class="big">8 岁</output>
+    <button class="btn">揭晓</button>
+    <p class="reveal" hidden>只有 <b>4 岁</b>。接线警官很和善，Suzie 也很镇定。医生说，没有她这通电话，她妈妈可能已经不在了。一年后，她获得了英国骄傲奖（Pride of Britain Awards）的「勇敢儿童」称号。<sup class="cite" data-cite="suzie2"></sup></p>
+  </div>
+  <div class="lab seq" id="seq">
+    <p style="margin-top:0"><b>排排顺序：</b>按发生的先后依次点击<sup class="cite" data-cite="suzie1"></sup><sup class="cite" data-cite="suzie2"></sup></p>
+    <div class="chips" id="seqPool"></div>
+    <ol id="seqDone"></ol>
+    <p class="fb" id="seqFb" aria-live="polite"></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>Train to Think：推断</b>这些话最可能是谁说的？</p>
+    <div class="sorter" data-bins='["Suzie","警官 police officer","妈妈 Mum"]' data-items='[["It&#39;s open.",0,"警官让她开门，她开了门。"],["I can hear an ambulance.",0,"在家等待时，她听到救护车来了。"],["Is she injured?",1,"警官要了解妈妈的情况。"],["How can I help?",1,"接电话的人这样问。"],["How old are you?",1,"警官想知道打电话的是谁。"],["She&#39;s so amazing.",2,"事后妈妈夸她。"]]'></div>
+    <p class="small">句子来自课本练习 3；谁说的需要推断，课本没有给答案<span class="tag" data-label="解读"></span><sup class="cite" data-cite="infer"></sup></p>
+  </div>
+</section>
+
+<section data-scene="6" id="s6">
+  <h2>⑥ was / were：过去怎么样</h2>
+  <p class="point">说过去的状态：I / he / she / it 用 <b>was</b>，you / we / they 用 <b>were</b>；否定是 wasn't / weren't，问句把 was / were 提前。<sup class="cite" data-cite="was"></sup></p>
+  <div class="lab">
+    <div class="drill" data-items='[["It ___ easy for her mum to breathe. (否定)",["wasn&#39;t","weren&#39;t"],"wasn&#39;t","it 用 was，否定 wasn&#39;t。"],["___ her mum really ill?",["Was","Were"],"Was","her mum 相当于 she，问句 Was 提前。"],["The neighbours ___ there. (否定)",["wasn&#39;t","weren&#39;t"],"weren&#39;t","neighbours 是复数，用 weren&#39;t。"],["People ___ surprised and happy about it.",["was","were"],"were","people 是复数，用 were。"],["___ you at school yesterday? — No, we weren&#39;t.",["Was","Were"],"Were","主语 you，用 Were。"]]'></div>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>心情词：</b>每种情况下，人会是什么心情？</p>
+    <div class="drill" data-items='[["女儿赛跑得了第一：We are so ___ of her.",["proud","scared"],"proud","proud of 为……骄傲。"],["晚上 9 点妈妈还没回家：I was a bit ___ .",["worried","relieved"],"worried","worried 担心。"],["那门数学课太难了：I&#39;m still ___ now.",["confused","proud"],"confused","confused 糊涂、搞不懂。"],["没想到是个大派对：I was very ___ .",["surprised","angry"],"surprised","surprised 惊讶。"],["学生们太吵：The teacher was ___ .",["angry","relieved"],"angry","angry 生气。"],["考试很难，终于考完：I was ___ when it was over.",["relieved","upset"],"relieved","relieved 松了一口气。"]]'></div>
+    <p class="small">句子改写自课本 p43 练习 10，配对为编者给出<span class="tag" data-label="解读"></span><sup class="cite" data-cite="feelings"></sup></p>
+  </div>
+</section>
+
+<section data-scene="7" id="s7">
+  <h2>⑦ 世界各地的家庭传统</h2>
+  <p class="point">家庭在世界各地都很重要，很多国家都有专门庆祝家庭的日子。<sup class="cite" data-cite="trad_intro"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0"><b>这是哪国的传统？</b></p>
+    <div class="sorter" data-bins='["Germany 德国","China 中国","India 印度","Netherlands 荷兰"]' data-items='[["上学第一天收到一个大纸筒 Schultüte",0,"纸筒里装着文具和糖果。"],["全家聚在一起送孩子笔和书",0,"这个活动叫 Einschulung。"],["扫墓，摆上鲜花、爱吃的菜和酒",1,"清明节。"],["大人给孩子讲已故亲人的故事",1,"让他们不被遗忘。"],["给牛和鸟喂食，表示感谢",2,"节日叫 Thai Pongal。"],["12 月 5 日抽名字、给对方写诗",3,"节日叫 Sinterklaas。"]]'></div>
+    <p class="small">来自课本文化页<sup class="cite" data-cite="trad"></sup></p>
+  </div>
+  <details><summary>写作范文：派对邀请</summary>
+    <p>Jen 邀请 Daniel 周六晚上 8 点来家里参加表姐 Ella 的生日派对，请他做一个歌单，还叮嘱：别告诉 Ella，这是惊喜！Daniel 回信说很想来，但 7 点到 8 点有戏剧排练，能不能晚点到。<sup class="cite" data-cite="invite"></sup></p>
+    <p class="en">Would you like to come to my party? · I'd love to come to your party. · I'm sorry I can't come to your party.</p>
+  </details>
+</section>
+
+<section id="quiz">
+  <h2>你答得上来吗？</h2>
+  <div data-quiz>
+    <div class="q lab" data-ans="0">
+      <p><b>1.</b> Is that your ____ dog?（你父母的）</p>
+      <div class="chips"><button class="chip" data-i="0">parents'</button><button class="chip" data-i="1">parent's</button><button class="chip" data-i="2">parents's</button></div>
+      <p class="fb"></p><p class="reveal" hidden>parents 以 -s 结尾，只在后面加撇号。<sup class="cite" data-cite="rule_whose"></sup></p>
+    </div>
+    <div class="q lab" data-ans="1">
+      <p><b>2.</b> ____ your teacher happy with your homework?</p>
+      <div class="chips"><button class="chip" data-i="0">Were</button><button class="chip" data-i="1">Was</button></div>
+      <p class="fb"></p><p class="reveal" hidden>your teacher 相当于 he / she，用 Was。<sup class="cite" data-cite="was"></sup></p>
+    </div>
+    <div class="q lab" data-ans="2">
+      <p><b>3.</b> Suzie 拨打的 999 是什么电话？</p>
+      <div class="chips"><button class="chip" data-i="0">邻居家的电话</button><button class="chip" data-i="1">医院前台</button><button class="chip" data-i="2">英国的紧急求助电话</button></div>
+      <p class="fb"></p><p class="reveal" hidden>课本说 999 是报警用的紧急电话号码。<sup class="cite" data-cite="suzie1"></sup></p>
+    </div>
+  </div>
+  <p class="small">没放进来的有：p38 家庭称谓配对和电影改错、p41 听力（Lori 借衣服）、p43 Grammar rap 视频、p45 写作练习，以及 -er /ə/ 发音。听力和视频请配合课本使用。</p>
+  <p class="small">页码按课本印刷页码标注；在 PDF 里要往后翻一页（书 p39 = PDF 第 40 页）。关键规则请点「[原文]」核对原句。</p>
+</section>
+<p class="units">其他单元：<a href="think1-u1.html">Unit 1</a> · <a href="think1-u2.html">Unit 2</a> · <a href="think1-u3.html">Unit 3</a> · <a href="think1-u4.html">Unit 4</a> · <a href="think1-u5.html">Unit 5</a> · <a href="think1-u6.html">Unit 6</a></p>
+</main>
+
+<button class="btn" id="back" hidden>↩ 回到刚才的位置</button>
+<div id="pop" hidden role="dialog" aria-modal="true" aria-labelledby="popT">
+  <div class="box">
+    <p id="popT" class="small" style="margin:0"></p>
+    <blockquote id="popQ"></blockquote>
+    <p id="popZ"></p>
+    <button class="btn sm" id="popX">关闭（Esc）</button>
+  </div>
+</div>
+
+<script>
+const UNIT = "u4";
+const SOURCES = {
+  blog_intro: { page: 39, quote: "I love old films and my family loves them, too. … So guys – here's today's topic. Old films about families. So you know my opinion, what about yours?", zh: "博主喜欢老电影，今天的话题是讲家庭的老电影，请大家说说看法。" },
+  home_alone: { page: 39, quote: "How about the Home Alone films in the 1990s, all about 8-year-old Kevin McCallister? … Kevin's parents forget to take him on the family Christmas holiday. Kevin is happy at first … He has lots of fun stopping two silly criminals from robbing the family home. But he starts to miss his family and on Christmas morning he gets the best present of all – everyone comes back home!", zh: "8 岁的 Kevin 被父母忘在家，一开始很开心，还阻止两个笨贼抢劫；后来想家，圣诞早上全家回来了。" },
+  parrs: { page: 39, quote: "Dad is super strong. Mum is super stretchy. Violet, their eldest child, can turn invisible … Her younger brother Dash is super fast and her baby brother Jack-Jack has laser eyes.", zh: "爸爸力大无穷，妈妈身体能拉长，老大 Violet 能隐身，弟弟 Dash 跑得飞快，宝宝 Jack-Jack 有激光眼。" },
+  addams: { page: 39, quote: "They're a really strange family who live in a normal town. They all wear black. They live in a huge old house. Other families think they're a little bit scary, but the Addams family don't care. The parents, Gomez and Morticia, and their children, Wednesday and Pugsley, are happy being different. And there's Cousin Itt, too. He (or she – no one is sure) is covered in fur. And finally there is Uncle Fester, Gomez's brother.", zh: "亚当斯一家住在普通小镇的大老房子里，全穿黑衣，乐于与众不同；还有全身是毛的 Cousin Itt 和 Gomez 的兄弟 Uncle Fester。" },
+  rule_poss: { page: 40, quote: "RULE: Possessive ___ come before a noun to show who something belongs to, e.g., It's my book. Possessive ___ can take the place of the possessive adjective and the noun, e.g., The book is mine.", zh: "形容词性物主代词放在名词前；名词性物主代词可代替「形容词性物主代词 + 名词」（两个空按课本要求填 adjectives、pronouns）。" },
+  rule_whose: { page: 40, quote: "Whose = belongs to someone … Who's = who + is … RULE: To ask about possession, we use the question word ___. To talk about possession, add ___ to the end of a name/noun. If the name/noun ends in an -s, we add an apostrophe (') after the -s.", zh: "Whose 问属于谁，Who's = who is；表示所属在名字后加 's；以 -s 结尾就在 s 后加撇号。" },
+  family: { page: 40, quote: "My dad's got a big brother called Bob. He's my uncle and he's great. He's so funny. His wife Jemma is my aunt … They've got two sons – Jimmy and his little brother Robin. They're my cousins. Jimmy is also my best friend. My dad and Bob have the same mum and dad. They are my grandparents. I call them Grandma Diana and Grandpa Roger. They're really nice to me because I'm their only granddaughter.", zh: "爸爸的哥哥 Bob 是 uncle，他妻子 Jemma 是 aunt；两个儿子 Jimmy 和 Robin 是 cousins；祖父母是 Diana 和 Roger；「我」是他们唯一的孙女。" },
+  permission: { page: 41, quote: "Asking for permission: ___ I borrow your red boots? Saying yes: Of course you can. Saying no: No, you ___.", zh: "请求允许：Can I borrow your red boots? 同意：Of course you can. 拒绝：No, you can't.（空格答案按句型补出）" },
+  love_family: { page: 41, quote: "Mum always gives me lifts to parties. … Dad makes the best cooked breakfast at the weekend. … My aunt takes us climbing on Saturdays. … My big sister Olivia lets me borrow her clothes. … My grandad tells the best jokes. … My brother loves helping me with my Maths homework.", zh: "孩子们说家人为自己做的事：开车送去派对、做早餐、带去攀岩、借衣服、讲笑话、帮做数学作业。" },
+  suzie1: { page: 42, quote: "Suzie was four years old. Her mum didn't feel very well at the shops, so they went home. … Her eyes were shut and it wasn't easy for her to breathe. … Suzie went to the house next door, but the neighbours weren't there. So she phoned 999 – the emergency telephone number for the police.", zh: "4 岁的 Suzie 和妈妈逛街，妈妈不舒服就回家；妈妈躺在沙发上闭着眼、呼吸困难；邻居不在，Suzie 拨了报警用的紧急电话 999。" },
+  suzie2: { page: 42, quote: "The police officer was very kind and Suzie was calm. … About an hour later, Suzie's mum was OK again. A doctor said, 'Her mummy was very sick. Without Suzie's phone call, her mummy might be dead now.' … a year later, she was in the news again because she was named a Child of Courage at the Pride of Britain Awards for helping her mother.", zh: "警官很和善，Suzie 很镇定；约一小时后妈妈好转；医生说没有这通电话妈妈可能已去世；一年后她获英国骄傲奖「勇敢儿童」。" },
+  infer: { page: 42, quote: "Work in pairs. Who says these sentences? Mark them S (Suzie), P (police officer) or M (Mum). 1 'It's open.' 2 'Is she injured?' 3 'She's so amazing.' 4 'How can I help?' 5 'I can hear an ambulance.' 6 'How old are you?'", zh: "推断这些话是 Suzie、警官还是妈妈说的。" },
+  was: { page: 43, quote: "1 It was / wasn't easy for her mum to breathe. 2 Was / Were her mum really ill? 3 The neighbours wasn't / weren't there. 4 People was / were surprised and happy about it. — Positive: I/He/She/It was … You/We/They were …", zh: "was/were 选择：I/he/she/it 用 was，you/we/they 用 were。" },
+  feelings: { page: 43, quote: "1 Our daughter was first in the race. 2 It was 9 pm and Mum wasn't home. … 4 That Maths lesson was really difficult. 5 I wasn't expecting a big party. 6 The students were really noisy. … 8 The test was really hard. — upset, angry, surprised, confused, proud, relieved, worried, scared", zh: "情景句与心情词（upset、angry、surprised、confused、proud、relieved、worried、scared）配对。" },
+  trad_intro: { page: 44, quote: "The idea of the family is important all over the world and many countries have special occasions to celebrate it.", zh: "家庭在世界各地都很重要，很多国家有专门的日子来庆祝。" },
+  trad: { page: 44, quote: "Germany: … a special event called an Einschulung. Everyone in the family meets to give the child presents, like pens and books … parents give their children a large paper cone called a Schultüte. Inside there are things for school and sweets. / China: Qingming … families get together and sweep the tombs … flowers, favourite dishes or wine. Adults also tell stories about these people to their children … / India: … a festival called Thai Pongal. During the festival families feed cows and birds to give thanks … / The Netherlands: … on the 5th December … Sinterklaas … Each member of the family writes their name on a piece of paper and puts it in a hat. Everyone then takes a name from the hat and writes a poem about this person.", zh: "德国开学日 Einschulung 和纸筒 Schultüte；中国清明扫墓、摆祭品、讲先人故事；印度 Thai Pongal 喂牛和鸟表示感谢；荷兰 12 月 5 日 Sinterklaas 抽名字写诗。" },
+  invite: { page: 45, quote: "Would you like to come to my house on Saturday for a party at 8 pm? It's my cousin Ella's birthday. … Can you make a playlist for the party? … PS Don't tell Ella. It's a surprise! — I'd love to come to your party on Saturday, but I've got a small problem. I've got theatre practice from 7 pm to 8 pm. Can I arrive a bit late?", zh: "Jen 邀请 Daniel 周六 8 点参加表姐 Ella 的生日派对，请他做歌单、保密；Daniel 想来，但 7–8 点有戏剧排练，问能否晚到。" }
+};
+
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const motionOK = () => !matchMedia("(prefers-reduced-motion: reduce)").matches;
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+const go = el => el.scrollIntoView({ behavior: motionOK() ? "smooth" : "auto" });
+
+/* 字号与明暗（各单元共用） */
+let fs = parseInt(store.get("t1fs")) || 17;
+const applyFs = () => { document.documentElement.style.setProperty("--fs", fs + "px"); store.set("t1fs", fs); };
+applyFs();
+$("#fsUp").onclick = () => { fs = Math.min(24, fs + 1); applyFs(); };
+$("#fsDown").onclick = () => { fs = Math.max(15, fs - 1); applyFs(); };
+const th = store.get("t1theme"); if (th) document.documentElement.dataset.theme = th;
+$("#theme").onclick = () => {
+  const cur = document.documentElement.dataset.theme;
+  const dark = cur ? cur === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.dataset.theme = dark ? "light" : "dark"; store.set("t1theme", document.documentElement.dataset.theme);
+};
+
+/* 出处弹窗 */
+let lastFocus = null;
+function openCite(id) {
+  const s = SOURCES[id]; if (!s) return;
+  lastFocus = document.activeElement;
+  $("#popT").textContent = `课本 p${s.page}（PDF 第 ${s.page + 1} 页）`;
+  $("#popQ").textContent = s.quote; $("#popZ").textContent = "转述：" + s.zh;
+  $("#pop").hidden = false; $("#popX").focus();
+}
+const closePop = () => { $("#pop").hidden = true; lastFocus && lastFocus.focus(); };
+function wireCites(root = document) {
+  $$(".cite", root).forEach(c => { if (c.dataset.w) return; c.dataset.w = 1; c.tabIndex = 0; c.setAttribute("role", "button");
+    c.onclick = () => openCite(c.dataset.cite);
+    c.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCite(c.dataset.cite); } }; });
+}
+$("#popX").onclick = closePop;
+$("#pop").onclick = e => { if (e.target.id === "pop") closePop(); };
+
+/* 跳转与回到原处 */
+const backStack = [], backBtn = $("#back");
+function jumpTo(id) {
+  backStack.push(scrollY); history.pushState({ y: scrollY }, "");
+  go(document.getElementById(id)); backBtn.hidden = false;
+}
+backBtn.onclick = () => { const y = backStack.pop(); if (y != null) scrollTo({ top: y, behavior: motionOK() ? "smooth" : "auto" }); backBtn.hidden = backStack.length === 0; };
+addEventListener("popstate", e => { if (e.state && e.state.y != null) { backStack.pop(); scrollTo(0, e.state.y); backBtn.hidden = backStack.length === 0; } });
+$$("[data-jump]").forEach(n => { n.onclick = () => jumpTo(n.dataset.jump); n.onkeydown = e => { if (e.key === "Enter") jumpTo(n.dataset.jump); }; });
+
+/* 键盘：← → 切场景，Esc 关弹窗 */
+const order = $$("[data-hero],[data-scene],#quiz").map(s => s.id);
+const current = () => { let c = 0; order.forEach((id, i) => { if (document.getElementById(id).getBoundingClientRect().top < 120) c = i; }); return c; };
+addEventListener("keydown", e => {
+  if (e.key === "Escape" && !$("#pop").hidden) return closePop();
+  if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+  if (e.key === "ArrowRight") go(document.getElementById(order[Math.min(order.length - 1, current() + 1)]));
+  if (e.key === "ArrowLeft") go(document.getElementById(order[Math.max(0, current() - 1)]));
+});
+
+/* 阅读进度 */
+const posKey = UNIT + "pos", saved = parseInt(store.get(posKey));
+if (saved > 600) { $("#resume").hidden = false;
+  $("#resumeGo").onclick = () => { scrollTo(0, saved); $("#resume").hidden = true; };
+  $("#resumeNo").onclick = () => { $("#resume").hidden = true; store.set(posKey, 0); }; }
+let tick; addEventListener("scroll", () => { clearTimeout(tick); tick = setTimeout(() => store.set(posKey, Math.round(scrollY)), 300); });
+
+/* 先猜再看：滑块（data-unit 为单位）或选项（data-v="1" 为正确） */
+$$("[data-guess]").forEach(g => {
+  const r = $("input[type=range]", g), o = $("output", g), b = $(".btn", g), rev = $(".reveal", g);
+  if (r) { const unit = g.dataset.unit || ""; const upd = () => o.textContent = r.value + unit; r.oninput = upd; upd();
+    b.onclick = () => { rev.hidden = false; b.disabled = true; r.disabled = true; o.textContent = "你猜 " + r.value + unit; }; }
+  else $$(".chip", g).forEach(c => c.onclick = () => {
+    $$(".chip", g).forEach(x => { x.disabled = true; if (x.dataset.v === "1") x.classList.add("ok"); });
+    if (c.dataset.v !== "1") c.classList.add("no"); rev.hidden = false; });
+});
+
+/* 点开卡片：.cards 里的 chip 带 data-a，结果写进 data-out 指向的元素 */
+$$(".cards").forEach(box => $$(".chip", box).forEach(c => c.onclick = () => {
+  $$(".chip", box).forEach(x => x.classList.remove("sel")); c.classList.add("sel"); $(box.dataset.out).textContent = c.dataset.a; }));
+
+/* 选词练习：.drill[data-items] = [[句子(___ 为空), [选项], 答案, 理由], ...] */
+$$(".drill").forEach(d => {
+  const items = JSON.parse(d.dataset.items); let i = 0, ok = 0;
+  d.innerHTML = '<div class="sent en"></div><div class="chips"></div><p class="fb" aria-live="polite"></p><button class="btn sm">下一句 →</button> <span class="small"></span>';
+  const [sent, opts, fb, next, cnt] = [$(".sent", d), $(".chips", d), $(".fb", d), $(".btn", d), $(".small", d)];
+  const count = () => cnt.textContent = `第 ${i + 1} / ${items.length} 句 · 答对 ${ok}`;
+  function show() {
+    const [s, os] = items[i]; sent.innerHTML = s.replace("___", '<span class="blank"></span>'); fb.textContent = ""; opts.innerHTML = ""; count();
+    os.forEach(o => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = o;
+      b.onclick = () => { const [, , ans, why] = items[i]; $$(".chip", opts).forEach(x => { x.disabled = true; if (x.textContent === ans) x.classList.add("ok"); });
+        const right = o === ans; if (right) ok++; else b.classList.add("no");
+        sent.innerHTML = s.replace("___", `<mark>${ans}</mark>`);
+        fb.className = "fb " + (right ? "ok" : "no"); fb.textContent = (right ? "✓ " : "✗ ") + why; count(); };
+      opts.appendChild(b); });
+  }
+  next.onclick = () => { i = (i + 1) % items.length; if (i === 0) ok = 0; show(); }; show();
+});
+
+/* 分类：.sorter[data-bins]=["篮子1","篮子2"]，[data-items]=[[词, 篮子序号, 说明], ...] */
+$$(".sorter").forEach(s => {
+  const bins = JSON.parse(s.dataset.bins), items = JSON.parse(s.dataset.items); let picked = null;
+  s.innerHTML = '<p class="small" style="margin-top:0">先点一个词，再点它该去的篮子。</p><div class="chips pool"></div><div class="bins"></div><p class="fb" aria-live="polite"></p><button class="btn sm">重来</button>';
+  const pool = $(".pool", s), binBox = $(".bins", s), fb = $(".fb", s);
+  bins.forEach((b, k) => { const el = document.createElement("div"); el.className = "bin"; el.tabIndex = 0; el.setAttribute("role", "button");
+    el.innerHTML = `<h3>${b}</h3><div class="chips"></div>`; const drop = () => {
+      if (!picked) { fb.className = "fb"; fb.textContent = "先点上面一个词。"; return; }
+      const [, right, why] = items[picked.dataset.i];
+      if (right === k) { picked.classList.remove("sel"); picked.classList.add("ok"); picked.disabled = true; $(".chips", el).appendChild(picked);
+        fb.className = "fb ok"; fb.textContent = "✓ " + (why || "放对了。"); picked = null;
+        if (!$$(".chip", pool).length) fb.textContent = "全部放对了！"; }
+      else { fb.className = "fb no"; fb.textContent = "✗ 再想想：" + (why || ""); } };
+    el.onclick = drop; el.onkeydown = e => { if (e.key === "Enter") drop(); }; binBox.appendChild(el); });
+  function reset() { pool.innerHTML = ""; $$(".bin .chips", s).forEach(b => b.innerHTML = ""); fb.textContent = ""; picked = null;
+    items.map((it, k) => [it, k]).sort(() => Math.random() - .5).forEach(([[w], k]) => { const b = document.createElement("button");
+      b.className = "chip"; b.textContent = w; b.dataset.i = k;
+      b.onclick = () => { $$(".chip", pool).forEach(x => x.classList.remove("sel")); b.classList.add("sel"); picked = b; }; pool.appendChild(b); }); }
+  $(".btn", s).onclick = reset; reset();
+});
+
+/* 自测 */
+$$("[data-quiz] .q").forEach(q => { const ans = q.dataset.ans;
+  $$(".chip", q).forEach(c => c.onclick = () => { $$(".chip", q).forEach(x => { x.disabled = true; if (x.dataset.i === ans) x.classList.add("ok"); });
+    const ok = c.dataset.i === ans; if (!ok) c.classList.add("no");
+    const fb = $(".fb", q); fb.className = "fb " + (ok ? "ok" : "no"); fb.textContent = ok ? "✓ 答对了" : "✗ 再看看"; $(".reveal", q).hidden = false; }); });
+
+/* 场景 2：物主代词 */
+const POSS = [["I", "my", "mine"], ["you", "your", "yours"], ["he", "his", "his"], ["she", "her", "hers"], ["we", "our", "ours"], ["they", "their", "theirs"]];
+function showPoss(k) {
+  const [, a, p] = POSS[k];
+  $("#possA").innerHTML = `It's <mark>${a}</mark> book.`; $("#possB").innerHTML = `The book is <mark>${p}</mark>.` + (a === p ? ' <span class="small">← his 两种说法一样</span>' : "");
+  $$("#possWho .chip").forEach((b, i) => b.classList.toggle("sel", i === k));
+}
+POSS.forEach(([w], i) => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = w; b.onclick = () => showPoss(i); $("#possWho").appendChild(b); });
+showPoss(0);
+
+/* 场景 3：家谱树 */
+$$(".tree .node").forEach(n => { const f = () => { $$(".tree .node").forEach(x => x.classList.toggle("on", x === n)); $("#treeOut").className = "fb ok"; $("#treeOut").textContent = n.dataset.r; };
+  n.onclick = f; n.onkeydown = e => { if (e.key === "Enter") f(); }; });
+
+/* 场景 5：排顺序 */
+const SEQ = ["她们从商店回家", "妈妈躺到沙发上", "Suzie 去隔壁，邻居不在", "Suzie 拨打 999", "警察和救护车赶到", "大约一小时后，妈妈好转了"];
+let seqN = 0;
+function seqReset() {
+  seqN = 0; $("#seqDone").innerHTML = ""; $("#seqPool").innerHTML = ""; $("#seqFb").textContent = "";
+  SEQ.map((t, i) => [t, i]).sort(() => Math.random() - .5).forEach(([t, i]) => { const b = document.createElement("button"); b.className = "chip"; b.textContent = t;
+    b.onclick = () => { if (i === seqN) { seqN++; b.remove(); const li = document.createElement("li"); li.textContent = t; $("#seqDone").appendChild(li);
+        $("#seqFb").className = "fb ok"; $("#seqFb").textContent = seqN === SEQ.length ? "✓ 顺序全对！" : "✓ 对，下一件呢？"; }
+      else { $("#seqFb").className = "fb no"; $("#seqFb").textContent = "✗ 这件事还没发生，再想想。"; } };
+    $("#seqPool").appendChild(b); });
+}
+seqReset();
+wireCites();
+</script>
+</body>
+</html>
