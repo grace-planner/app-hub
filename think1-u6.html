@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>朋友是一辈子的</title>
+<!-- 风格：手绘课堂笔记。配色=横线纸米白底+蓝黑笔迹+荧光黄/薄荷绿/番茄红高亮；字体=系统黑体正文、宋体标题；质感=横线、便利贴、手绘圈画；主视觉=铅笔淡彩速写。 -->
+<style>
+:root{
+  --paper:#fbf8ef; --line:#dfe6ef; --margin:#f1b8b8; --ink:#1f2a44; --ink2:#55607a; --pen:#2a4fa8;
+  --hl:#fff07a; --mint:#bfe8d4; --tomato:#e5553f; --note:#fff4b8; --card:#ffffff; --shadow:rgba(31,42,68,.12);
+  --ok:#1d8a5a; --bad:#c8402e;
+  --fs:17px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1b1f2a; --line:#262c3b; --margin:#4a2c34; --ink:#e9ecf3; --ink2:#a5aec2; --pen:#8fb0ff;
+    --hl:#6b5d10; --mint:#1f4a3a; --tomato:#ff7a62; --note:#3b3622; --card:#232838; --shadow:rgba(0,0,0,.4);
+    --ok:#5ed39b; --bad:#ff8a76;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1b1f2a; --line:#262c3b; --margin:#4a2c34; --ink:#e9ecf3; --ink2:#a5aec2; --pen:#8fb0ff;
+  --hl:#6b5d10; --mint:#1f4a3a; --tomato:#ff7a62; --note:#3b3622; --card:#232838; --shadow:rgba(0,0,0,.4);
+  --ok:#5ed39b; --bad:#ff8a76;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:64px}
+body{margin:0;background:var(--paper);color:var(--ink);font:var(--fs)/1.75 -apple-system,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 30px;overflow-x:hidden}
+h1,h2,h3{font-family:"Songti SC","STSong","Noto Serif CJK SC",SimSun,serif;line-height:1.35;margin:.2em 0 .5em}
+h2{font-size:1.5em}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 80px;border-left:2px solid var(--margin)}
+header.bar{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;padding:8px 16px}
+header.bar .t{font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{min-height:44px;min-width:44px;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-size:.95em;padding:6px 12px;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:none}
+.btn.sm{min-height:40px;padding:4px 10px;font-size:.85em}
+.btn:focus-visible,.chip:focus-visible{outline:3px solid var(--pen);outline-offset:2px}
+mark{background:linear-gradient(transparent 45%,var(--hl) 45%);color:inherit;padding:0 .1em}
+.en{font-family:"Avenir Next","Helvetica Neue",Arial,sans-serif;font-weight:600;color:var(--pen)}
+section{padding:28px 0 8px}
+.point{font-size:1.15em;font-weight:600;background:var(--note);padding:10px 14px;border-radius:4px;box-shadow:3px 3px 0 var(--shadow);transform:rotate(-.4deg);margin:0 0 16px}
+.lab{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:16px;box-shadow:4px 4px 0 var(--shadow);margin:12px 0}
+details{margin:12px 0;border:1px dashed var(--ink2);border-radius:10px;padding:8px 14px;background:color-mix(in srgb,var(--card) 70%,transparent)}
+summary{cursor:pointer;font-weight:600;min-height:32px}
+.cite{cursor:pointer;color:var(--pen);font-weight:700;font-size:.72em;padding:0 2px}
+.cite::before{content:"[原文]"}
+.tag{font-size:.7em;border:1px solid var(--ink2);border-radius:6px;padding:0 5px;margin-left:4px;color:var(--ink2);vertical-align:2px}
+.tag::before{content:attr(data-label)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;border:2px solid var(--ink);border-radius:22px;background:var(--card);color:var(--ink);padding:6px 14px;font:inherit;cursor:pointer;text-align:left}
+.chip.ok{background:var(--mint);border-color:var(--ok)}
+.chip.no{background:color-mix(in srgb,var(--tomato) 25%,var(--card));border-color:var(--bad)}
+.chip.sel{background:var(--hl)}
+.chip[disabled]{cursor:default}
+.fb{min-height:1.8em;font-weight:600}
+.fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+.reveal{background:var(--mint);border-radius:8px;padding:8px 12px}
+figure{margin:12px 0}
+figure svg{width:100%;height:auto;display:block;border-radius:12px}
+figcaption{font-size:.85em;color:var(--ink2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.bin{border:2px dashed var(--ink2);border-radius:12px;padding:10px;min-height:100px;cursor:pointer}
+.bin h3{font-size:1em;margin:0 0 6px}
+.bin .chips{gap:6px}
+.map{display:block;width:100%}
+.map .node{cursor:pointer}
+.map .node:hover rect,.map .node:focus rect{fill:var(--hl)}
+.big{font-size:1.25em;font-weight:700}
+.sent{font-size:1.2em;padding:10px 12px;background:var(--paper);border-radius:8px;border-left:4px solid var(--pen);margin:10px 0}
+.blank{display:inline-block;min-width:3em;border-bottom:2px solid currentColor}
+input[type=range]{width:100%;min-height:44px;accent-color:var(--pen)}
+select{font:inherit;min-height:44px;border:2px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink);padding:4px 8px}
+table.t{border-collapse:collapse;width:100%;font-size:.95em}
+table.t td,table.t th{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+#pop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+#pop[hidden]{display:none}
+#pop .box{background:var(--card);color:var(--ink);max-width:520px;width:100%;border-radius:14px;padding:18px;border:2px solid var(--ink)}
+#pop blockquote{margin:8px 0;padding:8px 12px;border-left:4px solid var(--pen);background:var(--paper);font-family:Georgia,"Times New Roman",serif}
+#back{position:fixed;right:16px;bottom:16px;z-index:30}
+#resume{background:var(--note);padding:8px 14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+#resume[hidden]{display:none}
+nav.dots{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 0}
+.q{margin:14px 0}
+.small{font-size:.85em;color:var(--ink2)}
+.units{display:flex;gap:6px;flex-wrap:wrap;font-size:.85em}
+.units a{color:var(--pen)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+.flip{min-width:120px;text-align:center}
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="t">思辨英语 1A · Unit 6 Friends forever</span>
+  <button class="btn sm" id="fsDown" aria-label="缩小字号">A−</button>
+  <button class="btn sm" id="fsUp" aria-label="放大字号">A+</button>
+  <button class="btn sm" id="theme" aria-label="切换明暗">◐</button>
+</header>
+<div id="resume" hidden><span>上次读到一半，要接着读吗？</span><button class="btn sm" id="resumeGo">接着读</button><button class="btn sm" id="resumeNo">从头开始</button></div>
+
+<main class="wrap">
+<section data-hero id="hero">
+  <h1>朋友是一辈子的</h1>
+  <p class="point">30 秒版：很多常用动词的过去式<mark>不加 -ed，要单独记</mark>（go → went, see → saw）；问过去的事用 <mark>Did…?</mark> 或 <mark>疑问词 + did…?</mark>，后面动词用原形。<sup class="cite" data-cite="irr"></sup></p>
+  <p>本单元有一个男孩和一只海豚的友谊、隔着半个地球通信 15 年的笔友，还有文学名著里的好朋友们。</p>
+  <div class="lab">
+    <p class="small" style="margin:0 0 6px">全局图：说过去的三件事。点方框跳过去。</p>
+    <svg class="map" viewBox="0 0 760 170" role="img" aria-label="不规则过去式、过去时间表达和过去时疑问句">
+      <g font-family="-apple-system,PingFang SC,sans-serif" font-size="17" fill="var(--ink)" text-anchor="middle">
+        <g class="node" tabindex="0" data-jump="s2"><rect x="20" y="20" width="230" height="130" rx="12" fill="var(--note)" stroke="var(--ink)" stroke-width="2"/><text x="135" y="52" font-weight="700">做了什么</text><text x="135" y="84">不规则过去式</text><text x="135" y="120" fill="var(--pen)">Joe met Fonzie.</text></g>
+        <g class="node" tabindex="0" data-jump="s3"><rect x="265" y="20" width="230" height="130" rx="12" fill="var(--mint)" stroke="var(--ink)" stroke-width="2"/><text x="380" y="52" font-weight="700">什么时候</text><text x="380" y="84">过去时间表达</text><text x="380" y="120" fill="var(--pen)">two weeks ago</text></g>
+        <g class="node" tabindex="0" data-jump="s5"><rect x="510" y="20" width="230" height="130" rx="12" fill="var(--note)" stroke="var(--ink)" stroke-width="2"/><text x="625" y="52" font-weight="700">怎么问</text><text x="625" y="84">Did / Wh- + did</text><text x="625" y="120" fill="var(--pen)">Where did you meet?</text></g>
+      </g>
+    </svg>
+  </div>
+  <nav class="dots" aria-label="场景目录">
+    <button class="btn sm" data-jump="s1">① 男孩与海豚</button><button class="btn sm" data-jump="s2">② 不规则过去式</button><button class="btn sm" data-jump="s3">③ 多久以前</button><button class="btn sm" data-jump="s4">④ a friend of mine</button><button class="btn sm" data-jump="s5">⑤ 笔友</button><button class="btn sm" data-jump="s6">⑥ 性格词</button><button class="btn sm" data-jump="s7">⑦ 书里的朋友</button><button class="btn sm" data-jump="quiz">自测</button>
+  </nav>
+</section>
+
+<section data-scene="1" id="s1">
+  <h2>① 一个男孩和一只海豚</h2>
+  <p class="point">Joe 三岁时做了一次手术，左半边身体瘫痪了。后来他认识了海豚 Fonzie，喂它、和它玩，身体一点点好起来。<sup class="cite" data-cite="joe1"></sup></p>
+  <figure data-figure>
+    <svg viewBox="0 0 800 330" role="img" aria-label="插画：一只海豚跃出蓝色海面，水花四溅，远处有棕榈树">
+      <rect width="800" height="330" fill="#bfe3f2"/>
+      <rect y="200" width="800" height="130" fill="#2f86b8"/>
+      <g stroke="#cfeaf6" stroke-width="3" fill="none" opacity=".7"><path d="M0 230 q40 -10 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0"/><path d="M0 270 q40 -10 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0"/></g>
+      <g transform="translate(680 200)"><path d="M0 0 Q6 -80 18 -140" stroke="#7a5a34" stroke-width="10" fill="none"/>
+        <g fill="#3e8a4a"><path d="M18 -140 q-60 -10 -90 30 q50 -20 90 -30Z"/><path d="M18 -140 q60 -20 90 20 q-50 -25 -90 -20Z"/><path d="M18 -140 q-30 -50 -80 -50 q45 15 80 50Z"/><path d="M18 -140 q30 -55 80 -45 q-45 10 -80 45Z"/></g></g>
+      <g transform="translate(360 170) rotate(-28)">
+        <path d="M-150 20 Q-80 -50 40 -40 Q110 -32 150 -2 Q160 8 150 14 Q110 22 70 30 Q-20 52 -110 40 Q-140 36 -150 20Z" fill="#7d8c99" stroke="#3e4a55" stroke-width="3"/>
+        <path d="M-110 40 Q-40 46 70 30" fill="none" stroke="#c9d3db" stroke-width="12" opacity=".8"/>
+        <path d="M0 -40 Q10 -80 40 -86 Q30 -60 40 -40Z" fill="#6c7b88" stroke="#3e4a55" stroke-width="3"/>
+        <path d="M-150 20 L-190 -10 L-180 20 L-195 48Z" fill="#6c7b88" stroke="#3e4a55" stroke-width="3"/>
+        <path d="M0 30 L-20 62 L20 36Z" fill="#6c7b88" stroke="#3e4a55" stroke-width="3"/>
+        <circle cx="105" cy="-6" r="4" fill="#111"/><path d="M118 10 q14 2 26 0" stroke="#3e4a55" stroke-width="2" fill="none"/>
+      </g>
+      <g fill="#ffffff" opacity=".9"><circle cx="230" cy="215" r="8"/><circle cx="250" cy="200" r="5"/><circle cx="210" cy="198" r="6"/><circle cx="270" cy="218" r="4"/><circle cx="195" cy="222" r="4"/></g>
+      <text x="30" y="50" font-family="Songti SC,STSong,serif" font-size="28" fill="#1f2a44" font-weight="700">A special friendship</text>
+    </svg>
+    <figcaption>海豚 Fonzie。示意<span class="tag" data-label="示意"></span></figcaption>
+  </figure>
+  <div data-guess class="lab" data-unit=" 公斤">
+    <p class="big">先猜：Fonzie 有多重？</p>
+    <input type="range" min="25" max="1000" step="25" value="100" aria-label="猜体重"> <output class="big">100 公斤</output>
+    <button class="btn">揭晓</button>
+    <p class="reveal" hidden><b>275 公斤</b>，身长 3 米。<sup class="cite" data-cite="fonzie"></sup></p>
+  </div>
+  <div class="lab">
+    <p class="big" style="margin-top:0">故事的几个关键点</p>
+    <div class="chips cards" data-out="#joeOut">
+      <button class="chip" data-a="一些康复治疗效果不好。全家搬到佛罗里达，妈妈 Deena 觉得游泳能帮 Joe，就带他去酒店泳池，可有些客人不愿意他们在那里。">起初</button>
+      <button class="chip" data-a="一天，妈妈带 Joe 去了 Key Largo 一个能和海豚游泳的地方，叫 Dolphin Plus。Joe 在那里认识了 Fonzie。">相遇</button>
+      <button class="chip" data-a="妈妈让 Joe 每次都用左手喂 Fonzie，于是他越来越多地用左半边身体，慢慢好了起来。">左手喂食</button>
+      <button class="chip" data-a="Deena 一家在 Dolphin Plus 旁边办了 Island Dolphin Care，很多有健康问题的人来这里和海豚相处。">帮助别人</button>
+      <button class="chip" data-a="Fonzie 在 2004 年去世，那年 Joe 17 岁。Joe 写道：它总能让我露出笑容。">告别</button>
+    </div>
+    <p class="fb" id="joeOut" aria-live="polite"></p>
+    <p class="small">来自课本文章<sup class="cite" data-cite="joe2"></sup></p>
+  </div>
+</section>
+
+<section data-scene="2" id="s2">
+  <h2>② 不规则过去式：要单独记</h2>
+  <p class="point">规则动词加 -ed（moved, wanted），但很多常用动词的过去式不守规矩（took, knew），只能一个个记。<sup class="cite" data-cite="irr"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0"><b>翻卡片：</b>先在心里说出过去式，再点开</p>
+    <div class="chips" id="cards"></div>
+    <p class="small">这些动词都出自 Joe 和 Fonzie 的故事<sup class="cite" data-cite="irr_list"></sup></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>否定：</b>不规则动词也一样，<b>didn't + 原形</b></p>
+    <div class="drill" data-items='[["Joe&#39;s operation ___ well.",["didn&#39;t go","didn&#39;t went"],"didn&#39;t go","didn&#39;t 后面用原形 go，不用 went。"],["The doctors ___ he could get better.",["didn&#39;t think","didn&#39;t thought"],"didn&#39;t think","didn&#39;t 后面用原形 think。"],["We went to Italy, but we ___ to Rome.",["didn&#39;t go","don&#39;t go"],"didn&#39;t go","说过去的事，否定用 didn&#39;t。"],["I saw James, but I ___ Anna.",["didn&#39;t see","didn&#39;t saw"],"didn&#39;t see","didn&#39;t + 原形 see。"]]'></div>
+    <p class="small">前两句改错题出自课本 p58 练习 4<sup class="cite" data-cite="neg"></sup></p>
+  </div>
+</section>
+
+<section data-scene="3" id="s3">
+  <h2>③ 多久以前？</h2>
+  <p class="point">说过去常用：<span class="en">yesterday morning</span>、<span class="en">last night / last month</span>、<span class="en">two weeks ago / a year ago</span>。<b>ago</b> 放在时间段后面。<sup class="cite" data-cite="time"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0"><b>ago 计算器：</b>现在是 10:20，下面这些事是多久以前？</p>
+    <div class="drill" data-items='[["The film began at 10.00. It began twenty minutes ___ .",["ago","last"],"ago","时间段 + ago：二十分钟以前。"],["It&#39;s 8 o&#39;clock. I had breakfast at 7. I had breakfast an hour ___ .",["ago","before"],"ago","an hour ago 一小时前。"],["It&#39;s December. My holiday was in July. It was five months ___ .",["ago","last"],"ago","从 7 月到 12 月是五个月。"],["I saw her ___ week.",["last","ago"],"last","last week 上周；last 放在前面。"],["We met ___ morning.",["yesterday","last"],"yesterday","yesterday morning 昨天早上。"]]'></div>
+    <p class="small">情境改编自课本 p58 练习 7<sup class="cite" data-cite="ago_ex"></sup></p>
+  </div>
+</section>
+
+<section data-scene="4" id="s4">
+  <h2>④ a friend of mine：双重所有格</h2>
+  <p class="point">说「我很多朋友中的一个」：<b>a friend of mine</b>；用名字时：<b>a friend of Jack's</b>、<b>a friend of my mother's</b>。<sup class="cite" data-cite="dg"></sup></p>
+  <div class="lab">
+    <div class="drill" data-items='[["She&#39;s a friend of ___ .",["me","mine"],"mine","of 后面用名词性物主代词 mine。"],["Mr Smith is a teacher of ___ .",["my sister","my sister&#39;s"],"my sister&#39;s","of + 名词要加 &#39;s。"],["She&#39;s a cousin of ___ .",["John","John&#39;s"],"John&#39;s","of + 名字 + &#39;s。"],["Mrs Jones is a neighbour of ___ .",["ours","us"],"ours","of 后面用 ours。"],["Steve is our friend. → Steve is a friend of ___ .",["ours","our"],"ours","把 our friend 改成 a friend of ours。"]]'></div>
+    <p class="small">句子来自课本 p59 练习 13、14<sup class="cite" data-cite="dg_ex"></sup></p>
+  </div>
+</section>
+
+<section data-scene="5" id="s5">
+  <h2>⑤ 写了 15 年信的笔友</h2>
+  <p class="point">澳大利亚的 Paul 和法国的 Annette 14 岁时通过学校的网上交流项目开始通信，互相改语言错误，后来成了好朋友。<sup class="cite" data-cite="pen1"></sup></p>
+  <figure data-figure>
+    <svg viewBox="0 0 800 320" role="img" aria-label="示意地图：布里斯班和图卢兹之间画着虚线，两人在中途的新加坡见面">
+      <rect width="800" height="320" fill="#d8ebf5"/>
+      <g fill="#cfe2b8" stroke="#8aa36d" stroke-width="2">
+        <path d="M80 60 Q150 30 230 55 Q260 90 230 130 Q170 150 120 120 Q70 100 80 60Z"/>
+        <path d="M250 60 Q350 30 480 50 Q560 70 560 120 Q520 170 450 160 Q400 190 360 170 Q300 140 280 110 Q240 90 250 60Z"/>
+        <path d="M600 210 Q660 190 720 210 Q740 250 700 280 Q640 290 610 260 Q590 235 600 210Z"/>
+        <path d="M470 175 q20 5 22 22 q-12 6 -24 -2Z"/>
+      </g>
+      <path d="M190 80 Q380 20 490 190" fill="none" stroke="#e5553f" stroke-width="3" stroke-dasharray="8 6"/>
+      <path d="M690 235 Q600 150 490 190" fill="none" stroke="#2a4fa8" stroke-width="3" stroke-dasharray="8 6"/>
+      <g font-family="-apple-system,PingFang SC,sans-serif" font-size="16" fill="#1f2a44">
+        <circle cx="190" cy="80" r="7" fill="#e5553f"/><text x="120" y="70">Toulouse · Annette</text>
+        <circle cx="690" cy="235" r="7" fill="#2a4fa8"/><text x="620" y="305">Brisbane · Paul</text>
+        <circle cx="490" cy="190" r="9" fill="#f2c23a" stroke="#1f2a44" stroke-width="2"/><text x="420" y="222" font-weight="700">Singapore</text>
+      </g>
+      <text x="30" y="300" font-family="Songti SC,STSong,serif" font-size="22" fill="#1f2a44" font-weight="700">Pen pals for years</text>
+    </svg>
+    <figcaption>两人分别从图卢兹和布里斯班出发，在中途见面。地图形状和比例都是示意<span class="tag" data-label="示意"></span></figcaption>
+  </figure>
+  <div data-guess class="lab">
+    <p class="big">先猜：机票太贵，他们决定在「中途」见面。是在哪里？</p>
+    <div class="chips"><button class="chip" data-v="0">悉尼</button><button class="chip" data-v="1">新加坡</button><button class="chip" data-v="0">巴黎</button></div>
+    <p class="reveal" hidden>去年在<b>新加坡</b>见面，一起玩了大约五天。两人几乎一直说英语，Annette 的英语已经很好了。<sup class="cite" data-cite="pen2"></sup></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>过去时问句：</b>Did + 主语 + 原形？疑问词 + did + 主语 + 原形？<sup class="cite" data-cite="q"></sup></p>
+    <div class="drill" data-items='[["___ you become friends immediately?",["Did","Do"],"Did","问过去的事，用 Did。"],["When did you actually ___ ?",["meet","met"],"meet","did 后面用原形 meet。"],["Which language ___ you speak?",["did","were"],"did","疑问词 + did + 主语 + 原形。"],["Did you have a good weekend? — No, I ___ . It rained all the time.",["didn&#39;t","don&#39;t"],"didn&#39;t","简短回答：No, I didn&#39;t."],["What time ___ they get home?",["did","do"],"did","问过去：What time did…?"]]'></div>
+  </div>
+</section>
+
+<section data-scene="6" id="s6">
+  <h2>⑥ 用一个词说朋友的性格</h2>
+  <p class="point">课本用八个形容词描述朋友，每个词后面都跟一句解释。<sup class="cite" data-cite="pers"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0">看描述，选对应的形容词：</p>
+    <div class="drill" data-items='[["Nick knows a lot about everything. He&#39;s ___ .",["intelligent","jealous"],"intelligent","intelligent 聪明。"],["She&#39;s always got a smile on her face. She&#39;s ___ .",["cheerful","confident"],"cheerful","cheerful 开朗。"],["He&#39;s not happy when you talk to other friends. He&#39;s ___ .",["jealous","helpful"],"jealous","jealous 嫉妒。"],["He&#39;s always ready to help you. He&#39;s ___ .",["helpful","funny"],"helpful","helpful 乐于助人。"],["She&#39;s not scared to talk in public. She&#39;s ___ .",["confident","generous"],"confident","confident 自信。"],["She&#39;s always happy to share her things. She&#39;s ___ .",["generous","easy-going"],"generous","generous 大方。"],["She never gets angry about anything. She&#39;s ___ .",["easy-going","cheerful"],"easy-going","easy-going 随和。"],["He always makes me laugh. He&#39;s ___ .",["funny","intelligent"],"funny","funny 有趣。"]]'></div>
+  </div>
+  <details><summary>Think values：好朋友应该是什么样？</summary>
+    <p>课本列了六条让你排序：遇到问题时帮你、你难过时逗你笑、从不批评你、一直对你诚实、长得好看、和你兴趣相同。哪条对你最重要？<sup class="cite" data-cite="values"></sup></p>
+  </details>
+</section>
+
+<section data-scene="7" id="s7">
+  <h2>⑦ 书里的好朋友</h2>
+  <p class="point">哈利·波特、赫敏和罗恩的友谊人人皆知。文学里还有很多好朋友。<sup class="cite" data-cite="lit_intro"></sup></p>
+  <div data-guess class="lab">
+    <p class="big">先猜：大仲马写《三个火枪手》是哪一年？</p>
+    <div class="chips"><button class="chip" data-v="1">1844</button><button class="chip" data-v="0">1894</button><button class="chip" data-v="0">1949</button></div>
+    <p class="reveal" hidden><b>1844 年</b>。1894 年是《丛林之书》，1937–1949 年是《指环王》。<sup class="cite" data-cite="lit"></sup></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>这些人物来自哪本书？</b></p>
+    <div class="sorter" data-bins='["The Three Musketeers","The Jungle Book","The Lord of the Rings","My Brilliant Friend"]' data-items='[["D&#39;Artagnan",0,"去巴黎想当火枪手的年轻人。"],["Athos、Aramis、Porthos",0,"三位最了不起的火枪手。"],["Mowgli",1,"在印度丛林长大的男孩。"],["熊 Baloo",1,"Mowgli 的好朋友和守护者。"],["Frodo",2,"从叔叔 Bilbo 那里得到一枚戒指。"],["Sam",2,"Frodo 遇到危险时总在他身边。"],["Elena 和 Lila",3,"1950 年代那不勒斯的同学，长大后各奔东西。"]]'></div>
+    <p class="small">来自课本文化页<sup class="cite" data-cite="lit"></sup></p>
+  </div>
+  <details><summary>三个火枪手的口号，和一封感谢信</summary>
+    <p>火枪手们常说 <span class="en">One for all and all for one</span>（人人为我，我为人人），显出他们的友谊有多牢。<sup class="cite" data-cite="lit"></sup></p>
+    <p>写作范文：Liam 感谢 Darcy 送他《三体》，说一口气读完了，现在想读整个系列。Darcy 回信说下一本借给他。<sup class="cite" data-cite="thanks"></sup></p>
+  </details>
+</section>
+
+<section id="quiz">
+  <h2>你答得上来吗？</h2>
+  <div data-quiz>
+    <div class="q lab" data-ans="2">
+      <p><b>1.</b> begin 的过去式是？</p>
+      <div class="chips"><button class="chip" data-i="0">beginned</button><button class="chip" data-i="1">begun</button><button class="chip" data-i="2">began</button></div>
+      <p class="fb"></p><p class="reveal" hidden>begin → began，不规则变化。<sup class="cite" data-cite="irr_list"></sup></p>
+    </div>
+    <div class="q lab" data-ans="0">
+      <p><b>2.</b> Where ____ you meet your best friend?</p>
+      <div class="chips"><button class="chip" data-i="0">did</button><button class="chip" data-i="1">do</button><button class="chip" data-i="2">were</button></div>
+      <p class="fb"></p><p class="reveal" hidden>问过去：疑问词 + did + 主语 + 原形。<sup class="cite" data-cite="q"></sup></p>
+    </div>
+    <div class="q lab" data-ans="1">
+      <p><b>3.</b> 妈妈为什么让 Joe 用左手喂 Fonzie？</p>
+      <div class="chips"><button class="chip" data-i="0">Fonzie 只吃左手喂的鱼</button><button class="chip" data-i="1">让他多用瘫痪的左半边身体</button><button class="chip" data-i="2">Joe 是左撇子</button></div>
+      <p class="fb"></p><p class="reveal" hidden>他手术后左半边瘫痪，用左手喂食让他越来越多地用左边，慢慢好起来。<sup class="cite" data-cite="joe2"></sup></p>
+    </div>
+  </div>
+  <p class="small">没放进来的有：p56 朋友类型讨论、p59 听力（Jack 和 Markus 吵架）和 Train to Think 蜘蛛图、p61 Grammar rap 视频、p63 写作练习，以及单词重音。听力和视频请配合课本使用。</p>
+  <p class="small">页码按课本印刷页码标注；在 PDF 里要往后翻一页（书 p57 = PDF 第 58 页）。关键规则和数字请点「[原文]」核对原句。</p>
+</section>
+<p class="units">其他单元：<a href="think1-u1.html">Unit 1</a> · <a href="think1-u2.html">Unit 2</a> · <a href="think1-u3.html">Unit 3</a> · <a href="think1-u4.html">Unit 4</a> · <a href="think1-u5.html">Unit 5</a> · <a href="think1-u6.html">Unit 6</a></p>
+</main>
+
+<button class="btn" id="back" hidden>↩ 回到刚才的位置</button>
+<div id="pop" hidden role="dialog" aria-modal="true" aria-labelledby="popT">
+  <div class="box">
+    <p id="popT" class="small" style="margin:0"></p>
+    <blockquote id="popQ"></blockquote>
+    <p id="popZ"></p>
+    <button class="btn sm" id="popX">关闭（Esc）</button>
+  </div>
+</div>
+
+<script>
+const UNIT = "u6";
+const SOURCES = {
+  joe1: { page: 57, quote: "'Joe' is Joe Hoagland, who was three years old when the story began. … When he was three, he had another operation. This operation didn't go well and he became paralysed – he couldn't move the left side of his body. … He loved playing with him and feeding him. … Slowly, he got better and better. He's now over 30 years old and very well.", zh: "故事开始时 Joe 3 岁；那次手术不顺利，他左半身瘫痪；他喜欢陪 Fonzie 玩、喂它，慢慢好起来，现在 30 多岁，身体很好。" },
+  fonzie: { page: 57, quote: "And 'Fonzie' is a 3-metre-long, 275-kilogram dolphin.", zh: "Fonzie 是一只 3 米长、275 公斤的海豚。" },
+  joe2: { page: 57, quote: "First, they went to swimming pools in hotels, but some hotel guests didn't like them being there. Then one day she went with Joe to a place in Key Largo called Dolphin Plus, where people swam with dolphins. … Joe's mother told him always to feed Fonzie using his left hand, so Joe used his left side more and more. … she and her family worked to open a place called Island Dolphin Care. It's next to Dolphin Plus … Sadly, Fonzie died in 2004 when Joe was 17. He wrote: 'Fonzie was a great friend to me … He always put a smile on my face.'", zh: "起初去酒店泳池，有客人不乐意；后来去 Key Largo 的 Dolphin Plus 认识 Fonzie；妈妈让他用左手喂食；家人在旁边开了 Island Dolphin Care；Fonzie 2004 年去世，那年 Joe 17 岁。" },
+  irr: { page: 58, quote: "1 Then the family moved to Florida. Joe wanted to see Fonzie every day. 2 Deena, Joe's mother, took him to different places for therapy. She knew it was a good idea for other people, too. — How are the verbs in 1 different from the verbs in 2?", zh: "第 1 组是规则动词（moved、wanted），第 2 组是不规则动词（took、knew）。" },
+  irr_list: { page: 58, quote: "0 have – had 1 swim 2 go 3 see 4 think 5 come 6 write 7 begin", zh: "写出这些动词的过去式：had、swam、went、saw、thought、came、wrote、began（答案按词形补出）。" },
+  neg: { page: 58, quote: "Correct these two sentences from the article. Make them negative. 1 Joe's operation went well. 2 The doctors thought he could get better. … We / go / to Italy / but we / go / to Rome → We went to Italy, but we didn't go to Rome.", zh: "把句子改成否定；示范：We went to Italy, but we didn't go to Rome." },
+  time: { page: 58, quote: "When we talk about the past, we often use expressions like these: yesterday, yesterday ___, yesterday afternoon; last night, last week, last ___, last December; an hour ago, two weeks ago, a month ago, ___ ago (a year | morning | month)", zh: "常用过去时间表达：yesterday morning/afternoon，last night/week/month，an hour/two weeks/a month/a year ago。" },
+  ago_ex: { page: 58, quote: "0 Oli is twenty. He left school when he was sixteen. Oli left school four years ago. 1 It's 8 o'clock. I had breakfast at 7 o'clock. 2 It's 10.20. The film began at 10.00. 3 It's December. My holiday was in July.", zh: "用 ago 改写：示范 Oli 四年前离开学校；其余三题算出相隔多久。" },
+  dg: { page: 59, quote: "She's a friend of mine. Markus is a friend of Jack's. Her mother was a friend of my mother's. RULE: We form the double genitive in two ways: noun + of + possessive pronoun (mine, yours, his, hers, ours, yours, theirs); noun + of + possessive adjective (my, your …) + noun/name + possessive 's. We use it to talk about 'one of many things' we have, e.g., Lee is one of many friends I have.", zh: "双重所有格两种形式：名词 + of + 名词性物主代词；名词 + of + 物主形容词 + 名词/名字 + 's；表示「很多个当中的一个」。" },
+  dg_ex: { page: 59, quote: "0 She's a friend of me / mine. 1 Mr Smith is a teacher of my sister / my sister's. 2 She's a cousin of John / John's. 3 Mrs Jones is a neighbour of ours / us. … 1 Steve is our friend.", zh: "双重所有格选择和改写练习。" },
+  pen1: { page: 60, quote: "Paul (from Brisbane, Australia) and Annette (from Toulouse, France) … Paul: Fifteen years ago! We were both fourteen. My school in Australia and her school in France started a virtual exchange programme … Paul: We corrected each other's mistakes.", zh: "布里斯班的 Paul 和图卢兹的 Annette 15 年前都是 14 岁，因学校的网上交流项目开始通信，互相改错。" },
+  pen2: { page: 60, quote: "Annette: Last year. We met in Singapore. Paul: That's right. We wanted to meet up, but it's a long way and the plane tickets are expensive. So we decided to meet halfway. We had a really great time together for about five days. … Paul: English, almost all the time. Her English is really good!", zh: "去年在新加坡见面，因为路远、机票贵，选在中途；在一起约五天；几乎一直说英语。" },
+  q: { page: 61, quote: "1 speak / language / Which / you / did 2 friends / you / Did / immediately / become 3 meet / did / When / you / actually … ___ I/you/he/she/we/they enjoy the show? … What time ___ I/you/he/she/we/they get home? … Did you have a good weekend? … No, I didn't. It rained all the time.", zh: "过去时问句：Did + 主语 + 原形；疑问词 + did + 主语 + 原形；简短回答 Yes, I did. / No, I didn't." },
+  pers: { page: 61, quote: "Nick is intelligent. He knows a lot about everything. Amelia is cheerful. She's always got a smile on her face. Kai is jealous. He's not happy when you talk to other friends. Ben is helpful. He's always ready to help you. Ruby is confident. She's not scared to talk in public. Liz is generous. She's always happy to share her things with you. Chloe is easy-going. She never gets angry about anything. Connor is funny. He always makes me laugh.", zh: "八个性格形容词及解释：intelligent、cheerful、jealous、helpful、confident、generous、easy-going、funny。" },
+  values: { page: 57, quote: "A good friend … helps you when you have a problem. makes you laugh when you're sad. never criticises you. is honest with you all the time. looks good. has the same interests as you.", zh: "好朋友的六条标准，让学生勾选和排序。" },
+  lit_intro: { page: 62, quote: "Is there anyone who doesn't know about those great friends Harry, Hermione and Ron in the Harry Potter books? … But there are many examples of great friends in literature.", zh: "哈利、赫敏和罗恩的友谊家喻户晓，文学里还有很多好朋友的例子。" },
+  lit: { page: 62, quote: "In 1844, French writer Alexandre Dumas wrote ___. … D'Artagnan … meets Athos, Aramis and Porthos … They often say: 'One for all and all for one' … ___ (1894) by Rudyard Kipling … Mowgli … great friend and guardian is a bear called Baloo and also a black panther called Bagheera … ___ (1937–1949) by J.R.R. Tolkien … Frodo, who gets a ring from his uncle Bilbo Baggins … has a friend, Sam … ___ (2011) by Elena Ferrante … begins in Naples in the 1950s. Elena and Lila are friends at school …", zh: "《三个火枪手》1844 年大仲马；《丛林之书》1894 年吉卜林；《指环王》1937–1949 年托尔金；《我的天才女友》2011 年费兰特（书名空格由表格对应补出）。" },
+  thanks: { page: 63, quote: "Dear Darcy, Thank you so much for The Three Body Problem. … I finished it last night and it was brilliant. Now I want to read the whole series! … You're welcome. I'm glad you liked it. … I've got the next one in the series and you can borrow it if you want.", zh: "Liam 感谢 Darcy 送《三体》，读完想看整个系列；Darcy 回信说可以借下一本给他。" }
+};
+
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const motionOK = () => !matchMedia("(prefers-reduced-motion: reduce)").matches;
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+const go = el => el.scrollIntoView({ behavior: motionOK() ? "smooth" : "auto" });
+
+/* 字号与明暗（各单元共用） */
+let fs = parseInt(store.get("t1fs")) || 17;
+const applyFs = () => { document.documentElement.style.setProperty("--fs", fs + "px"); store.set("t1fs", fs); };
+applyFs();
+$("#fsUp").onclick = () => { fs = Math.min(24, fs + 1); applyFs(); };
+$("#fsDown").onclick = () => { fs = Math.max(15, fs - 1); applyFs(); };
+const th = store.get("t1theme"); if (th) document.documentElement.dataset.theme = th;
+$("#theme").onclick = () => {
+  const cur = document.documentElement.dataset.theme;
+  const dark = cur ? cur === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.dataset.theme = dark ? "light" : "dark"; store.set("t1theme", document.documentElement.dataset.theme);
+};
+
+/* 出处弹窗 */
+let lastFocus = null;
+function openCite(id) {
+  const s = SOURCES[id]; if (!s) return;
+  lastFocus = document.activeElement;
+  $("#popT").textContent = `课本 p${s.page}（PDF 第 ${s.page + 1} 页）`;
+  $("#popQ").textContent = s.quote; $("#popZ").textContent = "转述：" + s.zh;
+  $("#pop").hidden = false; $("#popX").focus();
+}
+const closePop = () => { $("#pop").hidden = true; lastFocus && lastFocus.focus(); };
+function wireCites(root = document) {
+  $$(".cite", root).forEach(c => { if (c.dataset.w) return; c.dataset.w = 1; c.tabIndex = 0; c.setAttribute("role", "button");
+    c.onclick = () => openCite(c.dataset.cite);
+    c.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCite(c.dataset.cite); } }; });
+}
+$("#popX").onclick = closePop;
+$("#pop").onclick = e => { if (e.target.id === "pop") closePop(); };
+
+/* 跳转与回到原处 */
+const backStack = [], backBtn = $("#back");
+function jumpTo(id) {
+  backStack.push(scrollY); history.pushState({ y: scrollY }, "");
+  go(document.getElementById(id)); backBtn.hidden = false;
+}
+backBtn.onclick = () => { const y = backStack.pop(); if (y != null) scrollTo({ top: y, behavior: motionOK() ? "smooth" : "auto" }); backBtn.hidden = backStack.length === 0; };
+addEventListener("popstate", e => { if (e.state && e.state.y != null) { backStack.pop(); scrollTo(0, e.state.y); backBtn.hidden = backStack.length === 0; } });
+$$("[data-jump]").forEach(n => { n.onclick = () => jumpTo(n.dataset.jump); n.onkeydown = e => { if (e.key === "Enter") jumpTo(n.dataset.jump); }; });
+
+/* 键盘：← → 切场景，Esc 关弹窗 */
+const order = $$("[data-hero],[data-scene],#quiz").map(s => s.id);
+const current = () => { let c = 0; order.forEach((id, i) => { if (document.getElementById(id).getBoundingClientRect().top < 120) c = i; }); return c; };
+addEventListener("keydown", e => {
+  if (e.key === "Escape" && !$("#pop").hidden) return closePop();
+  if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+  if (e.key === "ArrowRight") go(document.getElementById(order[Math.min(order.length - 1, current() + 1)]));
+  if (e.key === "ArrowLeft") go(document.getElementById(order[Math.max(0, current() - 1)]));
+});
+
+/* 阅读进度 */
+const posKey = UNIT + "pos", saved = parseInt(store.get(posKey));
+if (saved > 600) { $("#resume").hidden = false;
+  $("#resumeGo").onclick = () => { scrollTo(0, saved); $("#resume").hidden = true; };
+  $("#resumeNo").onclick = () => { $("#resume").hidden = true; store.set(posKey, 0); }; }
+let tick; addEventListener("scroll", () => { clearTimeout(tick); tick = setTimeout(() => store.set(posKey, Math.round(scrollY)), 300); });
+
+/* 先猜再看：滑块（data-unit 为单位）或选项（data-v="1" 为正确） */
+$$("[data-guess]").forEach(g => {
+  const r = $("input[type=range]", g), o = $("output", g), b = $(".btn", g), rev = $(".reveal", g);
+  if (r) { const unit = g.dataset.unit || ""; const upd = () => o.textContent = r.value + unit; r.oninput = upd; upd();
+    b.onclick = () => { rev.hidden = false; b.disabled = true; r.disabled = true; o.textContent = "你猜 " + r.value + unit; }; }
+  else $$(".chip", g).forEach(c => c.onclick = () => {
+    $$(".chip", g).forEach(x => { x.disabled = true; if (x.dataset.v === "1") x.classList.add("ok"); });
+    if (c.dataset.v !== "1") c.classList.add("no"); rev.hidden = false; });
+});
+
+/* 点开卡片：.cards 里的 chip 带 data-a，结果写进 data-out 指向的元素 */
+$$(".cards").forEach(box => $$(".chip", box).forEach(c => c.onclick = () => {
+  $$(".chip", box).forEach(x => x.classList.remove("sel")); c.classList.add("sel"); $(box.dataset.out).textContent = c.dataset.a; }));
+
+/* 选词练习：.drill[data-items] = [[句子(___ 为空), [选项], 答案, 理由], ...] */
+$$(".drill").forEach(d => {
+  const items = JSON.parse(d.dataset.items); let i = 0, ok = 0;
+  d.innerHTML = '<div class="sent en"></div><div class="chips"></div><p class="fb" aria-live="polite"></p><button class="btn sm">下一句 →</button> <span class="small"></span>';
+  const [sent, opts, fb, next, cnt] = [$(".sent", d), $(".chips", d), $(".fb", d), $(".btn", d), $(".small", d)];
+  const count = () => cnt.textContent = `第 ${i + 1} / ${items.length} 句 · 答对 ${ok}`;
+  function show() {
+    const [s, os] = items[i]; sent.innerHTML = s.replace("___", '<span class="blank"></span>'); fb.textContent = ""; opts.innerHTML = ""; count();
+    os.forEach(o => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = o;
+      b.onclick = () => { const [, , ans, why] = items[i]; $$(".chip", opts).forEach(x => { x.disabled = true; if (x.textContent === ans) x.classList.add("ok"); });
+        const right = o === ans; if (right) ok++; else b.classList.add("no");
+        sent.innerHTML = s.replace("___", `<mark>${ans}</mark>`);
+        fb.className = "fb " + (right ? "ok" : "no"); fb.textContent = (right ? "✓ " : "✗ ") + why; count(); };
+      opts.appendChild(b); });
+  }
+  next.onclick = () => { i = (i + 1) % items.length; if (i === 0) ok = 0; show(); }; show();
+});
+
+/* 分类：.sorter[data-bins]=["篮子1","篮子2"]，[data-items]=[[词, 篮子序号, 说明], ...] */
+$$(".sorter").forEach(s => {
+  const bins = JSON.parse(s.dataset.bins), items = JSON.parse(s.dataset.items); let picked = null;
+  s.innerHTML = '<p class="small" style="margin-top:0">先点一个词，再点它该去的篮子。</p><div class="chips pool"></div><div class="bins"></div><p class="fb" aria-live="polite"></p><button class="btn sm">重来</button>';
+  const pool = $(".pool", s), binBox = $(".bins", s), fb = $(".fb", s);
+  bins.forEach((b, k) => { const el = document.createElement("div"); el.className = "bin"; el.tabIndex = 0; el.setAttribute("role", "button");
+    el.innerHTML = `<h3>${b}</h3><div class="chips"></div>`; const drop = () => {
+      if (!picked) { fb.className = "fb"; fb.textContent = "先点上面一个词。"; return; }
+      const [, right, why] = items[picked.dataset.i];
+      if (right === k) { picked.classList.remove("sel"); picked.classList.add("ok"); picked.disabled = true; $(".chips", el).appendChild(picked);
+        fb.className = "fb ok"; fb.textContent = "✓ " + (why || "放对了。"); picked = null;
+        if (!$$(".chip", pool).length) fb.textContent = "全部放对了！"; }
+      else { fb.className = "fb no"; fb.textContent = "✗ 再想想：" + (why || ""); } };
+    el.onclick = drop; el.onkeydown = e => { if (e.key === "Enter") drop(); }; binBox.appendChild(el); });
+  function reset() { pool.innerHTML = ""; $$(".bin .chips", s).forEach(b => b.innerHTML = ""); fb.textContent = ""; picked = null;
+    items.map((it, k) => [it, k]).sort(() => Math.random() - .5).forEach(([[w], k]) => { const b = document.createElement("button");
+      b.className = "chip"; b.textContent = w; b.dataset.i = k;
+      b.onclick = () => { $$(".chip", pool).forEach(x => x.classList.remove("sel")); b.classList.add("sel"); picked = b; }; pool.appendChild(b); }); }
+  $(".btn", s).onclick = reset; reset();
+});
+
+/* 自测 */
+$$("[data-quiz] .q").forEach(q => { const ans = q.dataset.ans;
+  $$(".chip", q).forEach(c => c.onclick = () => { $$(".chip", q).forEach(x => { x.disabled = true; if (x.dataset.i === ans) x.classList.add("ok"); });
+    const ok = c.dataset.i === ans; if (!ok) c.classList.add("no");
+    const fb = $(".fb", q); fb.className = "fb " + (ok ? "ok" : "no"); fb.textContent = ok ? "✓ 答对了" : "✗ 再看看"; $(".reveal", q).hidden = false; }); });
+
+/* 场景 2：翻卡片 */
+const IRR = [["have", "had"], ["swim", "swam"], ["go", "went"], ["see", "saw"], ["think", "thought"], ["come", "came"], ["write", "wrote"], ["begin", "began"], ["take", "took"], ["know", "knew"]];
+IRR.forEach(([v, p]) => { const b = document.createElement("button"); b.className = "chip en flip"; b.textContent = v;
+  b.onclick = () => { const open = b.classList.toggle("ok"); b.textContent = open ? `${v} → ${p}` : v; }; $("#cards").appendChild(b); });
+wireCites();
+</script>
+</body>
+</html>
