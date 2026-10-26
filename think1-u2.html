@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>花钱这件事</title>
+<!-- 风格：手绘课堂笔记。配色=横线纸米白底+蓝黑笔迹+荧光黄/薄荷绿/番茄红高亮；字体=系统黑体正文、宋体标题；质感=横线、便利贴、手绘圈画；主视觉=铅笔淡彩速写。 -->
+<style>
+:root{
+  --paper:#fbf8ef; --line:#dfe6ef; --margin:#f1b8b8; --ink:#1f2a44; --ink2:#55607a; --pen:#2a4fa8;
+  --hl:#fff07a; --mint:#bfe8d4; --tomato:#e5553f; --note:#fff4b8; --card:#ffffff; --shadow:rgba(31,42,68,.12);
+  --ok:#1d8a5a; --bad:#c8402e;
+  --fs:17px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1b1f2a; --line:#262c3b; --margin:#4a2c34; --ink:#e9ecf3; --ink2:#a5aec2; --pen:#8fb0ff;
+    --hl:#6b5d10; --mint:#1f4a3a; --tomato:#ff7a62; --note:#3b3622; --card:#232838; --shadow:rgba(0,0,0,.4);
+    --ok:#5ed39b; --bad:#ff8a76;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1b1f2a; --line:#262c3b; --margin:#4a2c34; --ink:#e9ecf3; --ink2:#a5aec2; --pen:#8fb0ff;
+  --hl:#6b5d10; --mint:#1f4a3a; --tomato:#ff7a62; --note:#3b3622; --card:#232838; --shadow:rgba(0,0,0,.4);
+  --ok:#5ed39b; --bad:#ff8a76;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:64px}
+body{margin:0;background:var(--paper);color:var(--ink);font:var(--fs)/1.75 -apple-system,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 30px;overflow-x:hidden}
+h1,h2,h3{font-family:"Songti SC","STSong","Noto Serif CJK SC",SimSun,serif;line-height:1.35;margin:.2em 0 .5em}
+h2{font-size:1.5em}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 80px;border-left:2px solid var(--margin)}
+header.bar{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;padding:8px 16px}
+header.bar .t{font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{min-height:44px;min-width:44px;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-size:.95em;padding:6px 12px;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:none}
+.btn.sm{min-height:40px;padding:4px 10px;font-size:.85em}
+.btn:focus-visible,.chip:focus-visible{outline:3px solid var(--pen);outline-offset:2px}
+mark{background:linear-gradient(transparent 45%,var(--hl) 45%);color:inherit;padding:0 .1em}
+.en{font-family:"Avenir Next","Helvetica Neue",Arial,sans-serif;font-weight:600;color:var(--pen)}
+section{padding:28px 0 8px}
+.point{font-size:1.15em;font-weight:600;background:var(--note);padding:10px 14px;border-radius:4px;box-shadow:3px 3px 0 var(--shadow);transform:rotate(-.4deg);margin:0 0 16px}
+.lab{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:16px;box-shadow:4px 4px 0 var(--shadow);margin:12px 0}
+details{margin:12px 0;border:1px dashed var(--ink2);border-radius:10px;padding:8px 14px;background:color-mix(in srgb,var(--card) 70%,transparent)}
+summary{cursor:pointer;font-weight:600;min-height:32px}
+.cite{cursor:pointer;color:var(--pen);font-weight:700;font-size:.72em;padding:0 2px}
+.cite::before{content:"[原文]"}
+.tag{font-size:.7em;border:1px solid var(--ink2);border-radius:6px;padding:0 5px;margin-left:4px;color:var(--ink2);vertical-align:2px}
+.tag::before{content:attr(data-label)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;border:2px solid var(--ink);border-radius:22px;background:var(--card);color:var(--ink);padding:6px 14px;font:inherit;cursor:pointer;text-align:left}
+.chip.ok{background:var(--mint);border-color:var(--ok)}
+.chip.no{background:color-mix(in srgb,var(--tomato) 25%,var(--card));border-color:var(--bad)}
+.chip.sel{background:var(--hl)}
+.chip[disabled]{cursor:default}
+.fb{min-height:1.8em;font-weight:600}
+.fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+.reveal{background:var(--mint);border-radius:8px;padding:8px 12px}
+figure{margin:12px 0}
+figure svg{width:100%;height:auto;display:block;border-radius:12px}
+figcaption{font-size:.85em;color:var(--ink2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.bin{border:2px dashed var(--ink2);border-radius:12px;padding:10px;min-height:100px;cursor:pointer}
+.bin h3{font-size:1em;margin:0 0 6px}
+.bin .chips{gap:6px}
+.map{display:block;width:100%}
+.map .node{cursor:pointer}
+.map .node:hover rect,.map .node:focus rect{fill:var(--hl)}
+.big{font-size:1.25em;font-weight:700}
+.sent{font-size:1.2em;padding:10px 12px;background:var(--paper);border-radius:8px;border-left:4px solid var(--pen);margin:10px 0}
+.blank{display:inline-block;min-width:3em;border-bottom:2px solid currentColor}
+input[type=range]{width:100%;min-height:44px;accent-color:var(--pen)}
+select{font:inherit;min-height:44px;border:2px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink);padding:4px 8px}
+table.t{border-collapse:collapse;width:100%;font-size:.95em}
+table.t td,table.t th{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+#pop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+#pop[hidden]{display:none}
+#pop .box{background:var(--card);color:var(--ink);max-width:520px;width:100%;border-radius:14px;padding:18px;border:2px solid var(--ink)}
+#pop blockquote{margin:8px 0;padding:8px 12px;border-left:4px solid var(--pen);background:var(--paper);font-family:Georgia,"Times New Roman",serif}
+#back{position:fixed;right:16px;bottom:16px;z-index:30}
+#resume{background:var(--note);padding:8px 14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+#resume[hidden]{display:none}
+nav.dots{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 0}
+.q{margin:14px 0}
+.small{font-size:.85em;color:var(--ink2)}
+.units{display:flex;gap:6px;flex-wrap:wrap;font-size:.85em}
+.units a{color:var(--pen)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+.cart{display:flex;flex-wrap:wrap;gap:8px}
+.total{font-size:1.3em;font-weight:800}
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="t">思辨英语 1A · Unit 2 Spending money</span>
+  <button class="btn sm" id="fsDown" aria-label="缩小字号">A−</button>
+  <button class="btn sm" id="fsUp" aria-label="放大字号">A+</button>
+  <button class="btn sm" id="theme" aria-label="切换明暗">◐</button>
+</header>
+<div id="resume" hidden><span>上次读到一半，要接着读吗？</span><button class="btn sm" id="resumeGo">接着读</button><button class="btn sm" id="resumeNo">从头开始</button></div>
+
+<main class="wrap">
+<section data-hero id="hero">
+  <h1>花钱这件事</h1>
+  <p class="point">30 秒版：说<mark>此时此刻正在做</mark>的事，用 am / is / are + -ing（I'm looking for a jacket）；说<mark>习惯、一直如此</mark>的事，用一般现在时（I always go for a walk on Sunday）。表达看法时，<b>look / sound / smell / taste</b> 后面接形容词。<sup class="cite" data-cite="rule_pc"></sup></p>
+  <p>本单元跟着 Mike 去逛街，看大家怎么过一个不花钱的周日下午，再看看世界各地的纸币上都印了什么。</p>
+  <div class="lab">
+    <p class="small" style="margin:0 0 6px">全局图：同一个人，两种时间。点方框跳过去。</p>
+    <svg class="map" viewBox="0 0 760 200" role="img" aria-label="一般现在时和现在进行时的对比图">
+      <g font-family="-apple-system,PingFang SC,sans-serif" font-size="17" fill="var(--ink)" text-anchor="middle">
+        <g class="node" tabindex="0" data-jump="s3"><rect x="20" y="20" width="340" height="160" rx="14" fill="var(--note)" stroke="var(--ink)" stroke-width="2"/>
+          <text x="190" y="54" font-weight="700">平时、习惯、一直如此</text><text x="190" y="84">一般现在时</text>
+          <text x="190" y="118" fill="var(--pen)">Mike always buys clothes</text><text x="190" y="142" fill="var(--pen)">in Green Street.</text>
+          <text x="190" y="168" font-size="14" fill="var(--ink2)">every Sunday · always · usually</text></g>
+        <g class="node" tabindex="0" data-jump="s2"><rect x="400" y="20" width="340" height="160" rx="14" fill="var(--mint)" stroke="var(--ink)" stroke-width="2"/>
+          <text x="570" y="54" font-weight="700">现在、此刻、这段时间</text><text x="570" y="84">现在进行时</text>
+          <text x="570" y="118" fill="var(--pen)">Mike is looking for</text><text x="570" y="142" fill="var(--pen)">a new jacket.</text>
+          <text x="570" y="168" font-size="14" fill="var(--ink2)">now · at the moment · today</text></g>
+      </g>
+    </svg>
+  </div>
+  <nav class="dots" aria-label="场景目录">
+    <button class="btn sm" data-jump="s1">① 逛街聊天</button><button class="btn sm" data-jump="s2">② 正在做</button><button class="btn sm" data-jump="s3">③ 平时 vs 此刻</button><button class="btn sm" data-jump="s4">④ 看起来 / 听起来</button><button class="btn sm" data-jump="s5">⑤ 买东西</button><button class="btn sm" data-jump="s6">⑥ 免费的周日</button><button class="btn sm" data-jump="s7">⑦ 世界纸币</button><button class="btn sm" data-jump="quiz">自测</button>
+  </nav>
+</section>
+
+<section data-scene="1" id="s1">
+  <h2>① Mike 在逛街</h2>
+  <p class="point">Mike 在城里买外套，Hannah 在家看电视。两人在手机上聊天：Mike 爱去 Green Street 那家二手店，Hannah 说那里的衣服都过时了。<sup class="cite" data-cite="chat1"></sup></p>
+  <figure data-figure>
+    <svg viewBox="0 0 800 330" role="img" aria-label="插画：雨天的商店橱窗，上面贴着 30% OFF 的打折海报，橱窗里挂着一件花衬衫">
+      <rect width="800" height="330" fill="#5d6f80"/>
+      <g stroke="#b9c8d6" stroke-width="2" opacity=".7"><path d="M60 0 l-20 60M180 20 l-20 60M320 0 l-20 60M460 30 l-20 60M600 0 l-20 60M730 20 l-20 60M120 120 l-20 60M690 140 l-20 60M40 220 l-20 60M760 230 l-20 60"/></g>
+      <rect x="120" y="40" width="560" height="60" fill="#1f2a44"/>
+      <text x="400" y="82" font-family="Songti SC,STSong,serif" font-size="34" fill="#fff4b8" text-anchor="middle" font-weight="700">BARKER'S</text>
+      <rect x="120" y="100" width="560" height="200" fill="#f3efe6" stroke="#1f2a44" stroke-width="6"/>
+      <g transform="translate(200 130) rotate(-8)"><rect width="150" height="100" fill="#e5553f"/><text x="75" y="48" font-family="-apple-system,sans-serif" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">30%</text><text x="75" y="82" font-family="-apple-system,sans-serif" font-size="24" font-weight="800" fill="#fff" text-anchor="middle">OFF</text></g>
+      <!-- 花衬衫 -->
+      <g transform="translate(470 130)"><path d="M0 0 L40 -10 L60 10 L80 -10 L120 0 L140 50 L115 60 L110 30 L110 150 L10 150 L10 30 L5 60 L-20 50Z" fill="#f2c23a" stroke="#1f2a44" stroke-width="3"/>
+        <g fill="#3e9a6a"><circle cx="35" cy="50" r="12"/><circle cx="85" cy="90" r="14"/><circle cx="45" cy="120" r="10"/></g><g fill="#e5553f"><circle cx="80" cy="40" r="9"/><circle cx="30" cy="85" r="8"/><circle cx="90" cy="130" r="9"/></g>
+        <path d="M60 10 V150" stroke="#1f2a44" stroke-width="2"/><rect x="40" y="152" width="40" height="22" fill="#fff" stroke="#1f2a44"/><text x="60" y="168" font-family="-apple-system,sans-serif" font-size="13" text-anchor="middle" fill="#1f2a44">£25</text></g>
+      <!-- 雨伞 / 水坑 -->
+      <ellipse cx="400" cy="318" rx="300" ry="10" fill="#4a5a6a"/>
+    </svg>
+    <figcaption>下雨天的 Barker's：全场打折，Mike 看中了一件花衬衫。示意<span class="tag" data-label="示意"></span></figcaption>
+  </figure>
+  <div data-guess class="lab" data-unit="%">
+    <p class="big">先猜：Barker's 在搞促销，全场按原价减多少？</p>
+    <input type="range" min="0" max="70" step="5" value="10" aria-label="猜折扣"> <output class="big">10%</output>
+    <button class="btn">揭晓</button>
+    <p class="reveal" hidden>全场<b>减 30%</b>。Hannah 正穿着那里买的 T 恤，才 £9.99。<sup class="cite" data-cite="sale"></sup></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>对还是错？</b>点一句判断</p>
+    <div class="chips cards" data-out="#tfOut">
+      <button class="chip" data-a="✗ 错。Hannah 在自己家看电视，节目还不怎么好看；她只是不想写作业。">Hannah 在朋友家看电视。</button>
+      <button class="chip" data-a="✓ 对。Mike 在 Green Street 的二手店买衣服，他说那里又酷又便宜。">Mike 在 Green Street 的二手店。</button>
+      <button class="chip" data-a="✗ 错。Barker's 在 Market Street，就在一家大药店旁边。">Barker's 是一家大药店。</button>
+      <button class="chip" data-a="✓ 对。下雨了，Mike 没带伞，不过 Barker's 不远，五分钟就到。">Mike 五分钟就能到 Barker's。</button>
+      <button class="chip" data-a="✓ 对。因为打折，店里挤满了人。">Barker's 里人很多。</button>
+    </div>
+    <p class="fb" id="tfOut" aria-live="polite"></p>
+    <p class="small">句子改写自课本练习 6<sup class="cite" data-cite="chat2"></sup></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>Train to Think：算一算</b>（课本 p23）你想买新衣服，点选要买的东西：<sup class="cite" data-cite="prices"></sup></p>
+    <div class="cart" id="cart"></div>
+    <p>预算：<select id="budget" aria-label="选择预算"><option value="40">£40</option><option value="85">£85</option></select> 已选：<span class="total" id="total">£0.00</span></p>
+    <p class="fb" id="budgetFb" aria-live="polite"></p>
+  </div>
+</section>
+
+<section data-scene="2" id="s2">
+  <h2>② 现在进行时：正在做</h2>
+  <p class="point">说<b>说话时或这段时间</b>正在发生的事，用现在进行时：<b>am / is / are + 动词 -ing</b>。<sup class="cite" data-cite="rule_pc"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0">换主语、换动作：</p>
+    <div class="chips" id="pcSubj"></div>
+    <div class="chips" id="pcVerb" style="margin-top:8px"></div>
+    <table class="t" style="margin-top:12px"><tbody>
+      <tr><th>肯定</th><td class="en" id="pcPos"></td></tr>
+      <tr><th>否定</th><td class="en" id="pcNeg"></td></tr>
+      <tr><th>问句</th><td class="en" id="pcQ"></td></tr>
+      <tr><th>简短回答</th><td class="en" id="pcA"></td></tr>
+    </tbody></table>
+  </div>
+  <details><summary>聊天里的例句</summary>
+    <p class="en">I'm looking for a new jacket. · Now it's raining. · She's doing some shopping at the moment. · Are you looking for a jacket or a shirt?<sup class="cite" data-cite="pc_examples"></sup></p>
+  </details>
+</section>
+
+<section data-scene="3" id="s3">
+  <h2>③ 平时，还是此刻？</h2>
+  <p class="point">习惯、日常和一直如此的事用<b>一般现在时</b>；临时的、正在说话前后发生的事用<b>现在进行时</b>。<sup class="cite" data-cite="rule_vs"></sup></p>
+  <div class="lab">
+    <div class="drill" data-items='[["I ___ for a walk every Sunday.",["go","&#39;m going"],"go","every Sunday 是习惯，用一般现在时。"],["Shh! The baby ___ .",["sleeps","is sleeping"],"is sleeping","Shh! 说明此刻正在睡，用进行时。"],["We ___ a uniform to school every day.",["wear","are wearing"],"wear","每天穿校服是日常，用一般现在时。"],["Look! Dad ___ dinner.",["cooks","is cooking"],"is cooking","Look! 提醒你看眼前正在发生的事。"],["Annie ___ here with nothing to do right now.",["sits","is sitting"],"is sitting","right now 说明是此刻。"],["I ___ the answer.",["know","&#39;m knowing"],"know","know 这类表示想法的动词几乎不用进行时。"]]'></div>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>有些动词几乎不用进行时</b>，它们讲的是想法、感觉，不是动作。分一分：</p>
+    <div class="sorter" data-bins='["几乎不用进行时","可以用进行时"]' data-items='[["know",0,"I know the answer.（不说 I&#39;m knowing）"],["understand",0,"I understand the problem."],["want",0,"want 讲愿望，不是动作。"],["like",0,"like 讲喜好。"],["remember",0,"remember 讲记忆。"],["play",1,"He&#39;s playing tennis. 正在打。"],["paint",1,"She&#39;s painting. 正在画。"],["write",1,"I&#39;m writing a post. 正在写。"]]'></div>
+    <p class="small">课本 Look 框列了 9 个：believe, hate, know, like, mean, need, remember, understand, want<sup class="cite" data-cite="look"></sup></p>
+  </div>
+</section>
+
+<section data-scene="4" id="s4">
+  <h2>④ 看起来、听起来、闻起来、尝起来</h2>
+  <p class="point"><b>look / sound / smell / taste</b> 用来发表看法时，用<b>一般现在时</b>，后面接<b>形容词</b>。<sup class="cite" data-cite="rule_perc"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0">选一种感官，再选一样东西：</p>
+    <div class="chips" id="senses"></div>
+    <div class="chips" id="things" style="margin-top:8px"></div>
+    <div class="sent en" id="percOut"></div>
+  </div>
+  <details><summary>聊天里的两句</summary>
+    <p><span class="en">It looks a bit old-fashioned though.</span>（it 指 Mike 看中的那件 £20 外套）· <span class="en">That sounds like a bad idea.</span>（Hannah 不想冒雨去帮 Mike 挑衣服）<sup class="cite" data-cite="chat_perc"></sup></p>
+  </details>
+</section>
+
+<section data-scene="5" id="s5">
+  <h2>⑤ 去哪家店，怎么买</h2>
+  <p class="point">课本学了 8 种店。买东西时，顾客和店员说的话不一样。<sup class="cite" data-cite="shops"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0"><b>去哪买？</b></p>
+    <div class="sorter" data-bins='["bookshop","chemist&#39;s","sports shop","mobile phone shop","supermarket","coffee shop"]' data-items='[["a dictionary",0,"书店买词典。"],["medicine",1,"chemist&#39;s 是药店。"],["a football",2,"运动用品店。"],["a phone charger",3,"手机店。"],["milk and bread",4,"超市。"],["a hot chocolate",5,"咖啡店。"]]'></div>
+    <p class="small">商品是编者配的<span class="tag" data-label="解读"></span></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>谁说的？</b>顾客（customer）还是店员（assistant）</p>
+    <div class="sorter" data-bins='["顾客","店员"]' data-items='[["Can I help you?",1,"店员主动问。"],["Can I try them on, please?",0,"顾客要试穿。"],["What size do you take?",1,"店员问尺码。"],["How much are they?",0,"顾客问价。"],["That&#39;s twenty pounds, please.",1,"店员报价。"],["Can I pay with my contactless card?",0,"顾客问能否刷卡。"],["Would you like the receipt?",1,"店员问要不要小票。"]]'></div>
+    <p class="small">句子来自课本 p23 练习 11，分工按常识补出<span class="tag" data-label="解读"></span><sup class="cite" data-cite="buying"></sup></p>
+  </div>
+  <details><summary>衣服单词（课本 p24）</summary>
+    <p class="en">belt · dress · jumper · shoes · trainers · boots · jacket · shirt · shorts · trousers</p>
+    <p class="small">按课本图片顺序列出，单词为编者补全的答案<span class="tag" data-label="解读"></span></p>
+  </details>
+</section>
+
+<section data-scene="6" id="s6">
+  <h2>⑥ 没钱的周日下午做什么？</h2>
+  <p class="point">Annie 周日下午没事做、也没钱花，在网上求点子：要好玩，还要<b>免费</b>。<sup class="cite" data-cite="annie"></sup></p>
+  <div class="lab">
+    <p class="big" style="margin-top:0">四位网友的建议</p>
+    <div class="chips cards" data-out="#sunOut">
+      <button class="chip" data-a="去散步。他每个周日都一个人散步，可以想想平时没时间想的事，也可以几个小时什么都不想。">Austin08</button>
+      <button class="chip" data-a="写点东西。他每周日更新一篇诗歌博客，正在写的是第 15 首；你不想写诗也可以写个故事，发挥想象力！">MonsterMunch4342</button>
+      <button class="chip" data-a="逛博物馆。他住在利物浦，那里的博物馆很棒还免费；馆太大，他每月挑一个周日去看一个展厅，今天去昆虫厅。">Cool656Carl</button>
+      <button class="chip" data-a="读点东西。周日是她的阅读日，书、杂志、网站、报纸都读，免费，在哪都能读。">SillyMilly</button>
+    </div>
+    <p class="fb" id="sunOut" aria-live="polite"></p>
+    <p class="small">来自课本论坛帖<sup class="cite" data-cite="replies"></sup></p>
+  </div>
+  <div data-guess class="lab" data-unit=" 小时">
+    <p class="big">先猜：SillyMilly 一个周日至少读多久？</p>
+    <input type="range" min="1" max="10" step="1" value="2" aria-label="猜小时"> <output class="big">2 小时</output>
+    <button class="btn">揭晓</button>
+    <p class="reveal" hidden>至少 <b>4 小时</b>。运气好的时候，爸爸还会给她端杯饮料。<sup class="cite" data-cite="milly"></sup></p>
+  </div>
+</section>
+
+<section data-scene="7" id="s7">
+  <h2>⑦ 纸币上印着什么？</h2>
+  <p class="point">现在大家越来越常刷卡，可纸币还在。各国纸币的图案都在讲自己国家的历史、地理和动植物。<sup class="cite" data-cite="notes_intro"></sup></p>
+  <figure data-figure>
+    <svg viewBox="0 0 800 330" role="img" aria-label="插画：一张绿色调的示意纸币，左边是一只美洲豹，右边是一座拱桥">
+      <rect width="800" height="330" fill="#2f6f7a"/>
+      <g transform="translate(90 50)">
+        <rect width="620" height="230" rx="14" fill="#e6efd8" stroke="#3c6b3f" stroke-width="5"/>
+        <rect x="14" y="14" width="592" height="202" rx="8" fill="none" stroke="#3c6b3f" stroke-width="2" stroke-dasharray="6 4"/>
+        <!-- 美洲豹 -->
+        <g transform="translate(150 125)">
+          <path d="M-110 30 Q-100 -30 -30 -40 Q20 -60 60 -40 Q90 -30 100 -5 Q105 20 90 30 L80 60 L65 60 L68 35 Q20 45 -40 40 L-50 62 L-65 62 L-60 38 Q-90 40 -110 30Z" fill="#d9a441" stroke="#5a3d12" stroke-width="3"/>
+          <path d="M95 -20 Q120 -30 130 -10 Q132 10 112 12 Q98 10 95 -20Z" fill="#d9a441" stroke="#5a3d12" stroke-width="3"/>
+          <path d="M-110 30 Q-150 10 -140 -30" fill="none" stroke="#5a3d12" stroke-width="6" stroke-linecap="round"/>
+          <g fill="none" stroke="#5a3d12" stroke-width="3"><circle cx="-60" cy="0" r="9"/><circle cx="-30" cy="-20" r="8"/><circle cx="0" cy="5" r="9"/><circle cx="30" cy="-18" r="8"/><circle cx="55" cy="10" r="8"/><circle cx="-80" cy="22" r="7"/><circle cx="20" cy="28" r="7"/></g>
+          <circle cx="118" cy="-8" r="3" fill="#1a1a1a"/><path d="M112 -26 l4 -10 l6 9" fill="#d9a441" stroke="#5a3d12" stroke-width="2"/>
+        </g>
+        <!-- 桥 -->
+        <g transform="translate(400 150)" stroke="#3c6b3f" stroke-width="3" fill="none">
+          <path d="M0 40 H180"/><path d="M10 40 Q50 -10 90 40 Q130 -10 170 40"/><path d="M30 40 V25 M50 40 V12 M70 40 V25 M110 40 V25 M130 40 V12 M150 40 V25"/>
+          <path d="M0 55 Q45 50 90 55 T180 55" stroke-width="2"/>
+        </g>
+        <text x="590" y="62" font-family="Songti SC,STSong,serif" font-size="48" fill="#3c6b3f" text-anchor="end" font-weight="700">50</text>
+        <text x="40" y="60" font-family="-apple-system,sans-serif" font-size="16" fill="#3c6b3f">SPECIMEN · 示意</text>
+      </g>
+    </svg>
+    <figcaption>一张虚构的示意纸币，把课本提到的两种图案放在一起：巴西 50 元上的美洲豹、欧元背面的桥。并非任何真实纸币。<span class="tag" data-label="示意"></span></figcaption>
+  </figure>
+  <div class="lab">
+    <p style="margin-top:0"><b>这是哪里的纸币？</b></p>
+    <div class="sorter" data-bins='["Mexico 墨西哥","Europe 欧洲","Turkey 土耳其","Brazil 巴西"]' data-items='[["货币叫 peso",0,"墨西哥用比索。"],["画家 Frida Kahlo 的肖像",0,"2010 年 500 比索上印过她。"],["每个国家的钞票完全一样",1,"欧元各国通用，图案相同。"],["一面是门窗，一面是桥",1,"代表欧洲各地的建筑。"],["每张都印着 Kemal Atatürk",2,"他是土耳其共和国的创立者。"],["一共 6 种面额",2,"土耳其里拉有 6 种纸币。"],["一面是共和国象征头像",3,"巴西雷亚尔的正面都相同。"],["50 元上有一只美洲豹",3,"课本说这可能是最漂亮的一张。"]]'></div>
+    <p class="small">全部来自课本文化页<sup class="cite" data-cite="notes"></sup></p>
+  </div>
+  <div data-guess class="lab">
+    <p class="big">先猜：墨西哥最大面额的纸币是多少比索？</p>
+    <div class="chips"><button class="chip" data-v="0">200</button><button class="chip" data-v="0">500</button><button class="chip" data-v="1">1,000</button></div>
+    <p class="reveal" hidden>最小 20 比索，最大 <b>1,000 比索</b>。<sup class="cite" data-cite="mexico"></sup></p>
+  </div>
+  <details><summary>写作范文：Theo 在马德里给朋友写邮件</summary>
+    <p>Theo 和家人在马德里度假。他坐在市中心的咖啡馆里给 Azra 写信：先说自己在哪、在做什么，再说爸爸和妹妹正在附近的市场买鞋，下午全家要去参观一座钱币博物馆。最后他说给 Azra 带了一张 5 欧元纸币，因为她收集纸币。<sup class="cite" data-cite="theo"></sup></p>
+    <p>写信开头：<span class="en">Hi / Hello / Dear</span>；结尾：<span class="en">Hope you're OK. / See you soon / Best wishes / Love</span></p>
+  </details>
+</section>
+
+<section id="quiz">
+  <h2>你答得上来吗？</h2>
+  <div data-quiz>
+    <div class="q lab" data-ans="1">
+      <p><b>1.</b> Come inside! It ____.</p>
+      <div class="chips"><button class="chip" data-i="0">rains</button><button class="chip" data-i="1">'s raining</button></div>
+      <p class="fb"></p><p class="reveal" hidden>叫人进屋，说明现在正在下雨，用现在进行时。<sup class="cite" data-cite="rule_vs"></sup></p>
+    </div>
+    <div class="q lab" data-ans="0">
+      <p><b>2.</b> This soup ____ great!</p>
+      <div class="chips"><button class="chip" data-i="0">tastes</button><button class="chip" data-i="1">is tasting</button><button class="chip" data-i="2">tastes greatly</button></div>
+      <p class="fb"></p><p class="reveal" hidden>表达看法，用一般现在时 + 形容词。<sup class="cite" data-cite="rule_perc"></sup></p>
+    </div>
+    <div class="q lab" data-ans="2">
+      <p><b>3.</b> 你有 £85，能买下 T 恤、鞋、毛衣、腰带、外套全部五件吗？</p>
+      <div class="chips"><button class="chip" data-i="0">能，还剩钱</button><button class="chip" data-i="1">刚好够</button><button class="chip" data-i="2">不够</button></div>
+      <p class="fb"></p><p class="reveal" hidden>五件一共 £126.00，比 £85 多 £41。<span class="tag" data-label="推算"></span><sup class="cite" data-cite="prices"></sup></p>
+    </div>
+  </div>
+  <p class="small">没放进来的有：p20 价格朗读和物品配对、p21 衣着价值观打分、p23 听力（哪家店）、角色扮演、p25 职业口语，以及缩略形式发音。听力和视频请配合课本使用。</p>
+  <p class="small">页码按课本印刷页码标注；在 PDF 里要往后翻一页（书 p21 = PDF 第 22 页）。关键规则请点「[原文]」核对原句。</p>
+</section>
+<p class="units">其他单元：<a href="think1-u1.html">Unit 1</a> · <a href="think1-u2.html">Unit 2</a> · <a href="think1-u3.html">Unit 3</a> · <a href="think1-u4.html">Unit 4</a> · <a href="think1-u5.html">Unit 5</a> · <a href="think1-u6.html">Unit 6</a></p>
+</main>
+
+<button class="btn" id="back" hidden>↩ 回到刚才的位置</button>
+<div id="pop" hidden role="dialog" aria-modal="true" aria-labelledby="popT">
+  <div class="box">
+    <p id="popT" class="small" style="margin:0"></p>
+    <blockquote id="popQ"></blockquote>
+    <p id="popZ"></p>
+    <button class="btn sm" id="popX">关闭（Esc）</button>
+  </div>
+</div>
+
+<script>
+const UNIT = "u2";
+const SOURCES = {
+  chat1: { page: 21, quote: "Hannah: Hey, Mike. Nothing much. I'm at home. I'm watching some TV, but it's not very good. I don't want to do my homework! … Mike: I'm in town. Shopping. I'm looking for a new jacket. … Hannah: Tell me you're not looking for clothes in that old place in Green Street. … But their clothes are all second-hand. And that means they're old-fashioned. Mike: I like the clothes here – they're really cool and they're cheap.", zh: "Hannah 在家看电视、不想写作业；Mike 在城里找新外套，常去 Green Street 那家二手店；Hannah 说那里衣服过时，Mike 觉得又酷又便宜。" },
+  sale: { page: 21, quote: "Go to Barker's next to the big chemist's in Market Street. They've got a sale on. They're selling everything at 30% off the original price! And their stuff's really nice. I'm wearing one of their T-shirts now. Only £9.99!", zh: "Barker's 在 Market Street 大药店旁边，全场按原价减 30%；Hannah 正穿着那里买的 T 恤，只要 £9.99。" },
+  chat2: { page: 21, quote: "Oh no! Now it's raining and I haven't got an umbrella. OK, it's not far. Five minutes and I'm there. … OK, here I am in Barker's. The shop's really crowded. It's because of the sale, I guess.", zh: "下雨了，Mike 没带伞，不过五分钟就到；Barker's 因为打折人很多。" },
+  prices: { page: 23, quote: "T-shirt – £10.50 shoes – £35.75 jumper – £18.25 belt – £6.50 jacket – £55 … 2 You've got £40. Name three things you can buy. 3 You've got £85. Can you buy all five things?", zh: "T 恤 £10.50，鞋 £35.75，毛衣 £18.25，腰带 £6.50，外套 £55；有 £40 能买哪三样？有 £85 能买下全部五样吗？" },
+  rule_pc: { page: 22, quote: "RULE: Use the present ___ to talk about things that are happening at or around the time of speaking. Form the present continuous with the present simple of ___ + the -ing form (e.g., running / doing / wearing, etc.) of the main verb.", zh: "现在进行时说说话时或前后正在发生的事；构成：be 的一般现在时 + 动词 -ing（两个空填 continuous、be）。" },
+  pc_examples: { page: 22, quote: "1 I'm looking for a new jacket. 2 Now it's raining. 3 She's doing some shopping at the moment. 4 Are you looking for a jacket or a shirt?", zh: "聊天里的四个现在进行时例句。" },
+  rule_vs: { page: 25, quote: "RULE: Use the ___ to talk about habits, routines and things which are generally or always true. Use the ___ to talk about temporary things which are happening around the moment of speaking.", zh: "一般现在时说习惯、日常和普遍或一直如此的事；现在进行时说说话前后临时发生的事。" },
+  look: { page: 25, quote: "These verbs are almost never used in the present continuous: believe | hate | know | like | mean | need | remember | understand | want. I know the answer. (Not: I'm knowing the answer.) I understand the problem.", zh: "这些动词几乎不用进行时：believe、hate、know、like、mean、need、remember、understand、want。" },
+  rule_perc: { page: 23, quote: "RULE: Verbs of perception are used in the present simple / continuous when they are used to give an opinion. The food tastes great. That idea sounds good. That pizza smells nice. His new shirt looks awful! The words after the verbs of perception are nouns / adjectives.", zh: "感官动词用来发表看法时用一般现在时，后面接形容词（课本是选词，答案按例句给出）。" },
+  chat_perc: { page: 21, quote: "Hannah: Erm. It's OK. It looks a bit old-fashioned though. … Hannah: That sounds like a bad idea. It's raining – remember?", zh: "Hannah 说外套看起来有点过时；Mike 叫她来帮忙，她说这主意听起来不怎么样，外面在下雨。" },
+  shops: { page: 22, quote: "bookshop | chemist's | clothes shop | coffee shop | department store | mobile phone shop | sports shop | supermarket", zh: "八种商店：书店、药店、服装店、咖啡店、百货商店、手机店、运动用品店、超市。" },
+  buying: { page: 23, quote: "0 Can I help you? (A) 1 Have you got … ? 2 What size do you take? 3 Can I try it/them on, please? 4 How much is it/are they? 5 That's (twenty pounds), please. 6 Have you got it/them in (blue)? 7 Can I pay with my contactless card? 8 I can't find the price. 9 Would you like the receipt?", zh: "购物用语，标出顾客（C）还是店员（A）说的；示范：Can I help you? 是店员说的。" },
+  annie: { page: 24, quote: "It's Sunday afternoon. … I'm sitting here with nothing to do and no money to spend! So I need ideas for things to do. Important: they need to be fun and free.", zh: "Annie 周日下午没事做也没钱，求点子，要好玩、要免费。" },
+  replies: { page: 24, quote: "Austin08: Go for a walk. I always go for a walk on Sunday. … MonsterMunch4342: I'm writing my weekly poetry blog post. … At the moment, I'm finishing poem number 15. … Cool656Carl: I live in Liverpool and we have the best museums and they're all free. … one Sunday every month I go and check out a different room. Today it's the insect room … SillyMilly: Read something. Sunday is my reading day.", zh: "Austin08 建议散步；MonsterMunch4342 正在写第 15 首诗；Cool656Carl 每月一个周日去利物浦的免费博物馆看一个展厅，今天是昆虫厅；SillyMilly 周日读书。" },
+  milly: { page: 24, quote: "I read for at least four hours on a Sunday – books, magazines, websites, newspapers – anything. It's free and best of all, you can do it anywhere. And sometimes, when I'm really lucky, Dad brings me a drink, too.", zh: "她周日至少读 4 小时，什么都读；免费，在哪都能读；运气好时爸爸会给她端饮料。" },
+  notes_intro: { page: 26, quote: "These days, we use credit cards more and more and they all look almost identical. But money is still with us, in coins and banknotes. … The designs usually celebrate the country – its history, its geography, its animals and birds.", zh: "如今越来越多用信用卡，但硬币和纸币还在；纸币图案常展示国家的历史、地理和动物鸟类。" },
+  notes: { page: 26, quote: "Mexico: the currency is the peso … On the first 2010 MEX. $500 note there was a portrait of the famous Mexican artist Frida Kahlo. / Europe: … the banknotes are exactly the same for each country. On one side, there is a picture of a gate, window or entrance, and on the other side, a bridge. / Turkey: … there are six different banknotes. Each one shows Kemal Atatürk, the founder of the Turkish republic … / Brazil: … a picture of the Effigy of the Republic … One of the most beautiful is perhaps the R$50 note, which has a picture of a jaguar.", zh: "墨西哥比索，2010 年 500 比索上有 Frida Kahlo；欧元各国相同，一面门窗、一面桥；土耳其 6 种纸币都印着国父 Atatürk；巴西雷亚尔一面是共和国象征，50 元上有美洲豹。" },
+  mexico: { page: 26, quote: "The smallest banknote is 20 pesos, and the biggest is 1,000 pesos.", zh: "墨西哥最小面额 20 比索，最大 1,000 比索。" },
+  theo: { page: 27, quote: "I'm in Madrid right now – we're here on holiday. … I'm sitting in a café at the moment, in the middle of the city. … My dad and my sister are at a market near here – they're looking for some shoes for my sister. This afternoon we're visiting a museum of money. … PS I'm bringing you a 5 euro note home as a present. I hope you still collect banknotes!", zh: "Theo 在马德里度假，坐在市中心咖啡馆；爸爸和妹妹在附近市场买鞋；下午去钱币博物馆；给 Azra 带了一张 5 欧元当礼物。" }
+};
+
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const motionOK = () => !matchMedia("(prefers-reduced-motion: reduce)").matches;
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+const go = el => el.scrollIntoView({ behavior: motionOK() ? "smooth" : "auto" });
+
+/* 字号与明暗（各单元共用） */
+let fs = parseInt(store.get("t1fs")) || 17;
+const applyFs = () => { document.documentElement.style.setProperty("--fs", fs + "px"); store.set("t1fs", fs); };
+applyFs();
+$("#fsUp").onclick = () => { fs = Math.min(24, fs + 1); applyFs(); };
+$("#fsDown").onclick = () => { fs = Math.max(15, fs - 1); applyFs(); };
+const th = store.get("t1theme"); if (th) document.documentElement.dataset.theme = th;
+$("#theme").onclick = () => {
+  const cur = document.documentElement.dataset.theme;
+  const dark = cur ? cur === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.dataset.theme = dark ? "light" : "dark"; store.set("t1theme", document.documentElement.dataset.theme);
+};
+
+/* 出处弹窗 */
+let lastFocus = null;
+function openCite(id) {
+  const s = SOURCES[id]; if (!s) return;
+  lastFocus = document.activeElement;
+  $("#popT").textContent = `课本 p${s.page}（PDF 第 ${s.page + 1} 页）`;
+  $("#popQ").textContent = s.quote; $("#popZ").textContent = "转述：" + s.zh;
+  $("#pop").hidden = false; $("#popX").focus();
+}
+const closePop = () => { $("#pop").hidden = true; lastFocus && lastFocus.focus(); };
+function wireCites(root = document) {
+  $$(".cite", root).forEach(c => { if (c.dataset.w) return; c.dataset.w = 1; c.tabIndex = 0; c.setAttribute("role", "button");
+    c.onclick = () => openCite(c.dataset.cite);
+    c.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCite(c.dataset.cite); } }; });
+}
+$("#popX").onclick = closePop;
+$("#pop").onclick = e => { if (e.target.id === "pop") closePop(); };
+
+/* 跳转与回到原处 */
+const backStack = [], backBtn = $("#back");
+function jumpTo(id) {
+  backStack.push(scrollY); history.pushState({ y: scrollY }, "");
+  go(document.getElementById(id)); backBtn.hidden = false;
+}
+backBtn.onclick = () => { const y = backStack.pop(); if (y != null) scrollTo({ top: y, behavior: motionOK() ? "smooth" : "auto" }); backBtn.hidden = backStack.length === 0; };
+addEventListener("popstate", e => { if (e.state && e.state.y != null) { backStack.pop(); scrollTo(0, e.state.y); backBtn.hidden = backStack.length === 0; } });
+$$("[data-jump]").forEach(n => { n.onclick = () => jumpTo(n.dataset.jump); n.onkeydown = e => { if (e.key === "Enter") jumpTo(n.dataset.jump); }; });
+
+/* 键盘：← → 切场景，Esc 关弹窗 */
+const order = $$("[data-hero],[data-scene],#quiz").map(s => s.id);
+const current = () => { let c = 0; order.forEach((id, i) => { if (document.getElementById(id).getBoundingClientRect().top < 120) c = i; }); return c; };
+addEventListener("keydown", e => {
+  if (e.key === "Escape" && !$("#pop").hidden) return closePop();
+  if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+  if (e.key === "ArrowRight") go(document.getElementById(order[Math.min(order.length - 1, current() + 1)]));
+  if (e.key === "ArrowLeft") go(document.getElementById(order[Math.max(0, current() - 1)]));
+});
+
+/* 阅读进度 */
+const posKey = UNIT + "pos", saved = parseInt(store.get(posKey));
+if (saved > 600) { $("#resume").hidden = false;
+  $("#resumeGo").onclick = () => { scrollTo(0, saved); $("#resume").hidden = true; };
+  $("#resumeNo").onclick = () => { $("#resume").hidden = true; store.set(posKey, 0); }; }
+let tick; addEventListener("scroll", () => { clearTimeout(tick); tick = setTimeout(() => store.set(posKey, Math.round(scrollY)), 300); });
+
+/* 先猜再看：滑块（data-unit 为单位）或选项（data-v="1" 为正确） */
+$$("[data-guess]").forEach(g => {
+  const r = $("input[type=range]", g), o = $("output", g), b = $(".btn", g), rev = $(".reveal", g);
+  if (r) { const unit = g.dataset.unit || ""; const upd = () => o.textContent = r.value + unit; r.oninput = upd; upd();
+    b.onclick = () => { rev.hidden = false; b.disabled = true; r.disabled = true; o.textContent = "你猜 " + r.value + unit; }; }
+  else $$(".chip", g).forEach(c => c.onclick = () => {
+    $$(".chip", g).forEach(x => { x.disabled = true; if (x.dataset.v === "1") x.classList.add("ok"); });
+    if (c.dataset.v !== "1") c.classList.add("no"); rev.hidden = false; });
+});
+
+/* 点开卡片：.cards 里的 chip 带 data-a，结果写进 data-out 指向的元素 */
+$$(".cards").forEach(box => $$(".chip", box).forEach(c => c.onclick = () => {
+  $$(".chip", box).forEach(x => x.classList.remove("sel")); c.classList.add("sel"); $(box.dataset.out).textContent = c.dataset.a; }));
+
+/* 选词练习：.drill[data-items] = [[句子(___ 为空), [选项], 答案, 理由], ...] */
+$$(".drill").forEach(d => {
+  const items = JSON.parse(d.dataset.items); let i = 0, ok = 0;
+  d.innerHTML = '<div class="sent en"></div><div class="chips"></div><p class="fb" aria-live="polite"></p><button class="btn sm">下一句 →</button> <span class="small"></span>';
+  const [sent, opts, fb, next, cnt] = [$(".sent", d), $(".chips", d), $(".fb", d), $(".btn", d), $(".small", d)];
+  const count = () => cnt.textContent = `第 ${i + 1} / ${items.length} 句 · 答对 ${ok}`;
+  function show() {
+    const [s, os] = items[i]; sent.innerHTML = s.replace("___", '<span class="blank"></span>'); fb.textContent = ""; opts.innerHTML = ""; count();
+    os.forEach(o => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = o;
+      b.onclick = () => { const [, , ans, why] = items[i]; $$(".chip", opts).forEach(x => { x.disabled = true; if (x.textContent === ans) x.classList.add("ok"); });
+        const right = o === ans; if (right) ok++; else b.classList.add("no");
+        sent.innerHTML = s.replace("___", `<mark>${ans}</mark>`);
+        fb.className = "fb " + (right ? "ok" : "no"); fb.textContent = (right ? "✓ " : "✗ ") + why; count(); };
+      opts.appendChild(b); });
+  }
+  next.onclick = () => { i = (i + 1) % items.length; if (i === 0) ok = 0; show(); }; show();
+});
+
+/* 分类：.sorter[data-bins]=["篮子1","篮子2"]，[data-items]=[[词, 篮子序号, 说明], ...] */
+$$(".sorter").forEach(s => {
+  const bins = JSON.parse(s.dataset.bins), items = JSON.parse(s.dataset.items); let picked = null;
+  s.innerHTML = '<p class="small" style="margin-top:0">先点一个词，再点它该去的篮子。</p><div class="chips pool"></div><div class="bins"></div><p class="fb" aria-live="polite"></p><button class="btn sm">重来</button>';
+  const pool = $(".pool", s), binBox = $(".bins", s), fb = $(".fb", s);
+  bins.forEach((b, k) => { const el = document.createElement("div"); el.className = "bin"; el.tabIndex = 0; el.setAttribute("role", "button");
+    el.innerHTML = `<h3>${b}</h3><div class="chips"></div>`; const drop = () => {
+      if (!picked) { fb.className = "fb"; fb.textContent = "先点上面一个词。"; return; }
+      const [, right, why] = items[picked.dataset.i];
+      if (right === k) { picked.classList.remove("sel"); picked.classList.add("ok"); picked.disabled = true; $(".chips", el).appendChild(picked);
+        fb.className = "fb ok"; fb.textContent = "✓ " + (why || "放对了。"); picked = null;
+        if (!$$(".chip", pool).length) fb.textContent = "全部放对了！"; }
+      else { fb.className = "fb no"; fb.textContent = "✗ 再想想：" + (why || ""); } };
+    el.onclick = drop; el.onkeydown = e => { if (e.key === "Enter") drop(); }; binBox.appendChild(el); });
+  function reset() { pool.innerHTML = ""; $$(".bin .chips", s).forEach(b => b.innerHTML = ""); fb.textContent = ""; picked = null;
+    items.map((it, k) => [it, k]).sort(() => Math.random() - .5).forEach(([[w], k]) => { const b = document.createElement("button");
+      b.className = "chip"; b.textContent = w; b.dataset.i = k;
+      b.onclick = () => { $$(".chip", pool).forEach(x => x.classList.remove("sel")); b.classList.add("sel"); picked = b; }; pool.appendChild(b); }); }
+  $(".btn", s).onclick = reset; reset();
+});
+
+/* 自测 */
+$$("[data-quiz] .q").forEach(q => { const ans = q.dataset.ans;
+  $$(".chip", q).forEach(c => c.onclick = () => { $$(".chip", q).forEach(x => { x.disabled = true; if (x.dataset.i === ans) x.classList.add("ok"); });
+    const ok = c.dataset.i === ans; if (!ok) c.classList.add("no");
+    const fb = $(".fb", q); fb.className = "fb " + (ok ? "ok" : "no"); fb.textContent = ok ? "✓ 答对了" : "✗ 再看看"; $(".reveal", q).hidden = false; }); });
+
+/* 场景 1：算一算 */
+const ITEMS = [["T-shirt", 10.5], ["shoes", 35.75], ["jumper", 18.25], ["belt", 6.5], ["jacket", 55]];
+const picked = new Set();
+function showCart() {
+  const t = [...picked].reduce((s, i) => s + ITEMS[i][1], 0), b = +$("#budget").value;
+  $("#total").textContent = "£" + t.toFixed(2);
+  const fb = $("#budgetFb");
+  if (!picked.size) { fb.className = "fb"; fb.textContent = ""; return; }
+  fb.className = "fb " + (t <= b ? "ok" : "no");
+  fb.textContent = t <= b ? `✓ 买得起，还剩 £${(b - t).toFixed(2)}。` : `✗ 超出预算 £${(t - b).toFixed(2)}。`;
+}
+ITEMS.forEach(([n, p], i) => { const c = document.createElement("button"); c.className = "chip en"; c.textContent = `${n} £${p.toFixed(2)}`;
+  c.onclick = () => { picked.has(i) ? picked.delete(i) : picked.add(i); c.classList.toggle("sel"); showCart(); }; $("#cart").appendChild(c); });
+$("#budget").onchange = showCart;
+
+/* 场景 2：现在进行时 */
+const PS = [["I", "am", "'m"], ["You", "are", "'re"], ["He", "is", "'s"], ["She", "is", "'s"], ["We", "are", "'re"], ["They", "are", "'re"]];
+const PV = [["look", "looking", "for a jacket"], ["shop", "shopping", "in town"], ["wear", "wearing", "a T-shirt"], ["write", "writing", "a poem"]];
+let pc = [0, 0];
+function showPC() {
+  const [s, be, short] = PS[pc[0]], [, ing, obj] = PV[pc[1]];
+  const neg = be === "am" ? "'m not" : be === "is" ? "isn't" : "aren't", sl = s === "I" ? "I" : s.toLowerCase();
+  const ans = s === "I" ? "you" : s === "You" ? "I" : sl, abe = s === "I" ? "are" : s === "You" ? "am" : be;
+  const aneg = abe === "am" ? "'m not" : abe === "is" ? "isn't" : "aren't";
+  $("#pcPos").innerHTML = `${s}<mark>${short}</mark> <mark>${ing}</mark> ${obj}.`;
+  $("#pcNeg").innerHTML = `${s}<mark>${neg.startsWith("'") ? neg : " " + neg}</mark> ${ing} ${obj}.`;
+  $("#pcQ").innerHTML = `<mark>${be[0].toUpperCase() + be.slice(1)}</mark> ${sl} ${ing} ${obj}?`;
+  $("#pcA").innerHTML = `Yes, ${ans} <mark>${abe}</mark>. / No, ${ans}<mark>${aneg.startsWith("'") ? aneg : " " + aneg}</mark>.`;
+  $$("#pcSubj .chip").forEach((b, i) => b.classList.toggle("sel", i === pc[0])); $$("#pcVerb .chip").forEach((b, i) => b.classList.toggle("sel", i === pc[1]));
+}
+PS.forEach(([s], i) => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = s; b.onclick = () => { pc[0] = i; showPC(); }; $("#pcSubj").appendChild(b); });
+PV.forEach(([v], i) => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = v; b.onclick = () => { pc[1] = i; showPC(); }; $("#pcVerb").appendChild(b); });
+showPC();
+
+/* 场景 4：感官动词 */
+const SENSE = [["look", "看起来", [["Your new shirt", "great"], ["That jacket", "old-fashioned"]]], ["sound", "听起来", [["That idea", "good"], ["Your plan", "boring"]]], ["smell", "闻起来", [["That pizza", "nice"], ["This milk", "horrible"]]], ["taste", "尝起来", [["The food", "great"], ["This juice", "horrible"]]]];
+let si = 0;
+function showSense(k) {
+  si = k; $$("#senses .chip").forEach((b, i) => b.classList.toggle("sel", i === k));
+  $("#things").innerHTML = "";
+  SENSE[k][2].forEach(([n, adj]) => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = n;
+    b.onclick = () => { $$("#things .chip").forEach(x => x.classList.toggle("sel", x === b)); $("#percOut").innerHTML = `${n} <mark>${SENSE[k][0]}s</mark> <mark>${adj}</mark>. <span class="small">← ${SENSE[k][1]} + 形容词</span>`; };
+    $("#things").appendChild(b); });
+  $("#things .chip").click();
+}
+SENSE.forEach(([v, zh], i) => { const b = document.createElement("button"); b.className = "chip"; b.textContent = `${v} ${zh}`; b.onclick = () => showSense(i); $("#senses").appendChild(b); });
+showSense(0);
+wireCites();
+</script>
+</body>
+</html>
