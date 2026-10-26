@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>玩得开心</title>
+<!-- 风格：手绘课堂笔记。配色=横线纸米白底+蓝黑笔迹+荧光黄/薄荷绿/番茄红高亮；字体=系统黑体正文、宋体标题；质感=横线、便利贴、手绘圈画；主视觉=铅笔淡彩速写。 -->
+<style>
+:root{
+  --paper:#fbf8ef; --line:#dfe6ef; --margin:#f1b8b8; --ink:#1f2a44; --ink2:#55607a; --pen:#2a4fa8;
+  --hl:#fff07a; --mint:#bfe8d4; --tomato:#e5553f; --note:#fff4b8; --card:#ffffff; --shadow:rgba(31,42,68,.12);
+  --ok:#1d8a5a; --bad:#c8402e;
+  --fs:17px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1b1f2a; --line:#262c3b; --margin:#4a2c34; --ink:#e9ecf3; --ink2:#a5aec2; --pen:#8fb0ff;
+    --hl:#6b5d10; --mint:#1f4a3a; --tomato:#ff7a62; --note:#3b3622; --card:#232838; --shadow:rgba(0,0,0,.4);
+    --ok:#5ed39b; --bad:#ff8a76;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1b1f2a; --line:#262c3b; --margin:#4a2c34; --ink:#e9ecf3; --ink2:#a5aec2; --pen:#8fb0ff;
+  --hl:#6b5d10; --mint:#1f4a3a; --tomato:#ff7a62; --note:#3b3622; --card:#232838; --shadow:rgba(0,0,0,.4);
+  --ok:#5ed39b; --bad:#ff8a76;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:64px}
+body{margin:0;background:var(--paper);color:var(--ink);font:var(--fs)/1.75 -apple-system,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 30px;overflow-x:hidden}
+h1,h2,h3{font-family:"Songti SC","STSong","Noto Serif CJK SC",SimSun,serif;line-height:1.35;margin:.2em 0 .5em}
+h2{font-size:1.5em}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 80px;border-left:2px solid var(--margin)}
+header.bar{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;padding:8px 16px}
+header.bar .t{font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{min-height:44px;min-width:44px;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-size:.95em;padding:6px 12px;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:none}
+.btn.sm{min-height:40px;padding:4px 10px;font-size:.85em}
+.btn:focus-visible,.chip:focus-visible{outline:3px solid var(--pen);outline-offset:2px}
+mark{background:linear-gradient(transparent 45%,var(--hl) 45%);color:inherit;padding:0 .1em}
+.en{font-family:"Avenir Next","Helvetica Neue",Arial,sans-serif;font-weight:600;color:var(--pen)}
+section{padding:28px 0 8px}
+.point{font-size:1.15em;font-weight:600;background:var(--note);padding:10px 14px;border-radius:4px;box-shadow:3px 3px 0 var(--shadow);transform:rotate(-.4deg);margin:0 0 16px}
+.lab{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:16px;box-shadow:4px 4px 0 var(--shadow);margin:12px 0}
+details{margin:12px 0;border:1px dashed var(--ink2);border-radius:10px;padding:8px 14px;background:color-mix(in srgb,var(--card) 70%,transparent)}
+summary{cursor:pointer;font-weight:600;min-height:32px}
+.cite{cursor:pointer;color:var(--pen);font-weight:700;font-size:.72em;padding:0 2px}
+.cite::before{content:"[原文]"}
+.tag{font-size:.7em;border:1px solid var(--ink2);border-radius:6px;padding:0 5px;margin-left:4px;color:var(--ink2);vertical-align:2px}
+.tag::before{content:attr(data-label)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;border:2px solid var(--ink);border-radius:22px;background:var(--card);color:var(--ink);padding:6px 14px;font:inherit;cursor:pointer;text-align:left}
+.chip.ok{background:var(--mint);border-color:var(--ok)}
+.chip.no{background:color-mix(in srgb,var(--tomato) 25%,var(--card));border-color:var(--bad)}
+.chip.sel{background:var(--hl)}
+.chip[disabled]{cursor:default}
+.fb{min-height:1.8em;font-weight:600}
+.fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+.reveal{background:var(--mint);border-radius:8px;padding:8px 12px}
+figure{margin:12px 0}
+figure svg{width:100%;height:auto;display:block;border-radius:12px}
+figcaption{font-size:.85em;color:var(--ink2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.bin{border:2px dashed var(--ink2);border-radius:12px;padding:10px;min-height:100px;cursor:pointer}
+.bin h3{font-size:1em;margin:0 0 6px}
+.bin .chips{gap:6px}
+.map{display:block;width:100%}
+.map .node{cursor:pointer}
+.map .node:hover rect,.map .node:focus rect{fill:var(--hl)}
+.big{font-size:1.25em;font-weight:700}
+.sent{font-size:1.2em;padding:10px 12px;background:var(--paper);border-radius:8px;border-left:4px solid var(--pen);margin:10px 0}
+.blank{display:inline-block;min-width:3em;border-bottom:2px solid currentColor}
+input[type=range]{width:100%;min-height:44px;accent-color:var(--pen)}
+select{font:inherit;min-height:44px;border:2px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink);padding:4px 8px}
+table.t{border-collapse:collapse;width:100%;font-size:.95em}
+table.t td,table.t th{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+#pop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+#pop[hidden]{display:none}
+#pop .box{background:var(--card);color:var(--ink);max-width:520px;width:100%;border-radius:14px;padding:18px;border:2px solid var(--ink)}
+#pop blockquote{margin:8px 0;padding:8px 12px;border-left:4px solid var(--pen);background:var(--paper);font-family:Georgia,"Times New Roman",serif}
+#back{position:fixed;right:16px;bottom:16px;z-index:30}
+#resume{background:var(--note);padding:8px 14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+#resume[hidden]{display:none}
+nav.dots{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 0}
+.q{margin:14px 0}
+.small{font-size:.85em;color:var(--ink2)}
+.units{display:flex;gap:6px;flex-wrap:wrap;font-size:.85em}
+.units a{color:var(--pen)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+.scale{position:relative;height:64px;margin:8px 0 4px}
+.scale .track{position:absolute;left:0;right:0;top:26px;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--line),var(--pen))}
+.scale .lbl{position:absolute;top:0;font-size:.8em;transform:translateX(-50%);white-space:nowrap;color:var(--ink2)}
+.scale .lbl.on{color:var(--ink);font-weight:700}
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="t">思辨英语 1A · Unit 1 Having a good time</span>
+  <button class="btn sm" id="fsDown" aria-label="缩小字号">A−</button>
+  <button class="btn sm" id="fsUp" aria-label="放大字号">A+</button>
+  <button class="btn sm" id="theme" aria-label="切换明暗">◐</button>
+</header>
+<div id="resume" hidden><span>上次读到一半，要接着读吗？</span><button class="btn sm" id="resumeGo">接着读</button><button class="btn sm" id="resumeNo">从头开始</button></div>
+
+<main class="wrap">
+<section data-hero id="hero">
+  <h1>玩得开心</h1>
+  <p class="point">30 秒版：说<mark>平时经常做的事</mark>用一般现在时（He <b>likes</b> films）；说喜欢或讨厌做什么，动词后面加 <mark>-ing</mark>（I love <b>doing</b> puzzles）；说<mark>多常做</mark>，用 always、never 这类词。<sup class="cite" data-cite="rule_ps"></sup></p>
+  <p>本单元的读物是一份「你会享受生活吗」小测验和四个同龄人的业余爱好帖；最后学两样本领：<b>提醒别人小心</b>和<b>体会别人的感受</b>。</p>
+  <div class="lab">
+    <p class="small" style="margin:0 0 6px">全局图：你想说什么？点方框跳过去。</p>
+    <svg class="map" viewBox="0 0 760 210" role="img" aria-label="本单元三个语法点的选择图">
+      <g font-family="-apple-system,PingFang SC,sans-serif" font-size="17" fill="var(--ink)" text-anchor="middle">
+        <g class="node" tabindex="0" data-jump="s2"><rect x="20" y="20" width="230" height="56" rx="12" fill="var(--note)" stroke="var(--ink)" stroke-width="2"/><text x="135" y="54">平时做什么？</text></g>
+        <g class="node" tabindex="0" data-jump="s5"><rect x="265" y="20" width="230" height="56" rx="12" fill="var(--note)" stroke="var(--ink)" stroke-width="2"/><text x="380" y="54">喜不喜欢做？</text></g>
+        <g class="node" tabindex="0" data-jump="s6"><rect x="510" y="20" width="230" height="56" rx="12" fill="var(--note)" stroke="var(--ink)" stroke-width="2"/><text x="625" y="54">多常做？</text></g>
+        <g fill="none" stroke="var(--ink)" stroke-width="2"><path d="M135 76 V110"/><path d="M380 76 V110"/><path d="M625 76 V110"/></g>
+        <g class="node" tabindex="0" data-jump="s2"><rect x="20" y="110" width="230" height="80" rx="10" fill="var(--mint)" stroke="var(--ink)"/><text x="135" y="142">一般现在时</text><text x="135" y="170" font-size="15" fill="var(--pen)">She plays the piano.</text></g>
+        <g class="node" tabindex="0" data-jump="s5"><rect x="265" y="110" width="230" height="80" rx="10" fill="var(--mint)" stroke="var(--ink)"/><text x="380" y="142">like / love / hate + -ing</text><text x="380" y="170" font-size="15" fill="var(--pen)">I love taking photos.</text></g>
+        <g class="node" tabindex="0" data-jump="s6"><rect x="510" y="110" width="230" height="80" rx="10" fill="var(--mint)" stroke="var(--ink)"/><text x="625" y="142">频率副词</text><text x="625" y="170" font-size="15" fill="var(--pen)">I never get bored.</text></g>
+      </g>
+    </svg>
+  </div>
+  <nav class="dots" aria-label="场景目录">
+    <button class="btn sm" data-jump="s1">① 小测验</button><button class="btn sm" data-jump="s2">② 一般现在时</button><button class="btn sm" data-jump="s3">③ 爱好词组</button><button class="btn sm" data-jump="s4">④ 业余时间</button><button class="btn sm" data-jump="s5">⑤ like + -ing</button><button class="btn sm" data-jump="s6">⑥ 多常做</button><button class="btn sm" data-jump="s7">⑦ 小心与共情</button><button class="btn sm" data-jump="quiz">自测</button>
+  </nav>
+</section>
+
+<section data-scene="1" id="s1">
+  <h2>① 你会享受生活吗？</h2>
+  <p class="point">生活有时很难，要做的事太多。忙碌是好事，但也要<b>照顾好自己</b>，玩得开心。<sup class="cite" data-cite="quiz_intro"></sup></p>
+  <div data-guess class="lab">
+    <p class="big">先猜：课本测验里，一晚睡多久算 A（最会享受生活）？</p>
+    <div class="chips"><button class="chip" data-v="0">大约 8 小时</button><button class="chip" data-v="1">9–10 小时</button><button class="chip" data-v="0">不到 8 小时</button></div>
+    <p class="reveal" hidden>A 是 <b>9–10 小时</b>，B 是大约 8 小时，C 是不到 8 小时。<sup class="cite" data-cite="quiz_sleep"></sup></p>
+  </div>
+  <div class="lab" id="miniQuiz">
+    <p class="big" style="margin-top:0">做 4 道小题，看看你属于哪一类</p>
+    <div class="q" data-k="0"><p><b>1.</b> 你常笑吗？</p><div class="chips"><button class="chip" data-s="A">一直笑</button><button class="chip" data-s="B">开心时才笑</button><button class="chip" data-s="C">朋友说我不怎么笑</button></div></div>
+    <div class="q" data-k="1"><p><b>2.</b> 你有几个爱好？</p><div class="chips"><button class="chip" data-s="A">很多</button><button class="chip" data-s="B">一个</button><button class="chip" data-s="C">没有</button></div></div>
+    <div class="q" data-k="2"><p><b>3.</b> 你什么时候听音乐？</p><div class="chips"><button class="chip" data-s="A">早中晚都听</button><button class="chip" data-s="B">有空才听</button><button class="chip" data-s="C">从来不听，没时间</button></div></div>
+    <div class="q" data-k="3"><p><b>4.</b> 你喜欢运动吗？</p><div class="chips"><button class="chip" data-s="A">喜欢，很好玩</button><button class="chip" data-s="B">有些还行</button><button class="chip" data-s="C">一点也不喜欢</button></div></div>
+    <p class="fb" id="mqOut" aria-live="polite"></p>
+    <p class="small">题目和计分方法改写自课本 7 道题中的 4 道<sup class="cite" data-cite="quiz_score"></sup></p>
+  </div>
+  <details><summary>测验背后：什么对我们很重要？</summary>
+    <p>课本问：测验里哪道题告诉我们哪件事重要？示范答案是：第 7 题（和谁一起度过时间）说明<b>和人在一起</b>很重要。<sup class="cite" data-cite="values"></sup></p>
+    <p>同样的思路：睡多久那题对应「睡眠」，运动那题对应「享受运动」，数字和字谜那题对应「锻炼大脑」，爱好那题对应「有兴趣爱好」。<span class="tag" data-label="解读"></span></p>
+  </details>
+</section>
+
+<section data-scene="2" id="s2">
+  <h2>② 一般现在时：经常做、一直是</h2>
+  <p class="point">经常发生或一直如此的事，用一般现在时。主语是 he / she / it 时，动词加 <b>-s</b>；否定用 <b>don't / doesn't</b>，问句用 <b>Do / Does</b> 开头。<sup class="cite" data-cite="rule_ps"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0">换主语、换动词，看句子怎么变：</p>
+    <div class="chips" id="psSubj"></div>
+    <div class="chips" id="psVerb" style="margin-top:8px"></div>
+    <table class="t" style="margin-top:12px"><tbody>
+      <tr><th>肯定</th><td class="en" id="psPos"></td></tr>
+      <tr><th>否定</th><td class="en" id="psNeg"></td></tr>
+      <tr><th>问句</th><td class="en" id="psQ"></td></tr>
+      <tr><th>简短回答</th><td class="en" id="psA"></td></tr>
+    </tbody></table>
+    <p class="small" id="psWhy"></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>练一练：</b>选 do / does / don't / doesn't</p>
+    <div class="drill" data-items='[["My best friend ___ like horror films.",["don&#39;t","doesn&#39;t"],"doesn&#39;t","主语是第三人称单数，否定用 doesn&#39;t，后面动词用原形。"],["___ your teacher give you homework every day?",["Do","Does"],"Does","your teacher 相当于 he / she，问句用 Does。"],["We ___ watch TV in the morning.",["don&#39;t","doesn&#39;t"],"don&#39;t","主语是 we，否定用 don&#39;t。"],["___ you like doing exercise?",["Do","Does"],"Do","主语是 you，问句用 Do。"],["Does he play the guitar? Yes, he ___.",["do","does"],"does","简短回答跟着问句：Does 问，does 答。"]]'></div>
+  </div>
+</section>
+
+<section data-scene="3" id="s3">
+  <h2>③ 爱好怎么说</h2>
+  <p class="point">英语的爱好常是固定搭配：<span class="en">play an instrument</span>（玩乐器）、<span class="en">take photos</span>（拍照）……动词不能随便换。<sup class="cite" data-cite="hobbies"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0">把右半边放进对应的动词篮子：</p>
+    <div class="sorter" data-bins='["play","collect","keep","take","write","be in"]' data-items='[["an instrument",0,"play an instrument 玩乐器"],["things",1,"collect things 收集东西"],["a pet",2,"keep a pet 养宠物"],["photos",3,"take photos 拍照"],["a blog",4,"write a blog 写博客"],["a club",5,"be in a club 参加俱乐部"]]'></div>
+    <p class="small">搭配来自课本 p14 练习 4，答案为编者补出<span class="tag" data-label="解读"></span></p>
+  </div>
+  <details><summary>have 的固定搭配</summary>
+    <p><span class="en">have time</span> 有空 · <span class="en">have fun</span> 玩得开心 · <span class="en">have dinner</span> 吃晚饭 · <span class="en">have a rest</span> 休息一下 · <span class="en">have a good time</span> 过得愉快<sup class="cite" data-cite="have"></sup></p>
+  </details>
+</section>
+
+<section data-scene="4" id="s4">
+  <h2>④ 你的业余时间做什么？</h2>
+  <p class="point">四个同龄人分享自己看电视、打游戏以外的爱好：猫、拼图、在线地图和橄榄球。<sup class="cite" data-cite="blog_intro"></sup></p>
+  <figure data-figure>
+    <svg viewBox="0 0 800 340" role="img" aria-label="插画：书桌上摆着猫的照片、显示数独的手机、一张插着图钉的世界地图和一只橄榄球">
+      <rect width="800" height="340" fill="#e9dcc5"/>
+      <rect y="250" width="800" height="90" fill="#b98a5a"/><rect y="250" width="800" height="6" fill="#8f6339"/>
+      <!-- 世界地图 -->
+      <g transform="translate(40 30)"><rect width="300" height="190" fill="#f6f1e4" stroke="#7a6a52" stroke-width="3"/>
+        <g fill="#9cc7a4" stroke="#5f8f68" stroke-width="1.5"><path d="M30 50 q30 -25 70 -10 q10 25 -10 45 q-20 10 -25 35 q-20 5 -30 -20 q-15 -25 -5 -50Z"/><path d="M85 115 q20 0 25 25 q-5 30 -20 40 q-12 -25 -5 -65Z"/><path d="M140 40 q40 -15 70 0 q30 -5 60 15 q-5 30 -40 35 q-10 25 -35 20 q-30 -5 -40 -30 q-20 -15 -15 -40Z"/><path d="M175 105 q20 5 20 35 q-10 25 -25 20 q-5 -30 5 -55Z"/><path d="M240 130 q25 -5 35 15 q-10 15 -35 10Z"/></g>
+        <g><circle cx="200" cy="62" r="7" fill="#e5553f" stroke="#7b1d14" stroke-width="2"/><path d="M200 69 v14" stroke="#7b1d14" stroke-width="2"/></g>
+        <text x="150" y="182" font-family="-apple-system,sans-serif" font-size="13" fill="#7a6a52" text-anchor="middle">street view</text></g>
+      <!-- 猫照片 -->
+      <g transform="translate(380 40) rotate(-4)"><rect width="150" height="170" fill="#fff" stroke="#999" stroke-width="2"/><rect x="10" y="10" width="130" height="120" fill="#cfd8e3"/>
+        <g fill="#2b2b2b"><ellipse cx="75" cy="110" rx="40" ry="26"/><circle cx="75" cy="70" r="24"/><path d="M55 56 l4 -22 l14 16Z"/><path d="M95 56 l-4 -22 l-14 16Z"/></g>
+        <g fill="#f4f4f4"><ellipse cx="75" cy="82" rx="12" ry="9"/><ellipse cx="75" cy="118" rx="16" ry="12"/></g>
+        <g fill="#d8c24a"><ellipse cx="66" cy="68" rx="4" ry="5"/><ellipse cx="84" cy="68" rx="4" ry="5"/></g>
+        <text x="75" y="155" font-family="-apple-system,sans-serif" font-size="14" fill="#555" text-anchor="middle">my cats ♥</text></g>
+      <!-- 手机数独 -->
+      <g transform="translate(570 60)"><rect width="120" height="210" rx="16" fill="#222"/><rect x="10" y="22" width="100" height="160" rx="4" fill="#f7f7f2"/>
+        <g stroke="#aaa" stroke-width="1"><path d="M20 40h80M20 60h80M20 80h80M20 100h80M20 120h80M20 140h80M20 160h80M20 40v120M40 40v120M60 40v120M80 40v120M100 40v120"/></g>
+        <g stroke="#333" stroke-width="2.5" fill="none"><rect x="20" y="40" width="80" height="120"/><path d="M60 40v120M20 100h80"/></g>
+        <g font-family="Menlo,monospace" font-size="14" fill="#2a4fa8" text-anchor="middle"><text x="30" y="55">5</text><text x="70" y="75">3</text><text x="50" y="95">8</text><text x="90" y="115">1</text><text x="30" y="135">7</text><text x="70" y="155">4</text></g>
+        <circle cx="60" cy="196" r="8" fill="none" stroke="#666" stroke-width="2"/></g>
+      <!-- 橄榄球 -->
+      <g transform="translate(250 270) rotate(-18)"><ellipse rx="70" ry="38" fill="#7a3f1d" stroke="#3f2110" stroke-width="3"/><path d="M-30 0 H30" stroke="#fff" stroke-width="3"/><g stroke="#fff" stroke-width="3"><path d="M-20 -7v14M-8 -7v14M4 -7v14M16 -7v14"/></g></g>
+      <text x="520" y="310" font-family="Songti SC,STSong,serif" font-size="24" fill="#fff" font-weight="700">What do you do in your free time?</text>
+    </svg>
+    <figcaption>四个人的爱好放在一张书桌上：地图（Natalie）、猫（Hermione）、拼图（Andy）、橄榄球（Lucy）。示意<span class="tag" data-label="示意"></span></figcaption>
+  </figure>
+  <div class="lab">
+    <p class="big" style="margin-top:0">点名字，看他们怎么过业余时间</p>
+    <div class="chips cards" data-out="#blogOut">
+      <button class="chip" data-a="Hermione 爱猫：每天看猫视频，在外面看到猫就拍，还收集印着猫的卡片、本子、T 恤。可家里不能养猫，因为爸爸受不了猫。">Hermione</button>
+      <button class="chip" data-a="Andy 受不了无事可做：等公交、排队时，就打开手机里的拼图 app，数独、填字、文字游戏都玩，所以从不觉得无聊。">Andy</button>
+      <button class="chip" data-a="Natalie 平时很忙，做完作业偶尔有空时，最爱看在线地图，用「街景」想象自己走在别的城市，每周至少「去」一个新地方。">Natalie</button>
+      <button class="chip" data-a="Lucy 不爱运动，讨厌跑步，却迷上了新西兰橄榄球队 All Blacks，因为叔叔阿姨住在那里。她收集有关球队的一切，还把报纸文章贴在一个本子里。">Lucy</button>
+    </div>
+    <p class="fb" id="blogOut" aria-live="polite"></p>
+    <p class="small">四段内容来自课本博客<sup class="cite" data-cite="blog_people"></sup></p>
+  </div>
+  <div data-guess class="lab">
+    <p class="big">先猜：Lucy 和叔叔多久在网上聊一次 All Blacks？</p>
+    <div class="chips"><button class="chip" data-v="0">每天</button><button class="chip" data-v="1">每周一次</button><button class="chip" data-v="0">每月一次</button></div>
+    <p class="reveal" hidden><span class="en">Once a week</span>，每周一次。<sup class="cite" data-cite="lucy"></sup></p>
+  </div>
+</section>
+
+<section data-scene="5" id="s5">
+  <h2>⑤ like + -ing：喜欢做某事</h2>
+  <p class="point">表示喜欢、讨厌的动词（<span class="en">like, love, hate, enjoy, can't stand</span>）后面，下一个动词用 <b>-ing</b> 形式。<sup class="cite" data-cite="rule_ing"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0"><b>-ing 变形机：</b>点一个动词</p>
+    <div class="chips" id="ingVerbs"></div>
+    <div class="sent en" id="ingOut"></div>
+    <p class="small" id="ingWhy"></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>这些词是「喜欢」还是「不喜欢」？</b></p>
+    <div class="sorter" data-bins='["喜欢 :)","不喜欢 :("]' data-items='[["love",0,"love 很喜欢"],["enjoy",0,"enjoy 享受、喜欢"],["like",0,"like 喜欢"],["hate",1,"hate 讨厌"],["can&#39;t stand",1,"can&#39;t stand 受不了"]]'></div>
+    <p class="small">课本 p17 练习 3 让你给 I just love doing puzzles / I can't stand having nothing to do / I hate running 画笑脸或哭脸。<sup class="cite" data-cite="ing_examples"></sup></p>
+  </div>
+</section>
+
+<section data-scene="6" id="s6">
+  <h2>⑥ 多常做？频率副词</h2>
+  <p class="point"><span class="en">always, sometimes, never</span> 这类词放在 <b>be 动词后面</b>，但放在<b>其他动词前面</b>；<span class="en">every day, twice a week</span> 放句首或句尾。<sup class="cite" data-cite="rule_adv"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0">拖动滑块，从「从不」到「总是」：</p>
+    <div class="scale" aria-hidden="true"><div class="track"></div></div>
+    <input type="range" id="freq" min="0" max="6" value="3" aria-label="频率">
+    <div class="sent en" id="freqA"></div>
+    <div class="sent en" id="freqB"></div>
+    <p class="small">百分比位置是示意，帮你排顺序<span class="tag" data-label="示意"></span>。课本的刻度：0% → rarely → sometimes → usually → 100%，中间四个空要你填 always / never / occasionally / often。<sup class="cite" data-cite="scale"></sup></p>
+  </div>
+</section>
+
+<section data-scene="7" id="s7">
+  <h2>⑦ 提醒小心，体会感受</h2>
+  <p class="point">Zoey 去 Ellie 家看她做的飞机模型，Ellie 提醒她「小心，别那样做」，可 Zoey 还是把它弄坏了。<sup class="cite" data-cite="planes"></sup></p>
+  <figure data-figure>
+    <svg viewBox="0 0 800 300" role="img" aria-label="插画：桌上一架断了一边机翼的飞机模型，旁边是胶水和断下的机翼">
+      <rect width="800" height="300" fill="#dfe9f3"/>
+      <rect y="210" width="800" height="90" fill="#c99a6b"/><rect y="210" width="800" height="5" fill="#9b6c40"/>
+      <g transform="translate(380 150)">
+        <path d="M-200 0 Q-150 -26 120 -18 Q170 -14 190 0 Q170 14 120 18 Q-150 26 -200 0Z" fill="#f2f4f7" stroke="#4a5568" stroke-width="3"/>
+        <path d="M-190 -2 L-230 -60 L-200 -60 L-160 -10Z" fill="#e5553f" stroke="#4a5568" stroke-width="3"/>
+        <path d="M-40 6 L-110 80 L-80 82 L10 10Z" fill="#d7dde5" stroke="#4a5568" stroke-width="3"/>
+        <path d="M-40 -6 L-60 -30" stroke="#4a5568" stroke-width="3" fill="none"/>
+        <path d="M-60 -30 l8 6 l-6 4 l7 5" stroke="#4a5568" stroke-width="2" fill="none"/>
+        <g fill="#2a4fa8"><circle cx="60" cy="-4" r="5"/><circle cx="80" cy="-4" r="5"/><circle cx="100" cy="-4" r="5"/><circle cx="40" cy="-4" r="5"/></g>
+        <rect x="-140" y="-6" width="16" height="12" fill="#e5553f"/>
+      </g>
+      <!-- 断下的机翼 -->
+      <g transform="translate(560 240) rotate(28)"><path d="M0 0 L-80 -50 L-55 -55 L25 -8Z" fill="#d7dde5" stroke="#4a5568" stroke-width="3"/><path d="M25 -8 l-6 6 l5 3 l-6 5" stroke="#4a5568" stroke-width="2" fill="none"/></g>
+      <g transform="translate(150 245)"><rect x="-14" y="-40" width="28" height="44" rx="4" fill="#fff" stroke="#4a5568" stroke-width="2"/><rect x="-6" y="-54" width="12" height="16" fill="#e5553f"/><text y="-12" font-family="-apple-system,sans-serif" font-size="11" text-anchor="middle" fill="#4a5568">GLUE</text></g>
+      <text x="40" y="50" font-family="Songti SC,STSong,serif" font-size="26" fill="#1f2a44" font-weight="700">Oh no. It's broken!</text>
+    </svg>
+    <figcaption>Ellie 最喜欢的那架飞机断了一只翅膀；旁边的胶水是想象的，因为 Ellie 说她能修好。示意<span class="tag" data-label="示意"></span></figcaption>
+  </figure>
+  <div data-guess class="lab">
+    <p class="big">先猜：Zoey 道歉后，Ellie 怎么回答？</p>
+    <div class="chips"><button class="chip" data-v="0">很生气，让她回家</button><button class="chip" data-v="1">没关系，是意外，我能修好</button><button class="chip" data-v="0">哭了起来</button></div>
+    <p class="reveal" hidden><span class="en">That's OK. I know it's an accident. I'm sure I can fix it.</span><sup class="cite" data-cite="planes_end"></sup></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>该说哪句提醒？</b>课本四句：Be careful / Look out / Don't do that / Don't talk in here<sup class="cite" data-cite="keylang"></sup></p>
+    <div class="drill" data-items='[["有辆车开过来，朋友却在看手机：___!",["Look out","Don&#39;t talk in here"],"Look out","突然有危险，喊 Look out!（当心！）"],["朋友要碰你刚刷好漆的模型：___ that!",["Don&#39;t do","Be careful"],"Don&#39;t do","阻止对方做某事：Don&#39;t do that!"],["弟弟端着一大杯热水：___!",["Be careful","Look out"],"Be careful","不是突发危险，而是提醒对方慢点、小心：Be careful."],["在图书馆，旁边的人大声聊天：___!",["Don&#39;t talk in here","Look out"],"Don&#39;t talk in here","说明这里禁止做什么：Don&#39;t talk in here!"]]'></div>
+    <p class="small">四个情境是编者设计的；什么时候用哪句是编者的建议<span class="tag" data-label="解读"></span></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>共情（empathy）</b>就是能理解、体会别人的感受。有时这就是对方难过时最需要的。<sup class="cite" data-cite="empathy"></sup></p>
+    <p>Jack 转学后过得很难：数学老师好像总在生气，下周的考试他觉得过不了，班里也没有朋友，没人愿意坐他旁边。<sup class="cite" data-cite="jack"></sup> 你是他的朋友，哪些话适合对他说？</p>
+    <div class="sorter" data-bins='["适合说","不适合说"]' data-items='[["I&#39;m here for you.",0,"告诉他你在身边。"],["I&#39;m sorry you feel this way.",0,"承认他的感受。"],["I understand how you feel.",0,"表示你能体会。"],["I&#39;ve got some great friends!",1,"他正因为没朋友难过，这句是在说你自己。"],["Talking about feelings is silly.",1,"这等于说他的难过不重要。"]]'></div>
+    <p class="small">五句来自课本 p19 练习 6，分法依据课本的共情小贴士<span class="tag" data-label="解读"></span><sup class="cite" data-cite="tips"></sup></p>
+  </div>
+  <details><summary>共情小贴士（课本 Tips 框）</summary>
+    <p>① 听别人说他的问题，别总说自己的；② 别人讲问题时，别说那不重要，也别批评；③ 不一定要给建议，有时听和理解就够了。<sup class="cite" data-cite="tips"></sup></p>
+    <p>对话里的好用短语：<span class="en">What are you up to?</span> 你在干嘛？ · <span class="en">Cool!</span> 太棒了 · <span class="en">Come on.</span> 走吧 · <span class="en">That's right.</span> 对 · <span class="en">Hurry up.</span> 快点 · <span class="en">Look out!</span> 当心</p>
+  </details>
+</section>
+
+<section id="quiz">
+  <h2>你答得上来吗？</h2>
+  <div data-quiz>
+    <div class="q lab" data-ans="1">
+      <p><b>1.</b> My dad ____ cooking. He says it's boring.</p>
+      <div class="chips"><button class="chip" data-i="0">don't enjoy</button><button class="chip" data-i="1">doesn't enjoy</button><button class="chip" data-i="2">doesn't enjoys</button></div>
+      <p class="fb"></p><p class="reveal" hidden>my dad 是第三人称单数，否定用 doesn't，后面动词用原形 enjoy。<sup class="cite" data-cite="rule_ps"></sup></p>
+    </div>
+    <div class="q lab" data-ans="0">
+      <p><b>2.</b> 哪句是对的？</p>
+      <div class="chips"><button class="chip" data-i="0">I am never late for school.</button><button class="chip" data-i="1">I never am late for school.</button></div>
+      <p class="fb"></p><p class="reveal" hidden>频率副词放在 be 动词<b>后面</b>：am never。<sup class="cite" data-cite="rule_adv"></sup></p>
+    </div>
+    <div class="q lab" data-ans="2">
+      <p><b>3.</b> 朋友向你倾诉烦恼时，课本建议怎么做？</p>
+      <div class="chips"><button class="chip" data-i="0">马上给他一堆建议</button><button class="chip" data-i="1">告诉他这没什么大不了</button><button class="chip" data-i="2">认真听，理解他</button></div>
+      <p class="fb"></p><p class="reveal" hidden>不一定要给建议，有时听和理解就够了。<sup class="cite" data-cite="tips"></sup></p>
+    </div>
+  </div>
+  <p class="small">没放进来的有：p12 图片配对、p15 听力（Jade、Harry 一家的爱好）和爱好维恩图、p17 Grammar rap 视频和写作练习、p19 视频练习，以及 /s/ /z/ /ɪz/ 发音。听力和视频请配合课本使用。</p>
+  <p class="small">页码按课本印刷页码标注；在 PDF 里要往后翻一页（书 p13 = PDF 第 14 页）。关键规则请点「[原文]」核对原句。</p>
+</section>
+<p class="units">其他单元：<a href="think1-u1.html">Unit 1</a> · <a href="think1-u2.html">Unit 2</a> · <a href="think1-u3.html">Unit 3</a> · <a href="think1-u4.html">Unit 4</a> · <a href="think1-u5.html">Unit 5</a> · <a href="think1-u6.html">Unit 6</a></p>
+</main>
+
+<button class="btn" id="back" hidden>↩ 回到刚才的位置</button>
+<div id="pop" hidden role="dialog" aria-modal="true" aria-labelledby="popT">
+  <div class="box">
+    <p id="popT" class="small" style="margin:0"></p>
+    <blockquote id="popQ"></blockquote>
+    <p id="popZ"></p>
+    <button class="btn sm" id="popX">关闭（Esc）</button>
+  </div>
+</div>
+
+<script>
+const UNIT = "u1";
+const SOURCES = {
+  quiz_intro: { page: 13, quote: "Life is sometimes difficult because there are lots of things to do. It's great to be busy, but it's important to look after yourself and have fun, too.", zh: "生活有时很难，因为要做的事很多；忙碌很好，但照顾好自己、玩得开心也很重要。" },
+  quiz_sleep: { page: 13, quote: "4 How many hours do you sleep a night? A 9–10 hours B about 8 hours C less than 8 hours", zh: "第 4 题：一晚睡几小时？A 9–10 小时，B 大约 8 小时，C 不到 8 小时。" },
+  quiz_score: { page: 13, quote: "YOUR SCORE: Mostly As: Wow! You know how to have fun and enjoy life. Mostly Bs: Hmm, OK, but can you do more? Try and find more time for yourself. Mostly Cs: Try and find more ways to have more fun.", zh: "大多选 A：你很会玩、会享受生活；大多选 B：还行，但能不能多做点？给自己多留点时间；大多选 C：试着多找些让自己开心的办法。" },
+  values: { page: 13, quote: "Which questions in the quiz tell us that these things are important for us? a Being with people … Question 7 shows us that being with people is important.", zh: "测验哪道题说明哪件事重要？示范：第 7 题说明和人在一起很重要。" },
+  rule_ps: { page: 14, quote: "RULE: Use the present simple for things that happen regularly or that are always true. In positive sentences: with I, you, we and they, use the base form of the verb. with he, she and it, add -s (or -es with verbs that end in -s, -sh, -ch, -x or -z). In negative sentences: with I, you, we and they, use ___. with he, she and it, use ___. In questions: … use the auxiliary ___ …", zh: "经常发生或一直如此的事用一般现在时；I/you/we/they 用动词原形，he/she/it 加 -s（以 -s/-sh/-ch/-x/-z 结尾加 -es）；否定和问句的空按课本表格填 don't/doesn't、do/does。" },
+  hobbies: { page: 14, quote: "Complete the phrases with the words in the list. be | collect | keep | play | take | write — 0 to play an instrument 1 to ___ in a club 2 to ___ a blog 3 to ___ photos 4 to ___ a pet 5 to ___ things", zh: "爱好搭配：play an instrument，其余五个空由学生填 be in a club、write a blog、take photos、keep a pet、collect things。" },
+  have: { page: 15, quote: "WordWise: Collocations with have — when I have time … Let's have dinner … You know how to have fun … I have a good time when I practise … Why don't you have a rest", zh: "have 的搭配：have time、have dinner、have fun、have a good time、have a rest。" },
+  blog_intro: { page: 16, quote: "OK, we know you all like watching TV and playing computer games, but we want to know some of the other things you do when you've got some free time.", zh: "我们知道你们都爱看电视、玩电脑游戏，想听听你们有空时还做些什么。" },
+  blog_people: { page: 16, quote: "Hermione: I love cats! … we can't have cats at home because my dad can't stand them! / Andy: I can't stand having nothing to do … I always have my puzzle app on my mobile … I never get bored. / Natalie: My favourite thing is looking at maps online … I try and visit a different place in the world at least once a week. / Lucy: I hate running and doing exercise … but I'm crazy about the New Zealand rugby team, the All Blacks.", zh: "Hermione 爱猫但爸爸受不了猫；Andy 受不了无事可做，手机里总有拼图 app；Natalie 爱看在线地图，每周至少「去」一个新地方；Lucy 讨厌跑步，却迷上新西兰橄榄球队 All Blacks。" },
+  lucy: { page: 16, quote: "It's because my uncle and aunt live there … Once a week my uncle and I talk on the Internet about the All Blacks – I love that!", zh: "因为叔叔阿姨住在新西兰；她每周和叔叔在网上聊一次 All Blacks。" },
+  rule_ing: { page: 17, quote: "RULE: Use the ___ form of the verb after verbs which express likes and dislikes, e.g., like, love, hate, enjoy, can't stand. To make this form, add ___ to the base verb. If the verb ends in -e, drop the final -e (e.g., live – living). If a short verb ends in a consonant + vowel + consonant, we usually double the final consonant before adding the -ing (e.g., swim – swimming).", zh: "表示喜好的动词后接 -ing 形式（两个空都填 -ing）；以 -e 结尾去 e；短动词「辅音+元音+辅音」结尾通常双写末尾辅音再加 -ing。" },
+  ing_examples: { page: 17, quote: "1 I just love doing puzzles. 2 I can't stand having nothing to do. 3 I hate running. 4 I like using 'street view'.", zh: "课本例句：很喜欢做拼图；受不了无事可做；讨厌跑步；喜欢用街景。" },
+  rule_adv: { page: 17, quote: "RULE: Words like sometimes, never, always come before / after the verb be but before / after other verbs. Phrases like every day or twice a week can come at the beginning or at the end of a sentence.", zh: "sometimes/never/always 放在 be 后面、其他动词前面（课本是选词，答案按语法常识给出）；every day/twice a week 放句首或句尾。" },
+  scale: { page: 17, quote: "Adverbs of frequency: 0% ___ rarely ___ sometimes ___ usually ___ 100% (always | never | occasionally | often)", zh: "频率刻度：0% → rarely → sometimes → usually → 100%，空格填 never、occasionally、often、always。" },
+  planes: { page: 18, quote: "Ellie: Yes, actually. I really enjoy making model aeroplanes. … Zoey: Cool! Can I pick it up? Ellie: OK, but be careful. No, please! Don't do that! They don't fly! … Zoey: Oh no. It's broken!", zh: "Ellie 爱做飞机模型；Zoey 想拿起来，Ellie 说小心、别那样，飞机不会飞；结果飞机坏了。" },
+  planes_end: { page: 18, quote: "Zoey: I'm really sorry, Ellie. And it's your favourite, too. Ellie: That's OK. I know it's an accident. I'm sure I can fix it.", zh: "Zoey 道歉；Ellie 说没关系，是意外，她能修好。" },
+  keylang: { page: 18, quote: "KEY LANGUAGE: 1 Be careful, Nora. 2 Look out, Geoff. 3 Don't do that. 4 Don't talk in here!", zh: "提醒和禁止的四句话：小心、当心、别那样做、这里不许说话。" },
+  empathy: { page: 19, quote: "Empathy is being able to understand and share other people's feelings. We need empathy to tell people we understand how they feel in bad situations. Sometimes, this is all people need when they feel bad. But empathy can help us decide what we can do to help.", zh: "共情是能理解并分担别人的感受；有时这就是别人难过时需要的全部，它也能帮我们想到怎么帮忙。" },
+  jack: { page: 19, quote: "I don't like my new school very much. … I can't stand going to Maths now. Mr Allen, the teacher, always seems angry … I don't think I can pass the exam we have next week … I haven't got any friends. … It's horrible when nobody wants to sit next to me in class", zh: "Jack 不喜欢新学校：受不了上数学课，老师好像总生气，觉得过不了下周的考试，没有朋友，没人愿意坐他旁边。" },
+  tips: { page: 19, quote: "TIPS FOR SHOWING EMPATHY: Listen to other people's problems. Don't always talk about your problems. When someone is explaining their problems, don't say their problems aren't important or be critical. It's not always necessary to give advice. Sometimes just listening and understanding is enough.", zh: "听别人的问题，别总说自己的；别说对方的问题不重要，也别批评；不一定要给建议，有时听和理解就够了。" }
+};
+
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const motionOK = () => !matchMedia("(prefers-reduced-motion: reduce)").matches;
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+const go = el => el.scrollIntoView({ behavior: motionOK() ? "smooth" : "auto" });
+
+/* 字号与明暗（各单元共用） */
+let fs = parseInt(store.get("t1fs")) || 17;
+const applyFs = () => { document.documentElement.style.setProperty("--fs", fs + "px"); store.set("t1fs", fs); };
+applyFs();
+$("#fsUp").onclick = () => { fs = Math.min(24, fs + 1); applyFs(); };
+$("#fsDown").onclick = () => { fs = Math.max(15, fs - 1); applyFs(); };
+const th = store.get("t1theme"); if (th) document.documentElement.dataset.theme = th;
+$("#theme").onclick = () => {
+  const cur = document.documentElement.dataset.theme;
+  const dark = cur ? cur === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.dataset.theme = dark ? "light" : "dark"; store.set("t1theme", document.documentElement.dataset.theme);
+};
+
+/* 出处弹窗 */
+let lastFocus = null;
+function openCite(id) {
+  const s = SOURCES[id]; if (!s) return;
+  lastFocus = document.activeElement;
+  $("#popT").textContent = `课本 p${s.page}（PDF 第 ${s.page + 1} 页）`;
+  $("#popQ").textContent = s.quote; $("#popZ").textContent = "转述：" + s.zh;
+  $("#pop").hidden = false; $("#popX").focus();
+}
+const closePop = () => { $("#pop").hidden = true; lastFocus && lastFocus.focus(); };
+function wireCites(root = document) {
+  $$(".cite", root).forEach(c => { if (c.dataset.w) return; c.dataset.w = 1; c.tabIndex = 0; c.setAttribute("role", "button");
+    c.onclick = () => openCite(c.dataset.cite);
+    c.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCite(c.dataset.cite); } }; });
+}
+$("#popX").onclick = closePop;
+$("#pop").onclick = e => { if (e.target.id === "pop") closePop(); };
+
+/* 跳转与回到原处 */
+const backStack = [], backBtn = $("#back");
+function jumpTo(id) {
+  backStack.push(scrollY); history.pushState({ y: scrollY }, "");
+  go(document.getElementById(id)); backBtn.hidden = false;
+}
+backBtn.onclick = () => { const y = backStack.pop(); if (y != null) scrollTo({ top: y, behavior: motionOK() ? "smooth" : "auto" }); backBtn.hidden = backStack.length === 0; };
+addEventListener("popstate", e => { if (e.state && e.state.y != null) { backStack.pop(); scrollTo(0, e.state.y); backBtn.hidden = backStack.length === 0; } });
+$$("[data-jump]").forEach(n => { n.onclick = () => jumpTo(n.dataset.jump); n.onkeydown = e => { if (e.key === "Enter") jumpTo(n.dataset.jump); }; });
+
+/* 键盘：← → 切场景，Esc 关弹窗 */
+const order = $$("[data-hero],[data-scene],#quiz").map(s => s.id);
+const current = () => { let c = 0; order.forEach((id, i) => { if (document.getElementById(id).getBoundingClientRect().top < 120) c = i; }); return c; };
+addEventListener("keydown", e => {
+  if (e.key === "Escape" && !$("#pop").hidden) return closePop();
+  if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+  if (e.key === "ArrowRight") go(document.getElementById(order[Math.min(order.length - 1, current() + 1)]));
+  if (e.key === "ArrowLeft") go(document.getElementById(order[Math.max(0, current() - 1)]));
+});
+
+/* 阅读进度 */
+const posKey = UNIT + "pos", saved = parseInt(store.get(posKey));
+if (saved > 600) { $("#resume").hidden = false;
+  $("#resumeGo").onclick = () => { scrollTo(0, saved); $("#resume").hidden = true; };
+  $("#resumeNo").onclick = () => { $("#resume").hidden = true; store.set(posKey, 0); }; }
+let tick; addEventListener("scroll", () => { clearTimeout(tick); tick = setTimeout(() => store.set(posKey, Math.round(scrollY)), 300); });
+
+/* 先猜再看：滑块（data-unit 为单位）或选项（data-v="1" 为正确） */
+$$("[data-guess]").forEach(g => {
+  const r = $("input[type=range]", g), o = $("output", g), b = $(".btn", g), rev = $(".reveal", g);
+  if (r) { const unit = g.dataset.unit || ""; const upd = () => o.textContent = r.value + unit; r.oninput = upd; upd();
+    b.onclick = () => { rev.hidden = false; b.disabled = true; r.disabled = true; o.textContent = "你猜 " + r.value + unit; }; }
+  else $$(".chip", g).forEach(c => c.onclick = () => {
+    $$(".chip", g).forEach(x => { x.disabled = true; if (x.dataset.v === "1") x.classList.add("ok"); });
+    if (c.dataset.v !== "1") c.classList.add("no"); rev.hidden = false; });
+});
+
+/* 点开卡片：.cards 里的 chip 带 data-a，结果写进 data-out 指向的元素 */
+$$(".cards").forEach(box => $$(".chip", box).forEach(c => c.onclick = () => {
+  $$(".chip", box).forEach(x => x.classList.remove("sel")); c.classList.add("sel"); $(box.dataset.out).textContent = c.dataset.a; }));
+
+/* 选词练习：.drill[data-items] = [[句子(___ 为空), [选项], 答案, 理由], ...] */
+$$(".drill").forEach(d => {
+  const items = JSON.parse(d.dataset.items); let i = 0, ok = 0;
+  d.innerHTML = '<div class="sent en"></div><div class="chips"></div><p class="fb" aria-live="polite"></p><button class="btn sm">下一句 →</button> <span class="small"></span>';
+  const [sent, opts, fb, next, cnt] = [$(".sent", d), $(".chips", d), $(".fb", d), $(".btn", d), $(".small", d)];
+  const count = () => cnt.textContent = `第 ${i + 1} / ${items.length} 句 · 答对 ${ok}`;
+  function show() {
+    const [s, os] = items[i]; sent.innerHTML = s.replace("___", '<span class="blank"></span>'); fb.textContent = ""; opts.innerHTML = ""; count();
+    os.forEach(o => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = o;
+      b.onclick = () => { const [, , ans, why] = items[i]; $$(".chip", opts).forEach(x => { x.disabled = true; if (x.textContent === ans) x.classList.add("ok"); });
+        const right = o === ans; if (right) ok++; else b.classList.add("no");
+        sent.innerHTML = s.replace("___", `<mark>${ans}</mark>`);
+        fb.className = "fb " + (right ? "ok" : "no"); fb.textContent = (right ? "✓ " : "✗ ") + why; count(); };
+      opts.appendChild(b); });
+  }
+  next.onclick = () => { i = (i + 1) % items.length; if (i === 0) ok = 0; show(); }; show();
+});
+
+/* 分类：.sorter[data-bins]=["篮子1","篮子2"]，[data-items]=[[词, 篮子序号, 说明], ...] */
+$$(".sorter").forEach(s => {
+  const bins = JSON.parse(s.dataset.bins), items = JSON.parse(s.dataset.items); let picked = null;
+  s.innerHTML = '<p class="small" style="margin-top:0">先点一个词，再点它该去的篮子。</p><div class="chips pool"></div><div class="bins"></div><p class="fb" aria-live="polite"></p><button class="btn sm">重来</button>';
+  const pool = $(".pool", s), binBox = $(".bins", s), fb = $(".fb", s);
+  bins.forEach((b, k) => { const el = document.createElement("div"); el.className = "bin"; el.tabIndex = 0; el.setAttribute("role", "button");
+    el.innerHTML = `<h3>${b}</h3><div class="chips"></div>`; const drop = () => {
+      if (!picked) { fb.className = "fb"; fb.textContent = "先点上面一个词。"; return; }
+      const [, right, why] = items[picked.dataset.i];
+      if (right === k) { picked.classList.remove("sel"); picked.classList.add("ok"); picked.disabled = true; $(".chips", el).appendChild(picked);
+        fb.className = "fb ok"; fb.textContent = "✓ " + (why || "放对了。"); picked = null;
+        if (!$$(".chip", pool).length) fb.textContent = "全部放对了！"; }
+      else { fb.className = "fb no"; fb.textContent = "✗ 再想想：" + (why || ""); } };
+    el.onclick = drop; el.onkeydown = e => { if (e.key === "Enter") drop(); }; binBox.appendChild(el); });
+  function reset() { pool.innerHTML = ""; $$(".bin .chips", s).forEach(b => b.innerHTML = ""); fb.textContent = ""; picked = null;
+    items.map((it, k) => [it, k]).sort(() => Math.random() - .5).forEach(([[w], k]) => { const b = document.createElement("button");
+      b.className = "chip"; b.textContent = w; b.dataset.i = k;
+      b.onclick = () => { $$(".chip", pool).forEach(x => x.classList.remove("sel")); b.classList.add("sel"); picked = b; }; pool.appendChild(b); }); }
+  $(".btn", s).onclick = reset; reset();
+});
+
+/* 自测 */
+$$("[data-quiz] .q").forEach(q => { const ans = q.dataset.ans;
+  $$(".chip", q).forEach(c => c.onclick = () => { $$(".chip", q).forEach(x => { x.disabled = true; if (x.dataset.i === ans) x.classList.add("ok"); });
+    const ok = c.dataset.i === ans; if (!ok) c.classList.add("no");
+    const fb = $(".fb", q); fb.className = "fb " + (ok ? "ok" : "no"); fb.textContent = ok ? "✓ 答对了" : "✗ 再看看"; $(".reveal", q).hidden = false; }); });
+
+/* 场景 1：小测验计分 */
+const mq = {};
+$$("#miniQuiz .q").forEach(q => $$(".chip", q).forEach(c => c.onclick = () => {
+  $$(".chip", q).forEach(x => x.classList.toggle("sel", x === c)); mq[q.dataset.k] = c.dataset.s;
+  const v = Object.values(mq); if (v.length < 4) { $("#mqOut").textContent = `已答 ${v.length} / 4`; return; }
+  const n = s => v.filter(x => x === s).length, top = ["A", "B", "C"].sort((a, b) => n(b) - n(a))[0];
+  $("#mqOut").className = "fb ok";
+  $("#mqOut").textContent = { A: "大多是 A：你很会玩，也会享受生活！", B: "大多是 B：还不错，但能不能多做点？给自己多留点时间。", C: "大多是 C：试着多找些让自己开心的办法吧。" }[top];
+}));
+
+/* 场景 2：一般现在时 */
+const SUBJ = [["I", 0], ["You", 0], ["He", 1], ["She", 1], ["We", 0], ["They", 0]];
+const VERB = [["like", "films", "likes", "直接加 -s"], ["play", "the guitar", "plays", "直接加 -s"], ["read", "comics", "reads", "直接加 -s"], ["watch", "TV", "watches", "以 -ch 结尾，加 -es"], ["wash", "the dishes", "washes", "以 -sh 结尾，加 -es"], ["fix", "bikes", "fixes", "以 -x 结尾，加 -es"]];
+let ps = [2, 0];
+function showPS() {
+  const [s, third] = SUBJ[ps[0]], [v, obj, v3, why] = VERB[ps[1]], sl = s === "I" ? "I" : s.toLowerCase();
+  $("#psPos").innerHTML = `${s} <mark>${third ? v3 : v}</mark> ${obj}.`;
+  $("#psNeg").innerHTML = `${s} <mark>${third ? "doesn't" : "don't"}</mark> ${v} ${obj}.`;
+  $("#psQ").innerHTML = `<mark>${third ? "Does" : "Do"}</mark> ${sl} ${v} ${obj}?`;
+  const ans = s === "I" ? "you" : s === "You" ? "I" : sl;
+  $("#psA").innerHTML = `Yes, ${ans} <mark>${third ? "does" : "do"}</mark>. / No, ${ans} <mark>${third ? "doesn't" : "don't"}</mark>.`;
+  $("#psWhy").textContent = third ? `${s} 是第三人称单数：${v} → ${v3}（${why}）；否定和问句里借 does，动词变回原形。` : `${s} 不是第三人称单数，动词用原形；否定用 don't，问句用 Do。`;
+  $$("#psSubj .chip").forEach((b, i) => b.classList.toggle("sel", i === ps[0])); $$("#psVerb .chip").forEach((b, i) => b.classList.toggle("sel", i === ps[1]));
+}
+SUBJ.forEach(([s], i) => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = s; b.onclick = () => { ps[0] = i; showPS(); }; $("#psSubj").appendChild(b); });
+VERB.forEach(([v], i) => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = v; b.onclick = () => { ps[1] = i; showPS(); }; $("#psVerb").appendChild(b); });
+showPS();
+
+/* 场景 5：-ing 变形 */
+const ING = [["talk", "talking", "直接加 -ing。"], ["visit", "visiting", "直接加 -ing（重音不在最后，不双写）。"], ["eat", "eating", "直接加 -ing。"], ["live", "living", "以 -e 结尾，去掉 e 再加 -ing。"], ["ride", "riding", "以 -e 结尾，去掉 e 再加 -ing。"], ["dance", "dancing", "以 -e 结尾，去掉 e 再加 -ing。"], ["swim", "swimming", "短词，结尾是「辅音 w + 元音 i + 辅音 m」，双写 m 再加 -ing。"], ["run", "running", "短词，结尾是「辅音+元音+辅音」，双写 n。"], ["sit", "sitting", "短词，结尾是「辅音+元音+辅音」，双写 t。"]];
+ING.forEach(([v, g, why]) => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = v;
+  b.onclick = () => { $$("#ingVerbs .chip").forEach(x => x.classList.toggle("sel", x === b)); $("#ingOut").innerHTML = `I love <mark>${g}</mark>.`; $("#ingWhy").textContent = `${v} → ${g}：${why}`; };
+  $("#ingVerbs").appendChild(b); });
+$("#ingVerbs .chip").click();
+
+/* 场景 6：频率副词 */
+const FREQ = ["never", "rarely", "occasionally", "sometimes", "often", "usually", "always"];
+const sc = $(".scale");
+FREQ.forEach((w, i) => { const l = document.createElement("span"); l.className = "lbl en"; l.style.left = (4 + i * 92 / 6) + "%"; if (i % 2) l.style.top = "36px"; l.textContent = w; sc.appendChild(l); });
+function showFreq() {
+  const i = +$("#freq").value, w = FREQ[i];
+  $$(".scale .lbl").forEach((l, k) => l.classList.toggle("on", k === i));
+  $("#freqA").innerHTML = `I <mark>${w}</mark> do my homework when I get home. <span class="small">← 放在动词 do 前面</span>`;
+  $("#freqB").innerHTML = `I am <mark>${w}</mark> late for school. <span class="small">← 放在 am 后面</span>`;
+}
+$("#freq").oninput = showFreq; showFreq();
+wireCites();
+</script>
+</body>
+</html>
