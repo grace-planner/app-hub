@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>家的样子</title>
+<!-- 风格：手绘课堂笔记。配色=横线纸米白底+蓝黑笔迹+荧光黄/薄荷绿/番茄红高亮；字体=系统黑体正文、宋体标题；质感=横线、便利贴、手绘圈画；主视觉=铅笔淡彩速写。 -->
+<style>
+:root{
+  --paper:#fbf8ef; --line:#dfe6ef; --margin:#f1b8b8; --ink:#1f2a44; --ink2:#55607a; --pen:#2a4fa8;
+  --hl:#fff07a; --mint:#bfe8d4; --tomato:#e5553f; --note:#fff4b8; --card:#ffffff; --shadow:rgba(31,42,68,.12);
+  --ok:#1d8a5a; --bad:#c8402e;
+  --fs:17px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1b1f2a; --line:#262c3b; --margin:#4a2c34; --ink:#e9ecf3; --ink2:#a5aec2; --pen:#8fb0ff;
+    --hl:#6b5d10; --mint:#1f4a3a; --tomato:#ff7a62; --note:#3b3622; --card:#232838; --shadow:rgba(0,0,0,.4);
+    --ok:#5ed39b; --bad:#ff8a76;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1b1f2a; --line:#262c3b; --margin:#4a2c34; --ink:#e9ecf3; --ink2:#a5aec2; --pen:#8fb0ff;
+  --hl:#6b5d10; --mint:#1f4a3a; --tomato:#ff7a62; --note:#3b3622; --card:#232838; --shadow:rgba(0,0,0,.4);
+  --ok:#5ed39b; --bad:#ff8a76;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:64px}
+body{margin:0;background:var(--paper);color:var(--ink);font:var(--fs)/1.75 -apple-system,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 30px;overflow-x:hidden}
+h1,h2,h3{font-family:"Songti SC","STSong","Noto Serif CJK SC",SimSun,serif;line-height:1.35;margin:.2em 0 .5em}
+h2{font-size:1.5em}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 80px;border-left:2px solid var(--margin)}
+header.bar{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;padding:8px 16px}
+header.bar .t{font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{min-height:44px;min-width:44px;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-size:.95em;padding:6px 12px;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:none}
+.btn.sm{min-height:40px;padding:4px 10px;font-size:.85em}
+.btn:focus-visible,.chip:focus-visible{outline:3px solid var(--pen);outline-offset:2px}
+mark{background:linear-gradient(transparent 45%,var(--hl) 45%);color:inherit;padding:0 .1em}
+.en{font-family:"Avenir Next","Helvetica Neue",Arial,sans-serif;font-weight:600;color:var(--pen)}
+section{padding:28px 0 8px}
+.point{font-size:1.15em;font-weight:600;background:var(--note);padding:10px 14px;border-radius:4px;box-shadow:3px 3px 0 var(--shadow);transform:rotate(-.4deg);margin:0 0 16px}
+.lab{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:16px;box-shadow:4px 4px 0 var(--shadow);margin:12px 0}
+details{margin:12px 0;border:1px dashed var(--ink2);border-radius:10px;padding:8px 14px;background:color-mix(in srgb,var(--card) 70%,transparent)}
+summary{cursor:pointer;font-weight:600;min-height:32px}
+.cite{cursor:pointer;color:var(--pen);font-weight:700;font-size:.72em;padding:0 2px}
+.cite::before{content:"[原文]"}
+.tag{font-size:.7em;border:1px solid var(--ink2);border-radius:6px;padding:0 5px;margin-left:4px;color:var(--ink2);vertical-align:2px}
+.tag::before{content:attr(data-label)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;border:2px solid var(--ink);border-radius:22px;background:var(--card);color:var(--ink);padding:6px 14px;font:inherit;cursor:pointer;text-align:left}
+.chip.ok{background:var(--mint);border-color:var(--ok)}
+.chip.no{background:color-mix(in srgb,var(--tomato) 25%,var(--card));border-color:var(--bad)}
+.chip.sel{background:var(--hl)}
+.chip[disabled]{cursor:default}
+.fb{min-height:1.8em;font-weight:600}
+.fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+.reveal{background:var(--mint);border-radius:8px;padding:8px 12px}
+figure{margin:12px 0}
+figure svg{width:100%;height:auto;display:block;border-radius:12px}
+figcaption{font-size:.85em;color:var(--ink2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.bin{border:2px dashed var(--ink2);border-radius:12px;padding:10px;min-height:100px;cursor:pointer}
+.bin h3{font-size:1em;margin:0 0 6px}
+.bin .chips{gap:6px}
+.map{display:block;width:100%}
+.map .node{cursor:pointer}
+.map .node:hover rect,.map .node:focus rect{fill:var(--hl)}
+.big{font-size:1.25em;font-weight:700}
+.sent{font-size:1.2em;padding:10px 12px;background:var(--paper);border-radius:8px;border-left:4px solid var(--pen);margin:10px 0}
+.blank{display:inline-block;min-width:3em;border-bottom:2px solid currentColor}
+input[type=range]{width:100%;min-height:44px;accent-color:var(--pen)}
+select{font:inherit;min-height:44px;border:2px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink);padding:4px 8px}
+table.t{border-collapse:collapse;width:100%;font-size:.95em}
+table.t td,table.t th{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+#pop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+#pop[hidden]{display:none}
+#pop .box{background:var(--card);color:var(--ink);max-width:520px;width:100%;border-radius:14px;padding:18px;border:2px solid var(--ink)}
+#pop blockquote{margin:8px 0;padding:8px 12px;border-left:4px solid var(--pen);background:var(--paper);font-family:Georgia,"Times New Roman",serif}
+#back{position:fixed;right:16px;bottom:16px;z-index:30}
+#resume{background:var(--note);padding:8px 14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+#resume[hidden]{display:none}
+nav.dots{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 0}
+.q{margin:14px 0}
+.small{font-size:.85em;color:var(--ink2)}
+.units{display:flex;gap:6px;flex-wrap:wrap;font-size:.85em}
+.units a{color:var(--pen)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+.seq .chip{display:block;width:100%}
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="t">思辨英语 1A · Unit 5 No place like home</span>
+  <button class="btn sm" id="fsDown" aria-label="缩小字号">A−</button>
+  <button class="btn sm" id="fsUp" aria-label="放大字号">A+</button>
+  <button class="btn sm" id="theme" aria-label="切换明暗">◐</button>
+</header>
+<div id="resume" hidden><span>上次读到一半，要接着读吗？</span><button class="btn sm" id="resumeGo">接着读</button><button class="btn sm" id="resumeNo">从头开始</button></div>
+
+<main class="wrap">
+<section data-hero id="hero">
+  <h1>家的样子</h1>
+  <p class="point">30 秒版：说<mark>过去做完的事</mark>，规则动词加 <b>-ed</b>（start → started）；否定用 <mark>didn't + 原形</mark>（We didn't want to leave）。<b>-ed</b> 形容词说自己的感受，<b>-ing</b> 形容词描述事物。<sup class="cite" data-cite="rule_ps"></sup></p>
+  <p>本单元有住进 800 年老岩洞的现代人、在爱尔兰城堡过夜的 Tom，还有卖饼干时看错了人的 John 和 Mandy。</p>
+  <div class="lab">
+    <p class="small" style="margin:0 0 6px">全局图：一般过去时三种句子。点方框跳过去。</p>
+    <svg class="map" viewBox="0 0 760 170" role="img" aria-label="一般过去时肯定、否定和形容词的关系图">
+      <g font-family="-apple-system,PingFang SC,sans-serif" font-size="17" fill="var(--ink)" text-anchor="middle">
+        <g class="node" tabindex="0" data-jump="s2"><rect x="20" y="20" width="230" height="130" rx="12" fill="var(--note)" stroke="var(--ink)" stroke-width="2"/><text x="135" y="52" font-weight="700">做了</text><text x="135" y="84">动词 + -ed</text><text x="135" y="120" fill="var(--pen)">He painted the house.</text></g>
+        <g class="node" tabindex="0" data-jump="s5"><rect x="265" y="20" width="230" height="130" rx="12" fill="var(--mint)" stroke="var(--ink)" stroke-width="2"/><text x="380" y="52" font-weight="700">没做</text><text x="380" y="84">didn't + 原形</text><text x="380" y="120" fill="var(--pen)">I didn't sleep well.</text></g>
+        <g class="node" tabindex="0" data-jump="s6"><rect x="510" y="20" width="230" height="130" rx="12" fill="var(--note)" stroke="var(--ink)" stroke-width="2"/><text x="625" y="52" font-weight="700">感觉怎么样</text><text x="625" y="84">-ed / -ing 形容词</text><text x="625" y="120" fill="var(--pen)">I was bored. It was boring.</text></g>
+      </g>
+    </svg>
+  </div>
+  <nav class="dots" aria-label="场景目录">
+    <button class="btn sm" data-jump="s1">① 岩洞房</button><button class="btn sm" data-jump="s2">② 加 -ed</button><button class="btn sm" data-jump="s3">③ quite / very</button><button class="btn sm" data-jump="s4">④ 城堡假期</button><button class="btn sm" data-jump="s5">⑤ didn't</button><button class="btn sm" data-jump="s6">⑥ bored / boring</button><button class="btn sm" data-jump="s7">⑦ 提建议、别以貌取人</button><button class="btn sm" data-jump="quiz">自测</button>
+  </nav>
+</section>
+
+<section data-scene="1" id="s1">
+  <h2>① 21 世纪的穴居人</h2>
+  <p class="point">2007 年，Angelo 在英国的树林里躲雨，意外发现了一座岩洞房子。他把它买下来，花了九个月改造成舒适的现代住所。<sup class="cite" data-cite="cave1"></sup></p>
+  <figure data-figure>
+    <svg viewBox="0 0 800 340" role="img" aria-label="插画：红色砂岩崖壁上凿出的房子，有木门和窗户，崖顶长满常春藤">
+      <rect width="800" height="340" fill="#cfe0d2"/>
+      <path d="M0 80 Q120 30 260 60 Q400 20 560 55 Q700 30 800 60 V340 H0Z" fill="#b5523b"/>
+      <path d="M0 80 Q120 30 260 60 Q400 20 560 55 Q700 30 800 60 V110 Q640 90 520 110 Q360 85 220 112 Q90 95 0 120Z" fill="#4f7a3a"/>
+      <g fill="#3e6a2e"><circle cx="90" cy="105" r="18"/><circle cx="300" cy="100" r="22"/><circle cx="520" cy="96" r="18"/><circle cx="700" cy="100" r="20"/></g>
+      <g stroke="#8d3a28" stroke-width="2" opacity=".6"><path d="M0 170 Q200 160 400 175 T800 165"/><path d="M0 230 Q220 220 420 236 T800 228"/></g>
+      <!-- 门窗 -->
+      <g stroke="#3a2416" stroke-width="3">
+        <path d="M330 300 V210 Q370 180 410 210 V300Z" fill="#7a5233"/><circle cx="398" cy="258" r="4" fill="#d9b25a"/>
+        <path d="M180 250 V200 Q215 178 250 200 V250Z" fill="#a9cbe3"/><path d="M215 186 V250 M180 225 H250" stroke-width="2"/>
+        <path d="M500 250 V200 Q535 178 570 200 V250Z" fill="#f2d48a"/><path d="M535 186 V250 M500 225 H570" stroke-width="2"/>
+      </g>
+      <rect x="0" y="300" width="800" height="40" fill="#8a6a4a"/>
+      <g fill="#c9a77a" stroke="#6b4f33"><rect x="610" y="282" width="70" height="18"/><rect x="690" y="282" width="70" height="18"/></g>
+      <text x="30" y="40" font-family="Songti SC,STSong,serif" font-size="26" fill="#1f2a44" font-weight="700">The 21st century caveman</text>
+    </svg>
+    <figcaption>按课本照片重画的岩洞房：崖壁里凿出的门窗，顶上长满植物。示意<span class="tag" data-label="示意"></span></figcaption>
+  </figure>
+  <div data-guess class="lab" data-unit=" 年">
+    <p class="big">先猜：Angelo 发现这座岩洞房时，它有多少年历史了？</p>
+    <input type="range" min="50" max="1500" step="50" value="200" aria-label="猜年数"> <output class="big">200 年</output>
+    <button class="btn">揭晓</button>
+    <p class="reveal" hidden><b>800 年</b>。几百年来一直有人住，但大约从 1962 年起就空着了。<sup class="cite" data-cite="cave1"></sup></p>
+  </div>
+  <div class="lab">
+    <p class="big" style="margin-top:0">点开看看这项工程</p>
+    <div class="chips cards" data-out="#caveOut">
+      <button class="chip" data-a="他从头到尾干了一千多个小时，自己搬了大约 80 吨石头，自己刷墙。">工作量</button>
+      <button class="chip" data-a="买房子和所需的一切，一共花了 £160,000。">花了多少钱</button>
+      <button class="chip" data-a="有电、热水、wi-fi，地板下有暖气；他还在房下挖了一个 80 米深的洞，取天然的水。">有什么设施</button>
+      <button class="chip" data-a="不算大，约 65 平方米：一间卧室、一间客厅、一间厨房、一间带淋浴的浴室。">多大</button>
+      <button class="chip" data-a="他以前是商人，2007 年前病得不轻，想找个能快乐健康生活的地方，意识到亲近自然能让他好起来。">为什么要做</button>
+    </div>
+    <p class="fb" id="caveOut" aria-live="polite"></p>
+    <p class="small">来自课本文章<sup class="cite" data-cite="cave2"></sup></p>
+  </div>
+  <details><summary>Think values：追随梦想</summary>
+    <p>有人评论：「一个人干这么多活太多了」「他得花更多钱」「有时逃离日常生活挺好」「干太多活对他身体不好」。课本让你在文中找出支持每种看法的句子，再想想 Angelo 会怎么回应，比如 <span class="en">It's not too much work. It's fun.</span><sup class="cite" data-cite="values"></sup></p>
+    <p>Angelo 不是一直住在那里，而是有时去那儿躲开忙碌的城市生活；别人也可以租下来住个周末或更久。<sup class="cite" data-cite="cave3"></sup></p>
+  </details>
+</section>
+
+<section data-scene="2" id="s2">
+  <h2>② 一般过去时：加 -ed</h2>
+  <p class="point">说过去已经完成的动作用一般过去时；规则动词通常加 <b>-ed</b>，但有几种拼写要注意。<sup class="cite" data-cite="rule_ps"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0"><b>-ed 变形机：</b>点一个动词</p>
+    <div class="chips" id="edVerbs"></div>
+    <div class="sent en" id="edOut"></div>
+    <p class="small" id="edWhy"></p>
+  </div>
+</section>
+
+<section data-scene="3" id="s3">
+  <h2>③ quite、very、really，和 look 词组</h2>
+  <p class="point"><b>very</b> 和 <b>really</b> 让形容词更强；<b>quite</b> 通常是「有一点」。<sup class="cite" data-cite="rule_mod"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0">拖动看看 Angelo 的房子有多大：</p>
+    <input type="range" id="mod" min="0" max="2" value="0" aria-label="程度">
+    <div class="sent en" id="modOut"></div>
+    <p class="small" id="modZh"></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>look + 小词，意思全变：</b></p>
+    <div class="drill" data-items='[["Angelo looked ___ the possibility of buying it.",["into","after"],"into","look into 调查、了解一下。"],["She&#39;s looking ___ the baby.",["after","at"],"after","look after 照顾。"],["Why are you looking ___ me like that?",["at","for"],"at","look at 看着。"],["I can&#39;t find my pen. — I&#39;ll help you look ___ it.",["for","into"],"for","look for 寻找。"],["Let&#39;s look it ___ in the dictionary.",["up","after"],"up","look up 查（词典、资料）。"]]'></div>
+    <p class="small">句子来自课本 WordWise<sup class="cite" data-cite="look"></sup></p>
+  </div>
+  <details><summary>家具单词（课本 p50）</summary>
+    <p class="en">armchair · carpet · cooker · curtains · desk · lamp · mirror · shelves · shower · sofa · toilet · wardrobe<sup class="cite" data-cite="furniture"></sup></p>
+    <p>课本口语例句：<span class="en">There are mirrors in our bathroom, in my parents' bedroom and in our living room.</span></p>
+  </details>
+</section>
+
+<section data-scene="4" id="s4">
+  <h2>④ 住进城堡的那一晚</h2>
+  <p class="point">Tom 一家在爱尔兰旅行。离开都柏林开车去西部的路上，爸爸宣布：今晚住城堡！大家都以为他在开玩笑。<sup class="cite" data-cite="castle1"></sup></p>
+  <figure data-figure>
+    <svg viewBox="0 0 800 340" role="img" aria-label="插画：雨后草地上一座灰色石头塔楼城堡，天空挂着彩虹">
+      <rect width="800" height="340" fill="#9fb4c6"/>
+      <g fill="none" stroke-width="14" opacity=".75">
+        <path d="M520 340 A260 260 0 0 1 1040 340" stroke="#e5553f" transform="translate(-260 0)"/>
+        <path d="M534 340 A246 246 0 0 1 1026 340" stroke="#f2a23a" transform="translate(-260 0)"/>
+        <path d="M548 340 A232 232 0 0 1 1012 340" stroke="#f2d43a" transform="translate(-260 0)"/>
+        <path d="M562 340 A218 218 0 0 1 998 340" stroke="#5fb36a" transform="translate(-260 0)"/>
+        <path d="M576 340 A204 204 0 0 1 984 340" stroke="#4a7bd1" transform="translate(-260 0)"/>
+      </g>
+      <path d="M0 280 Q200 250 400 270 T800 262 V340 H0Z" fill="#5d8a46"/>
+      <g fill="#8c8f93" stroke="#4e5156" stroke-width="3">
+        <rect x="140" y="90" width="130" height="200"/>
+        <path d="M140 90 v-18 h18 v18 h18 v-18 h18 v18 h18 v-18 h18 v18 h22 v-18 h18 v18"/>
+        <rect x="270" y="170" width="120" height="120"/>
+        <path d="M270 170 l60 -40 l60 40Z" fill="#5e6166"/>
+      </g>
+      <g fill="#2f3237"><rect x="190" y="130" width="14" height="24"/><rect x="220" y="190" width="14" height="24"/><rect x="180" y="230" width="14" height="24"/><path d="M310 290 V240 Q330 222 350 240 V290Z"/></g>
+      <g stroke="#6e7176" stroke-width="1.5" opacity=".6"><path d="M140 130 H270 M140 175 H270 M140 220 H270 M270 210 H390 M270 250 H390"/></g>
+      <text x="460" y="70" font-family="Songti SC,STSong,serif" font-size="26" fill="#1f2a44" font-weight="700">Our holiday castle</text>
+    </svg>
+    <figcaption>爱尔兰西部的一座石头城堡，雨后出了彩虹。示意<span class="tag" data-label="示意"></span></figcaption>
+  </figure>
+  <div data-guess class="lab" data-unit=" 级">
+    <p class="big">先猜：要爬多少级石阶才能到城堡的客厅？</p>
+    <input type="range" min="5" max="200" step="5" value="20" aria-label="猜台阶数"> <output class="big">20 级</output>
+    <button class="btn">揭晓</button>
+    <p class="reveal" hidden><b>50 级</b>石阶。城堡有 600 多年历史，但该有的都有：父母一间卧室，孩子们也各有一间。<sup class="cite" data-cite="castle2"></sup></p>
+  </div>
+  <div class="lab seq">
+    <p style="margin-top:0"><b>排排顺序：</b>按 Tom 经历的先后依次点击<sup class="cite" data-cite="castle1"></sup><sup class="cite" data-cite="castle2"></sup></p>
+    <div class="chips" id="seqPool"></div>
+    <ol id="seqDone"></ol>
+    <p class="fb" id="seqFb" aria-live="polite"></p>
+  </div>
+</section>
+
+<section data-scene="5" id="s5">
+  <h2>⑤ 没做：didn't + 原形</h2>
+  <p class="point">一般过去时的否定，不管主语是谁，都用 <b>didn't + 动词原形</b>。<sup class="cite" data-cite="rule_neg"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0">点一句，把它变成否定：</p>
+    <div class="chips" id="negPool"></div>
+    <div class="sent en" id="negOut"></div>
+    <p class="small" id="negWhy"></p>
+  </div>
+</section>
+
+<section data-scene="6" id="s6">
+  <h2>⑥ bored 还是 boring？</h2>
+  <p class="point"><b>-ed</b> 形容词说<b>人自己的感受</b>；<b>-ing</b> 形容词说<b>你对某物的看法</b>，或描述它。<sup class="cite" data-cite="rule_edIng"></sup></p>
+  <div class="lab">
+    <div class="drill" data-items='[["The car journey was long. We were ___ .",["bored","boring"],"bored","说「我们」的感受，用 -ed。"],["Bob talks about football all the time! He&#39;s really ___ .",["bored","boring"],"boring","描述 Bob 这个人让人觉得无聊，用 -ing。"],["I was really ___ in Dublin.",["interested","interesting"],"interested","说「我」的感受，用 -ed。"],["A hot shower is always very ___ .",["relaxed","relaxing"],"relaxing","描述热水澡这件事，用 -ing。"],["His painting was brilliant. I was ___ .",["amazed","amazing"],"amazed","说「我」的感受，用 -ed。"],["I get ___ when people ignore me.",["annoyed","annoying"],"annoyed","说「我」的感受，用 -ed。"]]'></div>
+    <p class="small">句子来自或改写自课本 p53 练习 8、9<sup class="cite" data-cite="edIng_ex"></sup></p>
+  </div>
+</section>
+
+<section data-scene="7" id="s7">
+  <h2>⑦ 提建议，也别以貌取人</h2>
+  <p class="point">John 和 Mandy 挨家挨户卖饼干，钱捐给无家可归的人。到了 Mrs Grundy 家，他们觉得她很不友好，上周她还冲 John 吼过。<sup class="cite" data-cite="grundy1"></sup></p>
+  <div data-guess class="lab">
+    <p class="big">先猜：Mrs Grundy 开门后会怎么做？</p>
+    <div class="chips"><button class="chip" data-v="0">把他们赶走</button><button class="chip" data-v="1">买两袋，还不用找零</button><button class="chip" data-v="0">只买一袋</button></div>
+    <p class="reveal" hidden>她觉得这是个好主意，买了两袋（每袋 £2），给了 £10，还说不用找零。Mandy 说：她其实没那么不友好，我完全想错了！<sup class="cite" data-cite="grundy2"></sup></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>提建议 vs 回应建议</b></p>
+    <div class="sorter" data-bins='["提建议","回应"]' data-items='[["How about…?",0,"How about playing tennis?"],["Why don&#39;t we…?",0,"Why don&#39;t we do another six houses?"],["Let&#39;s…",0,"Let&#39;s stop now."],["We could…",0,"We could stop now!"],["Great idea!",1,"同意。"],["I&#39;m not so sure…",1,"犹豫。"],["OK.",1,"同意。"],["I don&#39;t think that&#39;s a good idea.",1,"不同意。"]]'></div>
+    <p class="small">来自课本 Key Language 框<sup class="cite" data-cite="keylang"></sup></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>别以貌取人。</b>只看外表很容易对人下判断，但每个人都不一样，差异正是让人有个性的东西。<sup class="cite" data-cite="judge"></sup></p>
+    <p>课本里，两位老人说所有青少年都没礼貌、整天玩电脑游戏。这就是把一群人一概而论。<sup class="cite" data-cite="edna"></sup></p>
+    <details><summary>不随便下判断的小贴士（课本 Tips 框）</summary>
+      <p>① 别凭外表评判人，多了解再下结论；② 别把自己的价值观强加给别人，试着理解别人的想法；③ 别把一群人一概而论，群体由各有个性和信念的个人组成。<sup class="cite" data-cite="tips"></sup></p>
+    </details>
+  </div>
+</section>
+
+<section id="quiz">
+  <h2>你答得上来吗？</h2>
+  <div data-quiz>
+    <div class="q lab" data-ans="1">
+      <p><b>1.</b> plan 的过去式是？</p>
+      <div class="chips"><button class="chip" data-i="0">planed</button><button class="chip" data-i="1">planned</button><button class="chip" data-i="2">plann</button></div>
+      <p class="fb"></p><p class="reveal" hidden>短词「辅音+元音+辅音」结尾，双写末尾辅音再加 -ed。<sup class="cite" data-cite="rule_ps"></sup></p>
+    </div>
+    <div class="q lab" data-ans="0">
+      <p><b>2.</b> I ____ sleep very well last night.</p>
+      <div class="chips"><button class="chip" data-i="0">didn't</button><button class="chip" data-i="1">don't</button><button class="chip" data-i="2">wasn't</button></div>
+      <p class="fb"></p><p class="reveal" hidden>last night 是过去，否定用 didn't + 原形。<sup class="cite" data-cite="rule_neg"></sup></p>
+    </div>
+    <div class="q lab" data-ans="2">
+      <p><b>3.</b> 课本建议怎样避免随便评判别人？</p>
+      <div class="chips"><button class="chip" data-i="0">第一眼印象最准</button><button class="chip" data-i="1">按他所在的群体来判断</button><button class="chip" data-i="2">先多了解他，再形成看法</button></div>
+      <p class="fb"></p><p class="reveal" hidden>别凭外表评判人，多花时间了解再形成看法。<sup class="cite" data-cite="tips"></sup></p>
+    </div>
+  </div>
+  <p class="small">没放进来的有：p48 房间配对和读后选择题、p51 听力（最喜欢的房间）、p53 写作练习、p54 角色扮演、p55 视频练习，以及 -ed 结尾 /d/ /t/ /ɪd/ 发音。听力和视频请配合课本使用。</p>
+  <p class="small">页码按课本印刷页码标注；在 PDF 里要往后翻一页（书 p49 = PDF 第 50 页）。关键规则和数字请点「[原文]」核对原句。</p>
+</section>
+<p class="units">其他单元：<a href="think1-u1.html">Unit 1</a> · <a href="think1-u2.html">Unit 2</a> · <a href="think1-u3.html">Unit 3</a> · <a href="think1-u4.html">Unit 4</a> · <a href="think1-u5.html">Unit 5</a> · <a href="think1-u6.html">Unit 6</a></p>
+</main>
+
+<button class="btn" id="back" hidden>↩ 回到刚才的位置</button>
+<div id="pop" hidden role="dialog" aria-modal="true" aria-labelledby="popT">
+  <div class="box">
+    <p id="popT" class="small" style="margin:0"></p>
+    <blockquote id="popQ"></blockquote>
+    <p id="popZ"></p>
+    <button class="btn sm" id="popX">关闭（Esc）</button>
+  </div>
+</div>
+
+<script>
+const UNIT = "u5";
+const SOURCES = {
+  cave1: { page: 49, quote: "In 2007, Angelo Mastropietro was in the woods in Worcestershire, UK when it started to rain. He looked for a place to keep dry and he discovered a cave house! The cave house was 800 years old. People lived in the rock-house for hundreds of years, but from about 1962, no one lived there and the house stayed empty. … It was for sale and in 2010 he decided to get it. … Angelo … finished the house in nine months.", zh: "2007 年 Angelo 在英国伍斯特郡树林里躲雨，发现一座 800 年的岩洞房；几百年来有人住，约 1962 年起空置；2010 年他决定买下，九个月完工。" },
+  cave2: { page: 49, quote: "He was a businessman before he started the house, and before 2007 he was quite ill … He worked for over a thousand hours from beginning to end, and he used £160,000 to buy the house and all the things that he needed. … he moved about 80 tons of rock himself and he painted the house. … The house has electricity, hot water and wi-fi, and there is heating under the floors of the rooms. Angelo opened a deep hole 80 metres under the house to get natural water. The house is not huge. It is about 65 m², with one bedroom, a living room, a kitchen and a bathroom with a shower.", zh: "他以前是商人，2007 年前病得不轻；干了一千多小时，花 £160,000；自己搬了约 80 吨石头、刷墙；有电、热水、wi-fi、地暖，挖了 80 米深洞取天然水；约 65 平方米，一卧一厅一厨一卫。" },
+  cave3: { page: 49, quote: "Angelo doesn't live there all the time, but he uses the house as a place to go to sometimes, to get away from his busy city life. It's also possible to rent the house and to stay there for a weekend or more.", zh: "他不常住，有时去那里躲开忙碌的城市生活；别人也可以租住一个周末或更久。" },
+  values: { page: 49, quote: "That's too much work for one person. / He needs a lot more money to get everything. / Sometimes it's good to escape from everyday life. / Working a lot is not good for him. Angelo needs to look after his health. … It's not too much work. It's fun.", zh: "几种评论，以及 Angelo 可能的回应。" },
+  rule_ps: { page: 50, quote: "RULE: Use the past simple to talk about finished actions in the past. With regular verbs: We usually add ___ to the verb (e.g., start – started / stay – stayed). If the verb ends in -e (e.g., use), we add ___. If a short verb ends in consonant + vowel + consonant (e.g., plan), we double the ___ and add -ed. We add -ed to verbs ending in vowel + -y (e.g., stayed). If the verb ends in consonant + -y (e.g., try), we change the -y to ___ and add ___.", zh: "一般过去时说过去已完成的动作；规则动词一般加 -ed；以 -e 结尾加 -d；短词辅音+元音+辅音结尾双写末尾辅音再加 -ed；元音+y 直接加 -ed；辅音+y 变 y 为 i 加 -ed。" },
+  rule_mod: { page: 51, quote: "RULE: Use words very, really and quite to say more about an adjective. The words very and ___ are used to make an adjective stronger. The word ___ usually means 'a little bit'.", zh: "very 和 really 加强形容词；quite 通常表示「有一点」。" },
+  look: { page: 51, quote: "1 Angelo looked ___ the possibility of buying it. … 5 He looked ___ a place to keep dry. (after | at | for | into | up) … She's looking after / like the baby. … Why are you looking for / at me like that? … I'll help you look after / for it. … Let's look it after / up in the dictionary.", zh: "look 搭配不同介词意思不同：look into 了解，look after 照顾，look at 看，look for 寻找，look up 查。" },
+  furniture: { page: 50, quote: "1 armchair | 2 carpet | 3 cooker | 4 curtains | 5 desk | 6 lamp | 7 mirror | 8 shelves | 9 shower | 10 sofa | 11 toilet | 12 wardrobe", zh: "12 个家具单词。" },
+  castle1: { page: 52, quote: "We're still in Ireland. We arrived in Dublin four days ago. … Then yesterday, after lunch, Dad hired a car and we travelled to the west of Ireland. … After two hours, Dad turned round to us and said, 'We've got a surprise for you. Tonight our hotel is a castle!' … We didn't think he was serious, but he was!", zh: "Tom 一家在爱尔兰，四天前到都柏林；昨天午饭后爸爸租车往西走；开了两小时，爸爸说今晚住城堡，大家以为他开玩笑，结果是真的。" },
+  castle2: { page: 52, quote: "Can you believe that we walked up fifty stone steps to get to the living room? The castle is over 600 years old, but it had everything we needed. There was a bedroom for our parents and we each had a bedroom, too. But I didn't sleep very well last night … This morning we had breakfast and then we climbed up to the top of the castle. … Then it started to rain and there was a fantastic rainbow … This afternoon we want to go to Limerick, so we're packing our bags again!", zh: "爬 50 级石阶到客厅；城堡 600 多年，父母一间、孩子各一间卧室；Tom 没睡好；早上登上城堡顶，下雨后出了彩虹；下午要去利默里克，又在收拾行李。" },
+  rule_neg: { page: 53, quote: "1 We ___ think he was serious. 2 I ___ sleep very well last night. 3 We ___ want to leave. RULE: To make any verb negative in the past simple, use ___ + the base form of the verb.", zh: "一般过去时的否定：didn't + 动词原形。" },
+  rule_edIng: { page: 53, quote: "We use -ed adjectives to say how we feel about something. We use -ing adjectives to say what we think about something or to describe something.", zh: "-ed 形容词说我们的感受；-ing 形容词说我们对某物的看法或描述它。" },
+  edIng_ex: { page: 53, quote: "1 I was really ___ in Dublin. 2 The shops were very ___. … 1 I get annoyed / annoying when people ignore me. 2 His painting was brilliant. I was amazed / amazing. 3 Bob talks about football all the time! He's really bored / boring. 4 A hot shower is always very relaxed / relaxing.", zh: "-ed / -ing 形容词练习句。" },
+  grundy1: { page: 54, quote: "Mandy: You know why, John. We're going to houses to sell these biscuits and the money goes to help homeless people. … Hang on! This is Mrs Grundy's house. … I don't think she'll give us any money. She's really unfriendly. John: I know what you mean. Last week, she shouted at me and Ben because we were 'being noisy' in the street!", zh: "他们挨家卖饼干帮助无家可归的人；Mandy 觉得 Mrs Grundy 很不友好；上周她因为他们在街上吵而吼过 John 和 Ben。" },
+  grundy2: { page: 54, quote: "Mrs Grundy: What a good idea. Can I buy some? Mandy: Erm … sure. They're two pounds for a bag. Mrs Grundy: OK. Give me two bags. And here's ten pounds. Don't worry about any change, though. … Mandy: Wow. So, Mrs Grundy isn't so unfriendly after all. I was completely wrong!", zh: "Mrs Grundy 觉得是好主意，买两袋（每袋 £2），给 £10 不用找零；Mandy 说自己完全想错了。" },
+  keylang: { page: 54, quote: "KEY LANGUAGE: How about …? Great idea. Why don't we …? I'm not so sure … Let's … OK. We could … I don't think that's a good idea.", zh: "提建议：How about / Why don't we / Let's / We could；回应：Great idea / I'm not so sure / OK / I don't think that's a good idea。" },
+  judge: { page: 55, quote: "Sometimes it's easy to make judgements about people based on their appearance, but every individual person is different. … Differences are good because they are what give people their characters.", zh: "人们容易凭外表下判断，但每个人都不同；差异是好事，正是它让人有个性。" },
+  edna: { page: 55, quote: "Edna: The problem with teenagers is that they haven't got any respect for other people. … Arthur: I think the problem is all the technology. Young people spend all day playing computer games on their own … 2 Do you think Edna and Arthur are right to say all teenagers are like this? … 4 Why is it a problem that these old people see teenagers like this?", zh: "Edna 说青少年不尊重别人；Arthur 说问题在科技，年轻人整天一个人玩电脑游戏；课本问：说所有青少年都这样对吗？" },
+  tips: { page: 55, quote: "Don't judge people based on their appearance. Take time to know them better and then form an opinion. Don't impose your own values onto others. Find out and try to understand other people's values. Avoid generalising about groups of people. Remember groups are made up of individuals with their own personalities and beliefs.", zh: "别凭外表评判人，多了解再形成看法；别把自己的价值观强加于人；别对一群人一概而论。" }
+};
+
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const motionOK = () => !matchMedia("(prefers-reduced-motion: reduce)").matches;
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+const go = el => el.scrollIntoView({ behavior: motionOK() ? "smooth" : "auto" });
+
+/* 字号与明暗（各单元共用） */
+let fs = parseInt(store.get("t1fs")) || 17;
+const applyFs = () => { document.documentElement.style.setProperty("--fs", fs + "px"); store.set("t1fs", fs); };
+applyFs();
+$("#fsUp").onclick = () => { fs = Math.min(24, fs + 1); applyFs(); };
+$("#fsDown").onclick = () => { fs = Math.max(15, fs - 1); applyFs(); };
+const th = store.get("t1theme"); if (th) document.documentElement.dataset.theme = th;
+$("#theme").onclick = () => {
+  const cur = document.documentElement.dataset.theme;
+  const dark = cur ? cur === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.dataset.theme = dark ? "light" : "dark"; store.set("t1theme", document.documentElement.dataset.theme);
+};
+
+/* 出处弹窗 */
+let lastFocus = null;
+function openCite(id) {
+  const s = SOURCES[id]; if (!s) return;
+  lastFocus = document.activeElement;
+  $("#popT").textContent = `课本 p${s.page}（PDF 第 ${s.page + 1} 页）`;
+  $("#popQ").textContent = s.quote; $("#popZ").textContent = "转述：" + s.zh;
+  $("#pop").hidden = false; $("#popX").focus();
+}
+const closePop = () => { $("#pop").hidden = true; lastFocus && lastFocus.focus(); };
+function wireCites(root = document) {
+  $$(".cite", root).forEach(c => { if (c.dataset.w) return; c.dataset.w = 1; c.tabIndex = 0; c.setAttribute("role", "button");
+    c.onclick = () => openCite(c.dataset.cite);
+    c.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCite(c.dataset.cite); } }; });
+}
+$("#popX").onclick = closePop;
+$("#pop").onclick = e => { if (e.target.id === "pop") closePop(); };
+
+/* 跳转与回到原处 */
+const backStack = [], backBtn = $("#back");
+function jumpTo(id) {
+  backStack.push(scrollY); history.pushState({ y: scrollY }, "");
+  go(document.getElementById(id)); backBtn.hidden = false;
+}
+backBtn.onclick = () => { const y = backStack.pop(); if (y != null) scrollTo({ top: y, behavior: motionOK() ? "smooth" : "auto" }); backBtn.hidden = backStack.length === 0; };
+addEventListener("popstate", e => { if (e.state && e.state.y != null) { backStack.pop(); scrollTo(0, e.state.y); backBtn.hidden = backStack.length === 0; } });
+$$("[data-jump]").forEach(n => { n.onclick = () => jumpTo(n.dataset.jump); n.onkeydown = e => { if (e.key === "Enter") jumpTo(n.dataset.jump); }; });
+
+/* 键盘：← → 切场景，Esc 关弹窗 */
+const order = $$("[data-hero],[data-scene],#quiz").map(s => s.id);
+const current = () => { let c = 0; order.forEach((id, i) => { if (document.getElementById(id).getBoundingClientRect().top < 120) c = i; }); return c; };
+addEventListener("keydown", e => {
+  if (e.key === "Escape" && !$("#pop").hidden) return closePop();
+  if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+  if (e.key === "ArrowRight") go(document.getElementById(order[Math.min(order.length - 1, current() + 1)]));
+  if (e.key === "ArrowLeft") go(document.getElementById(order[Math.max(0, current() - 1)]));
+});
+
+/* 阅读进度 */
+const posKey = UNIT + "pos", saved = parseInt(store.get(posKey));
+if (saved > 600) { $("#resume").hidden = false;
+  $("#resumeGo").onclick = () => { scrollTo(0, saved); $("#resume").hidden = true; };
+  $("#resumeNo").onclick = () => { $("#resume").hidden = true; store.set(posKey, 0); }; }
+let tick; addEventListener("scroll", () => { clearTimeout(tick); tick = setTimeout(() => store.set(posKey, Math.round(scrollY)), 300); });
+
+/* 先猜再看：滑块（data-unit 为单位）或选项（data-v="1" 为正确） */
+$$("[data-guess]").forEach(g => {
+  const r = $("input[type=range]", g), o = $("output", g), b = $(".btn", g), rev = $(".reveal", g);
+  if (r) { const unit = g.dataset.unit || ""; const upd = () => o.textContent = r.value + unit; r.oninput = upd; upd();
+    b.onclick = () => { rev.hidden = false; b.disabled = true; r.disabled = true; o.textContent = "你猜 " + r.value + unit; }; }
+  else $$(".chip", g).forEach(c => c.onclick = () => {
+    $$(".chip", g).forEach(x => { x.disabled = true; if (x.dataset.v === "1") x.classList.add("ok"); });
+    if (c.dataset.v !== "1") c.classList.add("no"); rev.hidden = false; });
+});
+
+/* 点开卡片：.cards 里的 chip 带 data-a，结果写进 data-out 指向的元素 */
+$$(".cards").forEach(box => $$(".chip", box).forEach(c => c.onclick = () => {
+  $$(".chip", box).forEach(x => x.classList.remove("sel")); c.classList.add("sel"); $(box.dataset.out).textContent = c.dataset.a; }));
+
+/* 选词练习：.drill[data-items] = [[句子(___ 为空), [选项], 答案, 理由], ...] */
+$$(".drill").forEach(d => {
+  const items = JSON.parse(d.dataset.items); let i = 0, ok = 0;
+  d.innerHTML = '<div class="sent en"></div><div class="chips"></div><p class="fb" aria-live="polite"></p><button class="btn sm">下一句 →</button> <span class="small"></span>';
+  const [sent, opts, fb, next, cnt] = [$(".sent", d), $(".chips", d), $(".fb", d), $(".btn", d), $(".small", d)];
+  const count = () => cnt.textContent = `第 ${i + 1} / ${items.length} 句 · 答对 ${ok}`;
+  function show() {
+    const [s, os] = items[i]; sent.innerHTML = s.replace("___", '<span class="blank"></span>'); fb.textContent = ""; opts.innerHTML = ""; count();
+    os.forEach(o => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = o;
+      b.onclick = () => { const [, , ans, why] = items[i]; $$(".chip", opts).forEach(x => { x.disabled = true; if (x.textContent === ans) x.classList.add("ok"); });
+        const right = o === ans; if (right) ok++; else b.classList.add("no");
+        sent.innerHTML = s.replace("___", `<mark>${ans}</mark>`);
+        fb.className = "fb " + (right ? "ok" : "no"); fb.textContent = (right ? "✓ " : "✗ ") + why; count(); };
+      opts.appendChild(b); });
+  }
+  next.onclick = () => { i = (i + 1) % items.length; if (i === 0) ok = 0; show(); }; show();
+});
+
+/* 分类：.sorter[data-bins]=["篮子1","篮子2"]，[data-items]=[[词, 篮子序号, 说明], ...] */
+$$(".sorter").forEach(s => {
+  const bins = JSON.parse(s.dataset.bins), items = JSON.parse(s.dataset.items); let picked = null;
+  s.innerHTML = '<p class="small" style="margin-top:0">先点一个词，再点它该去的篮子。</p><div class="chips pool"></div><div class="bins"></div><p class="fb" aria-live="polite"></p><button class="btn sm">重来</button>';
+  const pool = $(".pool", s), binBox = $(".bins", s), fb = $(".fb", s);
+  bins.forEach((b, k) => { const el = document.createElement("div"); el.className = "bin"; el.tabIndex = 0; el.setAttribute("role", "button");
+    el.innerHTML = `<h3>${b}</h3><div class="chips"></div>`; const drop = () => {
+      if (!picked) { fb.className = "fb"; fb.textContent = "先点上面一个词。"; return; }
+      const [, right, why] = items[picked.dataset.i];
+      if (right === k) { picked.classList.remove("sel"); picked.classList.add("ok"); picked.disabled = true; $(".chips", el).appendChild(picked);
+        fb.className = "fb ok"; fb.textContent = "✓ " + (why || "放对了。"); picked = null;
+        if (!$$(".chip", pool).length) fb.textContent = "全部放对了！"; }
+      else { fb.className = "fb no"; fb.textContent = "✗ 再想想：" + (why || ""); } };
+    el.onclick = drop; el.onkeydown = e => { if (e.key === "Enter") drop(); }; binBox.appendChild(el); });
+  function reset() { pool.innerHTML = ""; $$(".bin .chips", s).forEach(b => b.innerHTML = ""); fb.textContent = ""; picked = null;
+    items.map((it, k) => [it, k]).sort(() => Math.random() - .5).forEach(([[w], k]) => { const b = document.createElement("button");
+      b.className = "chip"; b.textContent = w; b.dataset.i = k;
+      b.onclick = () => { $$(".chip", pool).forEach(x => x.classList.remove("sel")); b.classList.add("sel"); picked = b; }; pool.appendChild(b); }); }
+  $(".btn", s).onclick = reset; reset();
+});
+
+/* 自测 */
+$$("[data-quiz] .q").forEach(q => { const ans = q.dataset.ans;
+  $$(".chip", q).forEach(c => c.onclick = () => { $$(".chip", q).forEach(x => { x.disabled = true; if (x.dataset.i === ans) x.classList.add("ok"); });
+    const ok = c.dataset.i === ans; if (!ok) c.classList.add("no");
+    const fb = $(".fb", q); fb.className = "fb " + (ok ? "ok" : "no"); fb.textContent = ok ? "✓ 答对了" : "✗ 再看看"; $(".reveal", q).hidden = false; }); });
+
+/* 场景 2：-ed 变形 */
+const ED = [["start", "started", "直接加 -ed。"], ["want", "wanted", "直接加 -ed。"], ["work", "worked", "直接加 -ed。"], ["use", "used", "以 -e 结尾，只加 -d。"], ["decide", "decided", "以 -e 结尾，只加 -d。"], ["realise", "realised", "以 -e 结尾，只加 -d。"], ["plan", "planned", "短词「辅音+元音+辅音」结尾，双写 n 再加 -ed。"], ["stay", "stayed", "元音 a + y 结尾，直接加 -ed。"], ["try", "tried", "辅音 r + y 结尾，y 变 i 再加 -ed。"], ["study", "studied", "辅音 d + y 结尾，y 变 i 再加 -ed。"]];
+ED.forEach(([v, p, why]) => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = v;
+  b.onclick = () => { $$("#edVerbs .chip").forEach(x => x.classList.toggle("sel", x === b)); $("#edOut").innerHTML = `Yesterday I <mark>${p}</mark> …`; $("#edWhy").textContent = `${v} → ${p}：${why}`; };
+  $("#edVerbs").appendChild(b); });
+$("#edVerbs .chip").click();
+
+/* 场景 3：程度词 */
+const MOD = [["quite", "有一点小（a little bit）"], ["very", "很小"], ["really", "真的很小"]];
+function showMod() { const [w, zh] = MOD[+$("#mod").value]; $("#modOut").innerHTML = `The cave house is <mark>${w}</mark> small.`; $("#modZh").textContent = `${w}：${zh}。very 和 really 让语气更强。`; }
+$("#mod").oninput = showMod; showMod();
+
+/* 场景 4：排顺序 */
+const SEQ = ["一家人离开都柏林", "爸爸说今晚住城堡", "参观城堡", "晚上没睡好", "登上城堡顶", "看到彩虹", "收拾行李准备去利默里克"];
+let seqN = 0;
+SEQ.map((t, i) => [t, i]).sort(() => Math.random() - .5).forEach(([t, i]) => { const b = document.createElement("button"); b.className = "chip"; b.textContent = t;
+  b.onclick = () => { if (i === seqN) { seqN++; b.remove(); const li = document.createElement("li"); li.textContent = t; $("#seqDone").appendChild(li);
+      $("#seqFb").className = "fb ok"; $("#seqFb").textContent = seqN === SEQ.length ? "✓ 顺序全对！" : "✓ 对，下一件呢？"; }
+    else { $("#seqFb").className = "fb no"; $("#seqFb").textContent = "✗ 还没到这一步，再想想。"; } };
+  $("#seqPool").appendChild(b); });
+
+/* 场景 5：变否定 */
+const NEG = [["I enjoyed the car journey.", "I didn't enjoy the car journey.", "enjoyed → didn't enjoy"], ["We arrived in Dublin.", "We didn't arrive in Dublin.", "arrived → didn't arrive"], ["It rained in the afternoon.", "It didn't rain in the afternoon.", "rained → didn't rain"], ["He painted the house.", "He didn't paint the house.", "painted → didn't paint"], ["She studied lots of ideas.", "She didn't study lots of ideas.", "studied → didn't study（y 变回来）"]];
+NEG.forEach(([a, n, why]) => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = a;
+  b.onclick = () => { $$("#negPool .chip").forEach(x => x.classList.toggle("sel", x === b)); $("#negOut").innerHTML = n.replace("didn't", "<mark>didn't</mark>"); $("#negWhy").textContent = `${why}：didn't 后面的动词变回原形。`; };
+  $("#negPool").appendChild(b); });
+$("#negPool .chip").click();
+wireCites();
+</script>
+</body>
+</html>
