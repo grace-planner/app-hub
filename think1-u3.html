@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>吃什么，数什么</title>
+<!-- 风格：手绘课堂笔记。配色=横线纸米白底+蓝黑笔迹+荧光黄/薄荷绿/番茄红高亮；字体=系统黑体正文、宋体标题；质感=横线、便利贴、手绘圈画；主视觉=铅笔淡彩速写。 -->
+<style>
+:root{
+  --paper:#fbf8ef; --line:#dfe6ef; --margin:#f1b8b8; --ink:#1f2a44; --ink2:#55607a; --pen:#2a4fa8;
+  --hl:#fff07a; --mint:#bfe8d4; --tomato:#e5553f; --note:#fff4b8; --card:#ffffff; --shadow:rgba(31,42,68,.12);
+  --ok:#1d8a5a; --bad:#c8402e; --ice:#dcecf7; --snow:#ffffff; --sea:#a9cbe3;
+  --fs:17px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1b1f2a; --line:#262c3b; --margin:#4a2c34; --ink:#e9ecf3; --ink2:#a5aec2; --pen:#8fb0ff;
+    --hl:#6b5d10; --mint:#1f4a3a; --tomato:#ff7a62; --note:#3b3622; --card:#232838; --shadow:rgba(0,0,0,.4);
+    --ok:#5ed39b; --bad:#ff8a76; --ice:#2a3a4a; --snow:#d8e2ec; --sea:#30506a;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1b1f2a; --line:#262c3b; --margin:#4a2c34; --ink:#e9ecf3; --ink2:#a5aec2; --pen:#8fb0ff;
+  --hl:#6b5d10; --mint:#1f4a3a; --tomato:#ff7a62; --note:#3b3622; --card:#232838; --shadow:rgba(0,0,0,.4);
+  --ok:#5ed39b; --bad:#ff8a76; --ice:#2a3a4a; --snow:#d8e2ec; --sea:#30506a;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:64px}
+body{margin:0;background:var(--paper);color:var(--ink);font:var(--fs)/1.75 -apple-system,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 30px;overflow-x:hidden}
+h1,h2,h3{font-family:"Songti SC","STSong","Noto Serif CJK SC",SimSun,serif;line-height:1.35;margin:.2em 0 .5em}
+h2{font-size:1.5em}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 80px;border-left:2px solid var(--margin)}
+header.bar{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;padding:8px 16px}
+header.bar .t{font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{min-height:44px;min-width:44px;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-size:.95em;padding:6px 12px;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:none}
+.btn.sm{min-height:40px;padding:4px 10px;font-size:.85em}
+.btn.on{background:var(--hl)}
+.btn:focus-visible,.chip:focus-visible{outline:3px solid var(--pen);outline-offset:2px}
+mark{background:linear-gradient(transparent 45%,var(--hl) 45%);color:inherit;padding:0 .1em}
+.en{font-family:"Avenir Next","Helvetica Neue",Arial,sans-serif;font-weight:600;color:var(--pen)}
+section{padding:28px 0 8px}
+.point{font-size:1.15em;font-weight:600;background:var(--note);padding:10px 14px;border-radius:4px;box-shadow:3px 3px 0 var(--shadow);transform:rotate(-.4deg);margin:0 0 16px}
+.lab{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:16px;box-shadow:4px 4px 0 var(--shadow);margin:12px 0}
+details{margin:12px 0;border:1px dashed var(--ink2);border-radius:10px;padding:8px 14px;background:color-mix(in srgb,var(--card) 70%,transparent)}
+summary{cursor:pointer;font-weight:600;min-height:32px}
+.cite{cursor:pointer;color:var(--pen);font-weight:700;font-size:.72em;padding:0 2px}
+.cite::before{content:"[原文]"}
+.tag{font-size:.7em;border:1px solid var(--ink2);border-radius:6px;padding:0 5px;margin-left:4px;color:var(--ink2);vertical-align:2px}
+.tag::before{content:attr(data-label)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;border:2px solid var(--ink);border-radius:22px;background:var(--card);color:var(--ink);padding:6px 14px;font:inherit;cursor:pointer}
+.chip.ok{background:var(--mint);border-color:var(--ok)}
+.chip.no{background:color-mix(in srgb,var(--tomato) 25%,var(--card));border-color:var(--bad)}
+.chip.sel{background:var(--hl)}
+.chip[disabled]{cursor:default}
+.fb{min-height:1.8em;font-weight:600}
+.fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+.reveal{background:var(--mint);border-radius:8px;padding:8px 12px}
+figure{margin:12px 0}
+figure svg{width:100%;height:auto;display:block;border-radius:12px}
+figcaption{font-size:.85em;color:var(--ink2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.bin{border:2px dashed var(--ink2);border-radius:12px;padding:10px;min-height:110px}
+.bin h3{font-size:1em;margin:0 0 6px}
+.bin .chips{gap:6px}
+.map{display:block;width:100%}
+.map .node{cursor:pointer}
+.map .node:hover rect,.map .node:focus rect{fill:var(--hl)}
+.big{font-size:1.25em;font-weight:700}
+.sent{font-size:1.2em;padding:10px 12px;background:var(--paper);border-radius:8px;border-left:4px solid var(--pen);margin:10px 0}
+input[type=range]{width:100%;min-height:44px;accent-color:var(--pen)}
+#pop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+#pop[hidden]{display:none}
+#pop .box{background:var(--card);color:var(--ink);max-width:520px;width:100%;border-radius:14px;padding:18px;border:2px solid var(--ink)}
+#pop blockquote{margin:8px 0;padding:8px 12px;border-left:4px solid var(--pen);background:var(--paper);font-family:Georgia,"Times New Roman",serif}
+#back{position:fixed;right:16px;bottom:16px;z-index:30}
+#resume{background:var(--note);padding:8px 14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+#resume[hidden]{display:none}
+nav.dots{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 0}
+.q{margin:14px 0}
+.small{font-size:.85em;color:var(--ink2)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+.steam{animation:rise 3s ease-in-out infinite}
+@keyframes rise{0%{opacity:0;transform:translateY(6px)}50%{opacity:.8}100%{opacity:0;transform:translateY(-10px)}}
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="t">思辨英语 1A · Unit 3 We are what we eat</span>
+  <button class="btn sm" id="fsDown" aria-label="缩小字号">A−</button>
+  <button class="btn sm" id="fsUp" aria-label="放大字号">A+</button>
+  <button class="btn sm" id="theme" aria-label="切换明暗">◐</button>
+</header>
+<div id="resume" hidden><span>上次读到一半，要接着读吗？</span><button class="btn sm" id="resumeGo">接着读</button><button class="btn sm" id="resumeNo">从头开始</button></div>
+
+<main class="wrap">
+
+<!-- 首屏 -->
+<section data-hero id="hero">
+  <h1>吃什么，数什么</h1>
+  <p class="point">30 秒版：英语里食物分两种，<mark>能一个个数的</mark>（an apple, two carrots）和<mark>数不了的</mark>（milk, rice）。先分清这两种，a/an、some/any、much/many、too much/too many 就都知道该用哪个了。<sup class="cite" data-cite="rule_count"></sup></p>
+  <p>这一单元还有两篇读物：一篇说<b>虫子可能是未来的超级食物</b>，一篇写<b>格陵兰岛上的因纽特人怎么吃</b>。最后学一样生活本领：<b>好好说「对不起」</b>。</p>
+  <div class="lab">
+    <p class="small" style="margin:0 0 6px">全局图：遇到一个食物词，按这条路走。点方框跳到对应场景。</p>
+    <svg class="map" viewBox="0 0 760 300" role="img" aria-label="可数与不可数名词的选词流程图">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+      <g fill="none" stroke="currentColor" stroke-width="2" style="color:var(--ink)" marker-end="url(#ar)">
+        <path d="M380 62 C 300 90, 230 100, 190 128"/><path d="M380 62 C 460 90, 530 100, 570 128"/>
+        <path d="M190 172 L190 205"/><path d="M570 172 L570 205"/>
+      </g>
+      <g font-family="-apple-system,PingFang SC,sans-serif" font-size="17" fill="var(--ink)" text-anchor="middle">
+        <g class="node" tabindex="0" data-jump="s2"><rect x="250" y="14" width="260" height="48" rx="24" fill="var(--note)" stroke="var(--ink)" stroke-width="2"/><text x="380" y="44">这个食物能一个个数吗？</text></g>
+        <text x="255" y="100" fill="var(--ok)" font-weight="700">能</text><text x="505" y="100" fill="var(--bad)" font-weight="700">不能</text>
+        <g class="node" tabindex="0" data-jump="s2"><rect x="60" y="128" width="260" height="44" rx="10" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/><text x="190" y="156">可数：carrot, egg, apple</text></g>
+        <g class="node" tabindex="0" data-jump="s2"><rect x="440" y="128" width="260" height="44" rx="10" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/><text x="570" y="156">不可数：milk, rice, meat</text></g>
+        <g class="node" tabindex="0" data-jump="s3"><rect x="20" y="205" width="160" height="40" rx="8" fill="var(--mint)" stroke="var(--ink)"/><text x="100" y="231">a / an（单个）</text></g>
+        <g class="node" tabindex="0" data-jump="s4"><rect x="190" y="205" width="170" height="40" rx="8" fill="var(--mint)" stroke="var(--ink)"/><text x="275" y="231">many</text></g>
+        <g class="node" tabindex="0" data-jump="s5"><rect x="105" y="252" width="170" height="40" rx="8" fill="var(--mint)" stroke="var(--ink)"/><text x="190" y="278">too many</text></g>
+        <g class="node" tabindex="0" data-jump="s4"><rect x="400" y="205" width="170" height="40" rx="8" fill="var(--mint)" stroke="var(--ink)"/><text x="485" y="231">much</text></g>
+        <g class="node" tabindex="0" data-jump="s5"><rect x="580" y="205" width="160" height="40" rx="8" fill="var(--mint)" stroke="var(--ink)"/><text x="660" y="231">too much</text></g>
+        <g class="node" tabindex="0" data-jump="s3"><rect x="300" y="252" width="160" height="40" rx="8" fill="var(--hl)" stroke="var(--ink)"/><text x="380" y="278">两种都能用</text></g>
+        <text x="560" y="278" font-size="14" fill="var(--ink2)">some / any / a lot of / not enough</text>
+      </g>
+    </svg>
+  </div>
+  <nav class="dots" aria-label="场景目录">
+    <button class="btn sm" data-jump="s1">① 吃虫子</button><button class="btn sm" data-jump="s2">② 能数吗</button><button class="btn sm" data-jump="s3">③ a/some/any</button><button class="btn sm" data-jump="s4">④ much/many</button><button class="btn sm" data-jump="s5">⑤ 太多/不够</button><button class="btn sm" data-jump="s6">⑥ 格陵兰</button><button class="btn sm" data-jump="s7">⑦ 对不起</button><button class="btn sm" data-jump="quiz">自测</button>
+  </nav>
+</section>
+
+<!-- 场景 1 -->
+<section data-scene="1" id="s1">
+  <h2>① 虫子：未来的超级食物？</h2>
+  <p class="point">世界人口涨得很快，养牛养猪要占很多地；课文提议：少吃肉、多吃菜，也可以试试吃虫子。<sup class="cite" data-cite="pop"></sup></p>
+
+  <figure data-figure>
+    <svg viewBox="0 0 800 380" role="img" aria-label="插画：市场摊位上一盘盘烤虫子，一把叉子挑起一只蚱蜢">
+      <rect width="800" height="380" fill="#2f5d3a"/>
+      <g opacity=".25" stroke="#9fd18a" stroke-width="3" fill="none"><path d="M0 60 Q200 10 400 70 T800 40"/><path d="M0 120 Q260 70 520 130 T800 100"/></g>
+      <!-- 摊位托盘 -->
+      <g>
+        <path d="M60 250 L330 230 L360 330 L70 352 Z" fill="#c9ccd1" stroke="#7f858e" stroke-width="3"/>
+        <path d="M370 228 L640 214 L680 316 L392 334 Z" fill="#c9ccd1" stroke="#7f858e" stroke-width="3"/>
+        <g fill="#6b3d1e" stroke="#3f2110" stroke-width="1.5">
+          <!-- 烤蚕蛹/虫子：成堆的短椭圆 -->
+          <g id="pile"><ellipse cx="120" cy="290" rx="16" ry="7" transform="rotate(-20 120 290)"/><ellipse cx="150" cy="300" rx="16" ry="7" transform="rotate(15 150 300)"/><ellipse cx="180" cy="285" rx="16" ry="7" transform="rotate(-35 180 285)"/><ellipse cx="210" cy="305" rx="16" ry="7" transform="rotate(10 210 305)"/><ellipse cx="240" cy="290" rx="16" ry="7" transform="rotate(-10 240 290)"/><ellipse cx="270" cy="300" rx="16" ry="7" transform="rotate(25 270 300)"/><ellipse cx="300" cy="285" rx="16" ry="7" transform="rotate(-25 300 285)"/><ellipse cx="135" cy="318" rx="16" ry="7" transform="rotate(30 135 318)"/><ellipse cx="195" cy="325" rx="16" ry="7" transform="rotate(-5 195 325)"/><ellipse cx="255" cy="320" rx="16" ry="7" transform="rotate(20 255 320)"/><ellipse cx="315" cy="312" rx="16" ry="7" transform="rotate(-15 315 312)"/><ellipse cx="165" cy="270" rx="16" ry="7" transform="rotate(5 165 270)"/><ellipse cx="225" cy="268" rx="16" ry="7" transform="rotate(-30 225 268)"/><ellipse cx="285" cy="262" rx="16" ry="7" transform="rotate(12 285 262)"/></g>
+          <use href="#pile" transform="translate(310 -20)" fill="#8a5326"/>
+        </g>
+        <g stroke="#e9d9b9" stroke-width="1" opacity=".6"><path d="M110 288 l12 -4M146 298 l12 3M208 303l12 2M268 298l12 4M360 270l12-4"/></g>
+      </g>
+      <!-- 叉子 + 蚱蜢 -->
+      <g transform="translate(470 40) rotate(-12)">
+        <rect x="160" y="70" width="190" height="14" rx="7" fill="#d7dbe0" stroke="#8a9098" stroke-width="2"/>
+        <path d="M60 60 L170 66 L170 88 L60 94 Z" fill="#d7dbe0" stroke="#8a9098" stroke-width="2"/>
+        <g stroke="#8a9098" stroke-width="5" stroke-linecap="round"><path d="M64 62 L10 56"/><path d="M64 71 L6 70"/><path d="M64 81 L6 84"/><path d="M64 90 L10 98"/></g>
+        <!-- 蚱蜢 -->
+        <g fill="#7a4a22" stroke="#3f2110" stroke-width="2" stroke-linejoin="round">
+          <path d="M-60 40 Q-20 22 30 40 Q40 50 30 58 Q-20 70 -60 56 Q-70 48 -60 40 Z"/>
+          <path d="M30 40 Q48 36 54 48 Q50 60 32 58 Z" fill="#5f3818"/>
+          <path d="M-40 42 Q0 18 40 30 Q0 40 -40 50 Z" fill="#9a6633" opacity=".85"/>
+          <path d="M-20 56 L-70 -6 L-100 64" fill="none" stroke-width="3"/>
+          <path d="M0 58 L-6 86 M14 58 L22 88" fill="none" stroke-width="3"/>
+          <path d="M52 44 Q90 0 130 -14 M50 40 Q80 -6 104 -30" fill="none" stroke-width="2"/>
+          <circle cx="44" cy="45" r="3" fill="#111"/>
+        </g>
+      </g>
+      <g font-family="-apple-system,PingFang SC,sans-serif" fill="#fff">
+        <text x="40" y="60" font-size="34" font-weight="800">Creepy-crawlies</text>
+        <text x="40" y="96" font-size="20" opacity=".9">the superfood of the future?</text>
+      </g>
+    </svg>
+    <figcaption>市场里的烤虫子摊。课文配图就是这样一盘盘虫子；这幅是重画的示意<span class="tag" data-label="示意"></span></figcaption>
+  </figure>
+
+  <div data-guess class="lab" id="g1">
+    <p class="big">先猜：全世界的土地，有多少被农场占用了？</p>
+    <input type="range" min="0" max="80" step="5" value="10" aria-label="猜一个百分比"> <output class="big">10%</output>
+    <button class="btn">揭晓</button>
+    <p class="reveal" hidden>课文说：大约 <b>30%</b>。这些农场排放温室气体，还要用大量的水和能源。<sup class="cite" data-cite="land"></sup></p>
+  </div>
+
+  <div class="lab">
+    <p class="big" style="margin-top:0">为什么说虫子是好选择？点开每张牌看看</p>
+    <div class="chips" id="bugs">
+      <button class="chip" data-a="富含蛋白质（protein）。蛋白质对健康很重要，对头发、皮肤也好，还能让肌肉和骨骼保持良好。">营养</button>
+      <button class="chip" data-a="养虫子不需要那么多水和能源。">省水省能源</button>
+      <button class="chip" data-a="养虫子也用不了那么多地方。">不占地</button>
+      <button class="chip" data-a="在亚洲和拉丁美洲的一些国家，有些人吃虫子并不稀奇；但在很多别的国家，人们会觉得很奇怪。">有人早就在吃</button>
+    </div>
+    <p class="fb" id="bugsOut" aria-live="polite"></p>
+    <p class="small">四条理由都来自课文<sup class="cite" data-cite="insects"></sup></p>
+  </div>
+
+  <div data-guess class="lab" id="g2">
+    <p class="big">再猜：你以为自己没吃过虫子？很多食物里的<b>红色色素</b>来自……</p>
+    <div class="chips">
+      <button class="chip" data-v="0">西红柿</button><button class="chip" data-v="1">一种甲虫</button><button class="chip" data-v="0">红辣椒</button>
+    </div>
+    <p class="reveal" hidden>是一种叫 <span class="en">cochineal beetle</span>（胭脂虫）的小虫。所以你可能早就「吃过虫子」了。<sup class="cite" data-cite="cochineal"></sup></p>
+  </div>
+
+  <details><summary>原文对照与单词</summary>
+    <p><span class="en">creepy-crawlies</span> 爬来爬去的小虫子（口语）· <span class="en">grasshopper</span> 蚱蜢 · <span class="en">worm</span> 虫、蠕虫 · <span class="en">fly</span> 苍蝇 · <span class="en">protein</span> 蛋白质 · <span class="en">greenhouse gases</span> 温室气体</p>
+    <p>课文开头提了两个问题：地球上有没有足够的地方住这么多人？怎样保证每个人都有足够的食物？<sup class="cite" data-cite="pop"></sup></p>
+    <p>课后口语讨论题（书 p30 练习 5）：你选吃什么时会想到地球吗？你愿意吃虫子吗，为什么？</p>
+  </details>
+</section>
+
+<!-- 场景 2 -->
+<section data-scene="2" id="s2">
+  <h2>② 能数，还是数不了？</h2>
+  <p class="point">能一个个数的是<b>可数名词</b>（one carrot, two carrots）；数不了的是<b>不可数名词</b>，它们没有复数形式。<sup class="cite" data-cite="rule_count"></sup></p>
+  <p>打个比方：<b>一颗颗的弹珠</b>能数，<b>一杯水</b>只能说「一些」。判断窍门：试着在词前加 two，能说通就是可数。</p>
+  <div class="lab">
+    <p style="margin-top:0">点一个词，再点下面的篮子把它放进去。</p>
+    <div class="chips" id="pool"></div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="bin" id="binC" role="button" tabindex="0"><h3>可数 countable</h3><div class="chips"></div></div>
+      <div class="bin" id="binU" role="button" tabindex="0"><h3>不可数 uncountable</h3><div class="chips"></div></div>
+    </div>
+    <p class="fb" id="sortFb" aria-live="polite"></p>
+    <button class="btn sm" id="sortReset">重来</button>
+  </div>
+  <details><summary>容易错的几个</summary>
+    <p><span class="en">rice</span> 米粒虽然是一颗颗的，但太小，英语当不可数。<span class="en">cheese</span>、<span class="en">bread</span>、<span class="en">meat</span> 也是不可数，要数的话说 <span class="en">a piece of cheese</span>、<span class="en">a slice of bread</span>。<span class="tag" data-label="解读"></span></p>
+    <p>课本例句：<span class="en">Can I have a carrot?</span>（可数）/ <span class="en">I don't like rice.</span>（不可数）/ <span class="en">I don't like peppers.</span>（可数复数）<sup class="cite" data-cite="rule_count"></sup></p>
+  </details>
+</section>
+
+<!-- 场景 3 -->
+<section data-scene="3" id="s3">
+  <h2>③ a / an · some · any</h2>
+  <p class="point"><b>a/an</b> 只配<b>单数</b>可数名词；<b>some</b> 配复数可数或不可数；<b>any</b> 用在疑问句和否定句。请别人吃东西、向别人要东西时，问句里也用 some。<sup class="cite" data-cite="rule_some"></sup></p>
+  <div class="lab" id="lab3">
+    <p class="small" style="margin-top:0">选一个填进空格，马上告诉你对不对、为什么。</p>
+    <div class="sent en" id="s3sent"></div>
+    <div class="chips" id="s3opts"></div>
+    <p class="fb" id="s3fb" aria-live="polite"></p>
+    <button class="btn sm" id="s3next">下一句 →</button> <span class="small" id="s3count"></span>
+  </div>
+  <details><summary>为什么 Would you like some tea? 不用 any</summary>
+    <p>这是<b>请别人吃喝</b>，你心里期待对方说 yes，所以用 some。同理，<span class="en">Can I have some water?</span> 是向人要东西，也用 some。<sup class="cite" data-cite="rule_some"></sup></p>
+  </details>
+</section>
+
+<!-- 场景 4 -->
+<section data-scene="4" id="s4">
+  <h2>④ How much？How many？</h2>
+  <p class="point">问句和否定句里，<b>many</b> 配复数可数名词，<b>much</b> 配不可数名词；<b>a lot of / lots of</b> 两种都能用。<sup class="cite" data-cite="rule_much"></sup></p>
+  <div class="lab">
+    <p style="margin-top:0">选一样食物，句子会自己换成 much 或 many：</p>
+    <div class="chips" id="mmNouns"></div>
+    <div class="sent en" id="mmQ"></div>
+    <div class="sent en" id="mmN"></div>
+    <div class="sent en" id="mmL"></div>
+  </div>
+  <details><summary>课本例句</summary>
+    <p class="en">How much meat do you eat? · How many people eat insects? · I don't drink much coffee. · We haven't got many carrots. · Farms use a lot of water. · Insects have got lots of protein.<sup class="cite" data-cite="rule_much"></sup></p>
+  </details>
+</section>
+
+<!-- 场景 5 -->
+<section data-scene="5" id="s5">
+  <h2>⑤ 太多，还是不够？</h2>
+  <p class="point"><b>too many</b> 配可数，<b>too much</b> 配不可数，表示「多得超出你想要的」；<b>not enough</b> 两种都能配，表示「不够」。<sup class="cite" data-cite="rule_too"></sup></p>
+  <div class="lab">
+    <div class="chips" role="radiogroup" aria-label="换一种配料">
+      <button class="chip sel" data-k="salt">盐 salt（不可数）</button><button class="chip" data-k="onions">洋葱 onions（可数）</button>
+    </div>
+    <svg viewBox="0 0 400 210" role="img" aria-label="一碗汤，配料多少随滑块变化" style="max-width:420px;width:100%;display:block;margin:10px auto">
+      <g class="steam" stroke="var(--ink2)" stroke-width="3" fill="none" stroke-linecap="round"><path d="M160 40 q-10 -15 0 -30"/><path d="M200 44 q-10 -15 0 -30"/><path d="M240 40 q-10 -15 0 -30"/></g>
+      <ellipse cx="200" cy="80" rx="170" ry="28" fill="#e7a24b"/>
+      <g id="bits"></g>
+      <path d="M30 80 Q40 190 200 195 Q360 190 370 80" fill="var(--card)" stroke="var(--ink)" stroke-width="4"/>
+      <ellipse cx="200" cy="80" rx="170" ry="28" fill="none" stroke="var(--ink)" stroke-width="4"/>
+    </svg>
+    <input type="range" id="amt" min="0" max="10" value="5" aria-label="配料多少">
+    <div class="sent en" id="tooSent"></div>
+    <p class="small" id="tooZh"></p>
+  </div>
+  <div class="lab">
+    <p style="margin-top:0"><b>形容词也一样：</b><span class="en">too</span> + 形容词 = 太…了（比想要的<b>多</b>）；<span class="en">not</span> + 形容词 + <span class="en">enough</span> = 不够…（比想要的<b>少</b>）。<sup class="cite" data-cite="rule_tooadj"></sup></p>
+    <div class="sent en">The winters are too long there.<br>The summers are not long enough.</div>
+    <p class="small">注意 enough 放在形容词<b>后面</b>：long enough，不说 enough long。这两句正好说的是下一站：因纽特人的村子。</p>
+  </div>
+</section>
+
+<!-- 场景 6 -->
+<section data-scene="6" id="s6">
+  <h2>⑥ 冰天雪地里吃什么：因纽特人</h2>
+  <p class="point">在格陵兰的因纽特村子 Kulusuk，夏天太短，种不了菜，所以人们吃大量的生肉和煮肉，脂肪吃得很多，身体却很健康。<sup class="cite" data-cite="inuit_meat"></sup></p>
+
+  <figure data-figure>
+    <svg viewBox="0 0 800 400" role="img" aria-label="插画：雪山下一片彩色木屋，海面结冰，远处漂着冰山">
+      <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9cc3e6"/><stop offset="1" stop-color="#e7f1fa"/></linearGradient></defs>
+      <rect width="800" height="400" fill="url(#sky)"/>
+      <path d="M0 190 L90 110 L150 150 L240 70 L330 160 L420 100 L520 170 L610 90 L700 150 L800 110 L800 230 L0 230Z" fill="#f4f8fc" stroke="#9fb3c8" stroke-width="2"/>
+      <path d="M240 70 L265 110 L250 105 L232 120 L220 98Z M610 90 L635 125 L618 120 L600 134 L592 112Z" fill="#c7d6e6"/>
+      <!-- 冰海 -->
+      <rect y="225" width="800" height="70" fill="#cfe3f2"/>
+      <g fill="#ffffff" stroke="#8fb0cc" stroke-width="2"><path d="M60 250 L90 222 L130 228 L150 252Z"/><path d="M520 246 L560 210 L600 216 L640 248Z"/><path d="M700 258 L716 240 L740 244 L752 260Z"/></g>
+      <g stroke="#a8c6de" stroke-width="1.5"><path d="M0 270 L220 262 M300 280 L520 272 M560 286 L800 276"/></g>
+      <!-- 雪地山坡 -->
+      <path d="M0 300 Q200 260 400 285 T800 275 L800 400 L0 400Z" fill="#fbfdff" stroke="#c2d3e3" stroke-width="2"/>
+      <!-- 木屋 -->
+      <g stroke="#2b2b2b" stroke-width="2" stroke-linejoin="round">
+        <g transform="translate(90 300)"><rect width="70" height="44" fill="#d64a3b"/><path d="M-6 0 L35 -28 L76 0Z" fill="#3a3a3a"/><rect x="12" y="12" width="14" height="14" fill="#fff"/><rect x="44" y="12" width="14" height="14" fill="#fff"/></g>
+        <g transform="translate(200 285)"><rect width="60" height="40" fill="#f2c23a"/><path d="M-5 0 L30 -24 L65 0Z" fill="#3a3a3a"/><rect x="10" y="12" width="12" height="12" fill="#fff"/><rect x="36" y="18" width="12" height="22" fill="#6a4a2a"/></g>
+        <g transform="translate(300 300)"><rect width="78" height="48" fill="#3c78c4"/><path d="M-6 0 L39 -30 L84 0Z" fill="#3a3a3a"/><rect x="14" y="14" width="14" height="14" fill="#fff"/><rect x="50" y="14" width="14" height="14" fill="#fff"/></g>
+        <g transform="translate(420 288)"><rect width="56" height="38" fill="#3e9a6a"/><path d="M-5 0 L28 -22 L61 0Z" fill="#3a3a3a"/><rect x="21" y="12" width="13" height="13" fill="#fff"/></g>
+        <g transform="translate(520 305)"><rect width="74" height="46" fill="#e7e1d6"/><path d="M-6 0 L37 -28 L80 0Z" fill="#b83a2e"/><rect x="12" y="14" width="14" height="14" fill="#5b8fc9"/><rect x="48" y="14" width="14" height="14" fill="#5b8fc9"/></g>
+        <g transform="translate(640 292)"><rect width="62" height="40" fill="#d64a3b"/><path d="M-5 0 L31 -24 L67 0Z" fill="#3a3a3a"/><rect x="10" y="12" width="12" height="12" fill="#fff"/><rect x="38" y="12" width="12" height="12" fill="#fff"/></g>
+      </g>
+      <g fill="#ffffff"><path d="M84 300 Q125 290 166 300 L160 296 Q125 286 90 296Z"/><path d="M294 300 Q339 288 384 300 L378 295 Q339 284 300 295Z"/></g>
+      <!-- 晾晒的鱼 -->
+      <g transform="translate(720 330)" stroke="#2b2b2b" stroke-width="2"><path d="M0 0 L0 50 M60 0 L60 50 M-4 4 L64 4" fill="none"/><g fill="#9aa4ad"><path d="M12 6 q6 14 0 24 q-6 -10 0 -24Z"/><path d="M30 6 q6 14 0 24 q-6 -10 0 -24Z"/><path d="M48 6 q6 14 0 24 q-6 -10 0 -24Z"/></g></g>
+      <text x="30" y="60" font-family="Songti SC,STSong,serif" font-size="30" fill="#1f2a44" font-weight="700">Kulusuk, Greenland</text>
+      <text x="30" y="92" font-family="-apple-system,PingFang SC,sans-serif" font-size="17" fill="#33415c">夏天看冰山，冬天路面结冰、海也冻住</text>
+    </svg>
+    <figcaption>Kulusuk 村：彩色木屋，门前就是漂着冰山的海。按课文描述和配图重画的示意<span class="tag" data-label="示意"></span><sup class="cite" data-cite="kulusuk"></sup></figcaption>
+  </figure>
+
+  <div data-guess class="lab" id="g3">
+    <p class="big">先猜：这个因纽特村子住着多少人？</p>
+    <input type="range" min="50" max="5000" step="50" value="2000" aria-label="猜人数"> <output class="big">2000</output>
+    <button class="btn">揭晓</button>
+    <p class="reveal" hidden>只有 <b>250</b> 人。冬天又长又难熬，在那里生活一点也不容易。<sup class="cite" data-cite="kulusuk"></sup></p>
+  </div>
+
+  <div class="lab">
+    <p class="big" style="margin-top:0">他们的餐桌上有什么？点一点</p>
+    <div class="chips" id="inuitFood">
+      <button class="chip" data-a="有：天暖的月份有时能找到浆果。">berries 浆果</button>
+      <button class="chip" data-a="有：他们吃海藻。">seaweed 海藻</button>
+      <button class="chip" data-a="基本没有：除了海藻没别的蔬菜，所以绿叶菜吃得不够。冬天村里商店也没有新鲜蔬菜。">vegetables 蔬菜</button>
+      <button class="chip" data-a="很多：海豹、鲸鱼和鱼。">sea animals 海里的动物</button>
+      <button class="chip" data-a="有：驯鹿和别的陆地动物。">reindeer 驯鹿</button>
+    </div>
+    <p class="fb" id="inuitOut" aria-live="polite"></p>
+    <p class="small">全部来自课文<sup class="cite" data-cite="inuit_food"></sup></p>
+  </div>
+
+  <div data-guess class="lab" id="g4">
+    <p class="big">意外之处：大家常说「别吃太多脂肪」，因纽特人吃很多动物脂肪，却很健康。课文给的可能原因是？</p>
+    <div class="chips">
+      <button class="chip" data-v="0">他们每天运动很多</button><button class="chip" data-v="1">他们吃煮的肉，不吃炸的</button><button class="chip" data-v="0">他们只吃鱼</button>
+    </div>
+    <p class="reveal" hidden>课文说：<b>也许</b>是因为他们吃<span class="en">boiled</span>（煮）而不是 <span class="en">fried</span>（炸）的肉。注意是「也许」，课文没有说一定。<sup class="cite" data-cite="inuit_healthy"></sup></p>
+  </div>
+
+  <details><summary>做法形容词：boiled / fried / grilled / roast</summary>
+    <p><span class="en">boiled</span> 煮的 · <span class="en">fried</span> 炸的、煎的 · <span class="en">grilled</span> 烤架上烤的 · <span class="en">roast</span> 烤箱里烤的（roast beef 烤牛肉）<sup class="cite" data-cite="adj_cook"></sup></p>
+    <p>评价好不好吃，从「很好」到「很糟」：<span class="en">delicious → nice → (a bit) boring → horrible</span><span class="tag" data-label="解读"></span>。课本 p35 让你自己排这个顺序，这是一种参考排法。</p>
+    <p><span class="en">savoury</span>（咸香可口，褒义）和 <span class="en">salty</span>（太咸，贬义）不一样。<sup class="cite" data-cite="savoury"></sup></p>
+  </details>
+</section>
+
+<!-- 场景 7 -->
+<section data-scene="7" id="s7">
+  <h2>⑦ 好好说「对不起」</h2>
+  <p class="point">每个人都会犯错。说 sorry 能让对方好受些，也让对方知道我们在乎；但有时光说还不够，还要<b>用行动</b>表示。<sup class="cite" data-cite="sorry_intro"></sup></p>
+
+  <figure data-figure>
+    <svg viewBox="0 0 800 300" role="img" aria-label="插画：案板上一张做了一半的披萨，旁边放着蘑菇、洋葱、红椒">
+      <rect width="800" height="300" fill="#f3e3c8"/>
+      <g opacity=".35" stroke="#b9925a" stroke-width="2"><path d="M0 60 H800 M0 140 H800 M0 220 H800"/></g>
+      <ellipse cx="330" cy="160" rx="210" ry="110" fill="#c98a4b" stroke="#7a4b20" stroke-width="3"/>
+      <ellipse cx="330" cy="160" rx="185" ry="94" fill="#d94b2b"/>
+      <g fill="#f7e08a" opacity=".9"><ellipse cx="260" cy="140" rx="46" ry="22"/><ellipse cx="370" cy="190" rx="52" ry="22"/><ellipse cx="400" cy="120" rx="40" ry="18"/><ellipse cx="250" cy="200" rx="30" ry="14"/></g>
+      <g fill="none" stroke="#f4efe6" stroke-width="5"><path d="M220 120 a14 10 0 1 0 28 0"/><path d="M420 170 a14 10 0 1 0 28 0"/><path d="M300 210 a14 10 0 1 0 28 0"/></g>
+      <g fill="#c0392b" stroke="#7b1d14" stroke-width="2"><path d="M330 120 q20 -6 28 8 q-12 4 -28 -8Z"/><path d="M200 165 q20 -6 28 8 q-12 4 -28 -8Z"/><path d="M450 140 q20 -6 28 8 q-12 4 -28 -8Z"/></g>
+      <!-- 两朵蘑菇 a couple of mushrooms -->
+      <g stroke="#6d5a46" stroke-width="2"><g transform="translate(300 150)"><path d="M-14 0 q14 -20 28 0Z" fill="#e8dccb"/><rect x="-5" y="0" width="10" height="10" fill="#efe6d8"/></g><g transform="translate(360 150)"><path d="M-14 0 q14 -20 28 0Z" fill="#e8dccb"/><rect x="-5" y="0" width="10" height="10" fill="#efe6d8"/></g></g>
+      <!-- 旁边的配料 -->
+      <g transform="translate(600 90)" stroke="#6d5a46" stroke-width="2"><path d="M-20 0 q20 -30 40 0Z" fill="#e8dccb"/><rect x="-7" y="0" width="14" height="16" fill="#efe6d8"/></g>
+      <g transform="translate(680 120)"><circle r="26" fill="#efe0f0" stroke="#8d6a96" stroke-width="3"/><circle r="16" fill="none" stroke="#8d6a96" stroke-width="2"/></g>
+      <g transform="translate(630 200)"><path d="M-30 -10 q30 -26 60 0 q8 24 -30 34 q-38 -10 -30 -34Z" fill="#d23a2a" stroke="#7b1d14" stroke-width="3"/><path d="M0 -20 q4 -14 14 -16" stroke="#2f7a3a" stroke-width="5" fill="none"/></g>
+      <g font-family="-apple-system,PingFang SC,sans-serif" font-size="16" fill="#4a3420"><text x="580" y="60">mushroom</text><text x="700" y="160">onion</text><text x="600" y="260">red pepper</text></g>
+    </svg>
+    <figcaption>Jordan 给朋友做的披萨：爸爸要加洋葱、红椒，又加了「a couple of」蘑菇，可 Jordan 不爱吃蘑菇。示意<span class="tag" data-label="示意"></span><sup class="cite" data-cite="pizza"></sup></figcaption>
+  </figure>
+
+  <div class="lab">
+    <p class="big" style="margin-top:0">这四句话，哪句是<b>道歉的人</b>说的，哪句是<b>原谅的人</b>说的？</p>
+    <div class="chips" id="sorryCards"></div>
+    <p class="fb" id="sorryFb" aria-live="polite"></p>
+    <p class="small">四句来自课本 Key Language 框；分工依据书里的小对话：打碎画的男士说前两句，女士回后两句。<sup class="cite" data-cite="keylang"></sup></p>
+  </div>
+
+  <div class="lab">
+    <p style="margin-top:0"><b>谁该说对不起？</b>课本给了几个小故事，第一个附了示范答案：</p>
+    <p>Tom 一周内第二次上学迟到，老师罚他留校。→ <span class="en">Tom needs to say sorry because he's late.</span><sup class="cite" data-cite="tom"></sup></p>
+    <p>轮到你：<b>Kevin</b> 的妈妈让他照看烤箱里的蛋糕，他忘了，蛋糕烤焦了。谁该道歉？除了说 sorry，还能做点什么？</p>
+    <details><summary>一种参考想法</summary><p>Kevin 该道歉。除了说 sorry，还可以帮妈妈重新做一个蛋糕，下次设个闹钟。这正好对应课本的最后一条建议：有时还要改变自己的做法。<span class="tag" data-label="解读"></span><sup class="cite" data-cite="tips"></sup></p></details>
+  </div>
+
+  <details><summary>道歉小贴士（课本 Tips 框）</summary>
+    <p>① 犯了错别怕承认；② 犯了错就说 sorry，这表示你在乎别人；③ 有时光说 sorry 不够，还要改变自己的做法。<sup class="cite" data-cite="tips"></sup></p>
+    <p>Jordan 对话里的好用短语：<span class="en">What about me?</span> 那我呢？ · <span class="en">Actually</span> 其实 · <span class="en">a couple of</span> 一两个 · <span class="en">So what?</span> 那又怎样？ · <span class="en">as well</span> 也 · <span class="en">upset with</span> 生（某人的）气</p>
+  </details>
+</section>
+
+<!-- 自测 -->
+<section id="quiz">
+  <h2>你答得上来吗？</h2>
+  <div data-quiz>
+    <div class="q lab" data-ans="1">
+      <p><b>1.</b> How ____ sugar is in an avocado?</p>
+      <div class="chips"><button class="chip" data-i="0">many</button><button class="chip" data-i="1">much</button></div>
+      <p class="fb"></p><p class="reveal" hidden>sugar 不可数，问「多少」用 much。<sup class="cite" data-cite="rule_much"></sup></p>
+    </div>
+    <div class="q lab" data-ans="2">
+      <p><b>2.</b> There are ____ cars on the road. It's dangerous to ride my bike.</p>
+      <div class="chips"><button class="chip" data-i="0">too much</button><button class="chip" data-i="1">not enough</button><button class="chip" data-i="2">too many</button></div>
+      <p class="fb"></p><p class="reveal" hidden>cars 可数复数，而且是「多到危险」，用 too many。<sup class="cite" data-cite="rule_too"></sup></p>
+    </div>
+    <div class="q lab" data-ans="0">
+      <p><b>3.</b> 因纽特人为什么很少吃蔬菜？</p>
+      <div class="chips"><button class="chip" data-i="0">夏天太短，种不出来</button><button class="chip" data-i="1">他们不喜欢吃蔬菜</button><button class="chip" data-i="2">蔬菜太贵</button></div>
+      <p class="fb"></p><p class="reveal" hidden>夏天太短，不够让他们种菜；冬天商店里也没有新鲜蔬菜。<sup class="cite" data-cite="inuit_food"></sup></p>
+    </div>
+  </div>
+  <p class="small">这一页只讲了课本里最核心的部分，没放进来的有：p30 食物图片命名、p33 Lunch Stop 菜单听力和咖啡馆点餐对话、WordWise <span class="en">have got</span> 词组、p36 Jordan 对话的完整练习，以及元音 /ɪ/ 和 /iː/ 发音。听力和视频请配合课本音频使用。</p>
+  <p class="small">页码按课本印刷页码标注；在 PDF 里要往后翻一页（书 p31 = PDF 第 32 页）。关键规则和数字请点「[原文]」核对原句。</p>
+</section>
+</main>
+
+<button class="btn" id="back" hidden>↩ 回到刚才的位置</button>
+<div id="pop" hidden role="dialog" aria-modal="true" aria-labelledby="popT">
+  <div class="box">
+    <p id="popT" class="small" style="margin:0"></p>
+    <blockquote id="popQ"></blockquote>
+    <p id="popZ"></p>
+    <button class="btn sm" id="popX">关闭（Esc）</button>
+  </div>
+</div>
+
+<script>
+const SOURCES = {
+  pop:       { page: 31, quote: "The number of people in the world is growing fast – every year there are about 70 million more people.", zh: "世界人口增长很快，每年大约多 7000 万人。" },
+  land:      { page: 31, quote: "The farms already use 30% of all the world's land: they create greenhouse gases and use a lot of water and energy.", zh: "农场已经占用了全世界 30% 的土地，排放温室气体，还耗用大量水和能源。" },
+  insects:   { page: 31, quote: "They've got a lot of protein. … insect farms don't need so much water and energy. Also, they don't use so much space. For some people in countries in Asia and Latin America, eating insects is not unusual.", zh: "虫子富含蛋白质；养虫不需要那么多水和能源，也不占那么多地方；在亚洲和拉美一些国家，有些人吃虫不稀奇。" },
+  cochineal: { page: 31, quote: "the red food colouring that is in many things that we eat comes from … an insect called the 'cochineal beetle'!", zh: "很多食物里的红色色素来自一种叫胭脂虫（cochineal beetle）的昆虫。" },
+  rule_count:{ page: 32, quote: "Nouns that you can count (one carrot, two carrots, etc.) are countable / uncountable nouns. Nouns you cannot count are countable / uncountable nouns. They have no plural forms.", zh: "能数的名词（one carrot, two carrots）是可数名词；不能数的是不可数名词，没有复数形式。（课本此处是选词填空，答案按语法常识给出）" },
+  rule_some: { page: 32, quote: "Use a/an with singular / plural countable nouns. Use some with singular / plural countable and uncountable nouns. Use any in questions and in positive / negative sentences. Use some in questions when offering or asking for something.", zh: "a/an 配单数可数名词；some 配复数可数和不可数名词；any 用于疑问句和否定句；请人吃喝或向人要东西时，问句里用 some。（前三处是课本留的选词，答案按语法常识给出）" },
+  rule_much: { page: 32, quote: "We usually use (how) much and (how) many in questions and negative sentences. Use many with plural ___ nouns and much with ___ nouns. Use a lot of / lots of with both countable and uncountable ___.", zh: "much/many 通常用在疑问句和否定句；many 配复数（可数）名词，much 配（不可数）名词；a lot of / lots of 两种都能用。（括号里是课本留的空，按例句补出）" },
+  rule_too:  { page: 35, quote: "RULE: Use too ___ with countable nouns, and too ___ with uncountable nouns. Use (not) enough with ___ and ___.", zh: "too many 配可数名词，too much 配不可数名词；(not) enough 两种都能配。（课本留空，按 p35 练习 6 的例句补出）" },
+  rule_tooadj:{ page: 35, quote: "The winters are too long there. The summers are not long enough. … We use too + adjective to say that something is more / less than we like or want. We use not + adjective + enough to say that something is more / less than we like or want.", zh: "too + 形容词：比想要的多（太…）；not + 形容词 + enough：比想要的少（不够…）。（课本是选词，答案按例句意思给出）" },
+  kulusuk:   { page: 34, quote: "I'm writing this from Kulusuk, an Inuit village in Greenland. … But winters are long and hard, and the life for the 250 people in the village isn't easy at all. The roads are covered in ice, and the sea is frozen, too.", zh: "作者在格陵兰的因纽特村 Kulusuk 写作；冬天漫长艰苦，村里 250 个人的生活一点也不容易；路面结冰，海也冻住了。" },
+  inuit_food:{ page: 34, quote: "The summer is too short and not long enough for the Inuits to grow vegetables. They sometimes find berries during the warmer months. And they eat seaweed. But there are no other vegetables, so they don't eat enough greens. There is a shop in the village, but during the winter it doesn't get any fresh vegetables.", zh: "夏天太短，因纽特人种不了菜；暖和的月份有时能找到浆果；他们吃海藻，但没有别的蔬菜，所以绿叶菜吃得不够；村里商店冬天没有新鲜蔬菜。" },
+  inuit_meat:{ page: 34, quote: "This is why the Inuits eat lots of raw and boiled meat. They eat sea animals – seals, whales and fish – and they eat reindeer and other land animals.", zh: "所以因纽特人吃很多生肉和煮肉：海豹、鲸、鱼等海洋动物，还有驯鹿等陆地动物。" },
+  inuit_healthy:{ page: 34, quote: "But the Inuits eat a lot of animal fat and they are healthy, perhaps because they eat boiled rather than fried meat.", zh: "因纽特人吃很多动物脂肪，却很健康，也许是因为他们吃煮的肉而不是炸的。" },
+  adj_cook:  { page: 35, quote: "boiled | fried | grilled | roast", zh: "课本 p35 练习 11 的四个做法形容词。中文释义为编者补充。" },
+  savoury:   { page: 35, quote: "Savoury means not sweet, for example, salty or spicy. Savoury is a positive adjective. Salty is a negative adjective, meaning food has too much salt.", zh: "savoury 指不甜的（咸的、辣的），是褒义词；salty 是贬义词，指太咸。" },
+  pizza:     { page: 36, quote: "Jordan: I'm making pizza – for me and my friends. … Dad: Onion? Red pepper? … Let's add a couple of mushrooms. … Jordan: But I don't like mushrooms.", zh: "Jordan 给自己和朋友做披萨；爸爸提议加洋葱、红椒，又加了两个蘑菇；Jordan 说他不喜欢蘑菇。" },
+  keylang:   { page: 36, quote: "KEY LANGUAGE: I'm really sorry. I feel really bad. Don't worry. It's OK. — Man: Oh no. I'm really ___. Woman: ___ worry. It's not my favourite picture. Man: But it's broken. I ___ really bad. Woman: ___ OK.", zh: "四句道歉用语；小对话里男士（打破画的人）说 I'm really sorry / I feel really bad，女士回答 Don't worry / It's OK。" },
+  sorry_intro:{ page: 37, quote: "We all make mistakes. We say we're sorry so that the person feels better and understands that we care. Saying 'sorry' is important, but sometimes we also need to show we are sorry by our actions.", zh: "人人都会犯错；说对不起让对方好受、知道我们在乎；说很重要，但有时还要用行动表示歉意。" },
+  tom:       { page: 37, quote: "Tom arrives late to school for the second time in a week. The teacher gives him a detention. Tom needs to say sorry because he's late.", zh: "Tom 一周内第二次上学迟到，被老师罚留校；Tom 该道歉，因为他迟到了。" },
+  tips:      { page: 37, quote: "Don't be afraid to recognise when you make a mistake. Say sorry when you make a mistake. It shows that you care about others. Saying sorry isn't always enough. Sometimes you also have to change your actions.", zh: "别怕承认错误；犯错就道歉，这说明你在乎别人；道歉并不总是够的，有时还要改变做法。" }
+};
+
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const motionOK = () => !matchMedia("(prefers-reduced-motion: reduce)").matches;
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+
+/* 字号与明暗 */
+let fs = parseInt(store.get("u3fs")) || 17;
+const applyFs = () => { document.documentElement.style.setProperty("--fs", fs + "px"); store.set("u3fs", fs); };
+applyFs();
+$("#fsUp").onclick = () => { fs = Math.min(24, fs + 1); applyFs(); };
+$("#fsDown").onclick = () => { fs = Math.max(15, fs - 1); applyFs(); };
+const th = store.get("u3theme"); if (th) document.documentElement.dataset.theme = th;
+$("#theme").onclick = () => {
+  const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.dataset.theme = dark ? "light" : "dark"; store.set("u3theme", document.documentElement.dataset.theme);
+};
+
+/* 出处弹窗 */
+let lastFocus = null;
+function openCite(id) {
+  const s = SOURCES[id]; if (!s) return;
+  lastFocus = document.activeElement;
+  $("#popT").textContent = `课本 p${s.page}（PDF 第 ${s.page + 1} 页）`;
+  $("#popQ").textContent = s.quote; $("#popZ").textContent = "转述：" + s.zh;
+  $("#pop").hidden = false; $("#popX").focus();
+}
+const closePop = () => { $("#pop").hidden = true; lastFocus && lastFocus.focus(); };
+$$(".cite").forEach(c => { c.tabIndex = 0; c.setAttribute("role", "button"); c.onclick = () => openCite(c.dataset.cite);
+  c.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCite(c.dataset.cite); } }; });
+$("#popX").onclick = closePop;
+$("#pop").onclick = e => { if (e.target.id === "pop") closePop(); };
+
+/* 跳转与回到原处 */
+const backStack = [], backBtn = $("#back");
+function jumpTo(id) {
+  backStack.push(scrollY); history.pushState({ y: scrollY }, "");
+  document.getElementById(id).scrollIntoView({ behavior: motionOK() ? "smooth" : "auto" });
+  backBtn.hidden = false;
+}
+function goBack() {
+  const y = backStack.pop();
+  if (y != null) scrollTo({ top: y, behavior: motionOK() ? "smooth" : "auto" });
+  backBtn.hidden = backStack.length === 0;
+}
+backBtn.onclick = goBack;
+addEventListener("popstate", e => { if (e.state && e.state.y != null) { backStack.pop(); scrollTo(0, e.state.y); backBtn.hidden = backStack.length === 0; } });
+$$("[data-jump]").forEach(n => { n.onclick = () => jumpTo(n.dataset.jump);
+  n.onkeydown = e => { if (e.key === "Enter") jumpTo(n.dataset.jump); }; });
+
+/* 键盘：← → 切场景，Esc 关弹窗 */
+const order = ["hero", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "quiz"];
+const current = () => { let c = 0; order.forEach((id, i) => { if (document.getElementById(id).getBoundingClientRect().top < 120) c = i; }); return c; };
+addEventListener("keydown", e => {
+  if (e.key === "Escape" && !$("#pop").hidden) return closePop();
+  if (/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if (e.key === "ArrowRight") { const i = Math.min(order.length - 1, current() + 1); document.getElementById(order[i]).scrollIntoView({ behavior: motionOK() ? "smooth" : "auto" }); }
+  if (e.key === "ArrowLeft") { const i = Math.max(0, current() - 1); document.getElementById(order[i]).scrollIntoView({ behavior: motionOK() ? "smooth" : "auto" }); }
+});
+
+/* 阅读进度 */
+const saved = parseInt(store.get("u3pos"));
+if (saved > 600) { $("#resume").hidden = false;
+  $("#resumeGo").onclick = () => { scrollTo(0, saved); $("#resume").hidden = true; };
+  $("#resumeNo").onclick = () => { $("#resume").hidden = true; store.set("u3pos", 0); }; }
+let tick; addEventListener("scroll", () => { clearTimeout(tick); tick = setTimeout(() => store.set("u3pos", Math.round(scrollY)), 300); });
+
+/* 先猜再看：滑块 */
+$$("[data-guess]").forEach(g => {
+  const r = $("input[type=range]", g), o = $("output", g), b = $(".btn", g), rev = $(".reveal", g);
+  if (r) { const unit = g.id === "g1" ? "%" : ""; const upd = () => o.textContent = r.value + unit; r.oninput = upd; upd();
+    b.onclick = () => { rev.hidden = false; b.disabled = true; r.disabled = true; o.textContent = "你猜 " + r.value + unit; }; }
+  else $$(".chip", g).forEach(c => c.onclick = () => {
+    $$(".chip", g).forEach(x => { x.disabled = true; if (x.dataset.v === "1") x.classList.add("ok"); });
+    if (c.dataset.v !== "1") c.classList.add("no"); rev.hidden = false; });
+});
+
+/* 点开卡片 */
+function revealChips(box, out) { $$(".chip", $(box)).forEach(c => c.onclick = () => { $$(".chip", $(box)).forEach(x => x.classList.remove("sel")); c.classList.add("sel"); $(out).textContent = c.dataset.a; }); }
+revealChips("#bugs", "#bugsOut"); revealChips("#inuitFood", "#inuitOut");
+
+/* 场景 2：分类 */
+const WORDS = [["carrot",1],["milk",0],["egg",1],["rice",0],["apple",1],["coffee",0],["banana",1],["water",0],["pepper",1],["sugar",0],["biscuit",1],["meat",0],["mushroom",1],["cheese",0],["potato",1],["bread",0]];
+let picked = null;
+function buildSort() {
+  const pool = $("#pool"); pool.innerHTML = ""; $$(".bin .chips").forEach(b => b.innerHTML = ""); $("#sortFb").textContent = ""; picked = null;
+  WORDS.slice().sort(() => Math.random() - .5).forEach(([w, c]) => {
+    const b = document.createElement("button"); b.className = "chip en"; b.textContent = w; b.dataset.c = c;
+    b.onclick = () => { $$("#pool .chip").forEach(x => x.classList.remove("sel")); b.classList.add("sel"); picked = b; };
+    pool.appendChild(b);
+  });
+}
+function drop(isC) {
+  if (!picked) { $("#sortFb").className = "fb"; $("#sortFb").textContent = "先点上面一个词。"; return; }
+  const right = (picked.dataset.c === "1") === isC, w = picked.textContent;
+  if (right) { picked.classList.remove("sel"); picked.classList.add("ok"); picked.disabled = true;
+    $((isC ? "#binC" : "#binU") + " .chips").appendChild(picked);
+    $("#sortFb").className = "fb ok"; $("#sortFb").textContent = isC ? `✓ two ${w === "potato" ? "potatoes" : w + "s"}，能数！` : `✓ 不能说 two ${w}s，数不了。`;
+    picked = null; if (!$$("#pool .chip").length) $("#sortFb").textContent = "全部分对了！";
+  } else { $("#sortFb").className = "fb no"; $("#sortFb").textContent = isC ? `✗ 试试说 two ${w}s，通吗？` : `✗ ${w} 可以一个个数哦。`; }
+}
+$("#binC").onclick = () => drop(true); $("#binU").onclick = () => drop(false);
+$("#binC").onkeydown = e => { if (e.key === "Enter") drop(true); }; $("#binU").onkeydown = e => { if (e.key === "Enter") drop(false); };
+$("#sortReset").onclick = buildSort; buildSort();
+
+/* 场景 3：a/an some any */
+const S3 = [
+  ["I'd like ___ egg, please.", "an", "egg 是单数可数名词，元音开头用 an。"],
+  ["Is there ___ milk in the fridge?", "any", "这是一般疑问句，用 any。"],
+  ["We've got ___ bananas.", "some", "肯定句 + 复数可数名词，用 some。"],
+  ["There isn't ___ rice.", "any", "否定句用 any。"],
+  ["Would you like ___ tea?", "some", "请别人喝东西，虽然是问句，也用 some。"],
+  ["Can I have ___ carrot?", "a", "carrot 单数可数，辅音开头用 a。"]
+];
+let s3i = 0, s3ok = 0;
+function showS3() {
+  const [s] = S3[s3i]; $("#s3sent").innerHTML = s.replace("___", '<span style="border-bottom:2px solid currentColor;padding:0 1.5em"></span>');
+  $("#s3fb").textContent = ""; $("#s3count").textContent = `第 ${s3i + 1} / ${S3.length} 句 · 答对 ${s3ok}`;
+  const box = $("#s3opts"); box.innerHTML = "";
+  ["a", "an", "some", "any"].forEach(o => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = o;
+    b.onclick = () => { const [, ans, why] = S3[s3i]; $$("#s3opts .chip").forEach(x => { x.disabled = true; if (x.textContent === ans) x.classList.add("ok"); });
+      if (o === ans) { s3ok++; $("#s3fb").className = "fb ok"; $("#s3fb").textContent = "✓ " + why; } else { b.classList.add("no"); $("#s3fb").className = "fb no"; $("#s3fb").textContent = "✗ " + why; }
+      $("#s3count").textContent = `第 ${s3i + 1} / ${S3.length} 句 · 答对 ${s3ok}`; };
+    box.appendChild(b); });
+}
+$("#s3next").onclick = () => { s3i = (s3i + 1) % S3.length; if (s3i === 0) s3ok = 0; showS3(); }; showS3();
+
+/* 场景 4：much / many */
+const NOUNS = [["meat",0,"eat"],["insects",1,"eat"],["coffee",0,"drink"],["carrots",1,"eat"],["water",0,"drink"],["biscuits",1,"eat"],["cheese",0,"eat"],["apples",1,"eat"]];
+function showMM(k) {
+  const [n, c, v] = NOUNS[k], m = c ? "many" : "much";
+  $("#mmQ").innerHTML = `How <mark>${m}</mark> ${n} do you ${v}?`;
+  $("#mmN").innerHTML = `I don't ${v} <mark>${m}</mark> ${n}.`;
+  $("#mmL").innerHTML = `I ${v} <mark>a lot of</mark> ${n}. <span class="small">← 两种都能用</span>`;
+  $$("#mmNouns .chip").forEach((b, i) => b.classList.toggle("sel", i === k));
+}
+NOUNS.forEach(([n, c], i) => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = n + (c ? " · 可数" : " · 不可数"); b.onclick = () => showMM(i); $("#mmNouns").appendChild(b); });
+showMM(0);
+
+/* 场景 5：too much / not enough */
+let ing = "salt";
+function drawSoup() {
+  const v = +$("#amt").value, g = $("#bits"); g.innerHTML = "";
+  const n = ing === "salt" ? v * 14 : v * 2;
+  for (let i = 0; i < n; i++) {
+    const x = 60 + ((i * 97) % 280), y = 66 + ((i * 53) % 28);
+    g.insertAdjacentHTML("beforeend", ing === "salt"
+      ? `<rect x="${x}" y="${y}" width="4" height="4" fill="#fff" stroke="#999" stroke-width=".5"/>`
+      : `<ellipse cx="${x}" cy="${y}" rx="11" ry="5" fill="none" stroke="#f4efe6" stroke-width="3"/>`);
+  }
+  const cnt = ing === "onions", m = cnt ? "many" : "much";
+  let en, zh;
+  if (v <= 2) { en = `There ${cnt ? "aren't" : "isn't"} <mark>enough</mark> ${ing} in this soup.`; zh = "不够：比你想要的少。"; }
+  else if (v >= 8) { en = `There ${cnt ? "are" : "is"} <mark>too ${m}</mark> ${ing} in this soup. I can't eat it.`; zh = `太多：多得超出你想要的。${ing} ${cnt ? "可数，用 too many" : "不可数，用 too much"}。`; }
+  else { en = `It's delicious!`; zh = "刚刚好。往两头拖拖看，句子会变。"; }
+  $("#tooSent").innerHTML = en; $("#tooZh").textContent = zh;
+}
+$("#amt").oninput = drawSoup;
+$$("[data-k]").forEach(b => b.onclick = () => { ing = b.dataset.k; $$("[data-k]").forEach(x => x.classList.toggle("sel", x === b)); drawSoup(); });
+drawSoup();
+
+/* 场景 7：道歉分工 */
+const SORRY = [["I'm really sorry.", 1], ["Don't worry.", 0], ["I feel really bad.", 1], ["It's OK.", 0]];
+let sorryState = 0;
+SORRY.forEach(([t, who]) => { const b = document.createElement("button"); b.className = "chip en"; b.textContent = t;
+  b.onclick = () => { const say = who ? "道歉的人说" : "原谅的人说"; b.textContent = `${t} → ${say}`; b.classList.add(who ? "sel" : "ok"); b.disabled = true;
+    sorryState++; $("#sorryFb").className = "fb ok"; $("#sorryFb").textContent = sorryState === 4 ? "前两句是道歉的人说的，后两句是原谅的人说的。" : (who ? "这是认错、表达难过。" : "这是安慰对方、表示原谅。"); };
+  $("#sorryCards").appendChild(b); });
+
+/* 自测 */
+$$("[data-quiz] .q").forEach(q => { const ans = q.dataset.ans;
+  $$(".chip", q).forEach(c => c.onclick = () => { $$(".chip", q).forEach(x => { x.disabled = true; if (x.dataset.i === ans) x.classList.add("ok"); });
+    const ok = c.dataset.i === ans; if (!ok) c.classList.add("no");
+    const fb = $(".fb", q); fb.className = "fb " + (ok ? "ok" : "no"); fb.textContent = ok ? "✓ 答对了" : "✗ 再看看"; $(".reveal", q).hidden = false; }); });
+</script>
+</body>
+</html>
