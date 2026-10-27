@@ -96,8 +96,8 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
 .voice .btn { justify-self: start; }
 .voice-note { margin: 0; font-size: 13px; color: var(--ink-soft); }
 
-.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
-.tab { font-family: var(--font-display); font-weight: 600; font-size: 17px; padding: 11px 8px; border-radius: 14px; }
+.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 18px; }
+.tab { font-family: var(--font-display); font-weight: 600; font-size: clamp(14px, 4vw, 17px); padding: 11px 4px; border-radius: 14px; }
 .tab[aria-selected="true"] { background: var(--coral); color: var(--on-accent); }
 
 .controls { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -137,6 +137,26 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
 .face.front.kind-word { background: var(--word-bg); }
 .card.matched .face.front { background: var(--good-bg); border-color: var(--teal); }
 
+/* long-sentence game */
+.ls-card { border: 3px solid var(--line); border-radius: 16px; background: var(--surface); padding: 14px 14px 16px; box-shadow: 0 4px 0 var(--shadow); }
+.ls-step { margin: 0 0 8px; font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+.ls-sent { font-family: var(--font-word); font-size: clamp(17px, 4.6vw, 20px); line-height: 2.1; }
+.ls-w, .ls-c { font: inherit; color: var(--ink); background: none; border: 0; border-radius: 8px; padding: 1px 3px; }
+button.ls-w, button.ls-c { cursor: pointer; }
+.ls-w { border-bottom: 2px dotted var(--ink-soft); border-radius: 0; padding: 0 1px; }
+.ls-c { display: inline-block; margin: 3px 0; background: var(--word-bg); border: 2px solid var(--line); padding: 1px 7px; line-height: 1.5; text-align: left; }
+.ls-pred { text-decoration: underline; text-decoration-thickness: 3px; text-decoration-color: var(--teal); text-underline-offset: 5px; }
+.ls-fold { background: transparent; border-style: dashed; color: var(--ink-soft); }
+.ls-ask { outline: 3px solid var(--teal); outline-offset: 2px; }
+.ls-wrong { background: var(--coral) !important; color: var(--on-accent) !important; animation: shake 0.35s; }
+.ls-msg { min-height: 1.5em; margin: 10px 0 0; font-size: 15px; color: var(--ink-soft); }
+.ls-msg.good { color: var(--teal); font-weight: 700; }
+.ls-opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ls-opts .chip:disabled { opacity: 0.45; }
+.ls-core { margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--good-bg); }
+.ls-core b { display: block; font-family: var(--font-word); font-size: 17px; }
+.ls-core span { display: block; margin-top: 2px; font-size: 15px; }
+.ls-core small { display: block; margin-top: 6px; font-size: 13px; color: var(--ink-soft); }
 .emoji { font-size: clamp(30px, 9vw, 50px); line-height: 1; }
 .word { font-family: var(--font-word); font-weight: 700; font-size: clamp(13px, 3.7vw, 20px); padding: 0 4px; text-align: center; line-height: 1.2; }
 .word.long { font-size: clamp(10px, 2.7vw, 15px); }
@@ -215,7 +235,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
       <span class="sticker" aria-hidden="true">KET</span>
       <div>
         <h1>单词乐园</h1>
-        <p class="sub">翻牌记忆 · 单词消消乐</p>
+        <p class="sub">翻牌 · 消消乐 · 长难句</p>
       </div>
     </div>
     <div class="tools">
@@ -247,6 +267,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
   <div class="tabs" role="tablist" aria-label="选择游戏">
     <button class="tab chunk" role="tab" id="tabMem" type="button" aria-selected="true" aria-controls="panelMem">翻牌记忆</button>
     <button class="tab chunk" role="tab" id="tabMt" type="button" aria-selected="false" aria-controls="panelMt">单词消消乐</button>
+    <button class="tab chunk" role="tab" id="tabLs" type="button" aria-selected="false" aria-controls="panelLs">拆长难句</button>
   </div>
 
   <section id="panelMem" role="tabpanel" aria-labelledby="tabMem">
@@ -294,6 +315,30 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
       <button class="btn chunk" type="button" id="mtRestart">回到第1关</button>
     </div>
   </section>
+  <section id="panelLs" role="tabpanel" aria-labelledby="tabLs" hidden>
+    <div class="stats">
+      <div class="stat"><span>关卡</span><b id="lsLevel">第1关</b></div>
+      <div class="stat"><span>句子</span><b id="lsNum">1/5</b></div>
+      <div class="stat"><span>失误</span><b id="lsMiss">0</b></div>
+      <div class="stat"><span>用时</span><b id="lsTime">00:00</b></div>
+    </div>
+    <div class="mastery">
+      <div class="mastery-row"><span>已掌握 <b id="lsOk">0</b> / <span id="lsTotal">0</span> 句</span><span>待巩固 <b id="lsWeak">0</b></span></div>
+      <div class="mastery-bar" aria-hidden="true"><i id="lsBar"></i></div>
+    </div>
+    <p class="tip">先找谓语，再点掉修饰成分露出主干，最后认出修饰成分的类型。拆错的句子后面会再出现。</p>
+    <div class="ls-card">
+      <p class="ls-step" id="lsStep"></p>
+      <div class="ls-sent" id="lsSent"></div>
+      <p class="ls-msg" id="lsMsg" aria-live="polite"></p>
+      <div class="ls-core" id="lsCore" hidden></div>
+      <div class="ls-opts" id="lsOpts"></div>
+    </div>
+    <div class="foot">
+      <button class="btn chunk" type="button" id="lsReset">重玩本关</button>
+      <button class="btn chunk" type="button" id="lsRestart">回到第1关</button>
+    </div>
+  </section>
 </main>
 
 <div class="overlay" id="overlay" hidden>
@@ -302,7 +347,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     <div class="stars" id="wStars" role="img"></div>
     <p class="line" id="wLine"></p>
     <p class="note" id="wNote" hidden></p>
-    <p class="learned-h">这局学到的单词（点一下听发音）</p>
+    <p class="learned-h" id="wWordsTitle">这局学到的单词（点一下听发音）</p>
     <div class="learned" id="wWords"></div>
     <div class="actions">
       <button class="btn chunk primary" type="button" id="wPrimary"></button>
@@ -594,6 +639,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     st.innerHTML = [0, 1, 2].map(function (i) {
       return '<svg class="star' + (i < o.stars ? ' on' : '') + '" style="--i:' + i + '" viewBox="0 0 24 24" aria-hidden="true"><path d="' + STAR_PATH + '"/></svg>';
     }).join('');
+    $('#wWordsTitle').textContent = o.wordsTitle || '这局学到的单词（点一下听发音）';
     var w = $('#wWords');
     w.textContent = '';
     o.words.forEach(function (p) {
@@ -601,7 +647,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
       b.type = 'button';
       b.className = 'pill' + (p.weak ? ' weak' : '');
       b.innerHTML = p.w + ' <small>' + p.zh + '</small>';
-      b.addEventListener('click', function () { speak(p.w); if (o.onWord) b.classList.toggle('weak', o.onWord(p)); });
+      b.addEventListener('click', function () { (o.say || speak)(p.w); if (o.onWord) b.classList.toggle('weak', o.onWord(p)); });
       w.appendChild(b);
     });
     var p1 = $('#wPrimary'), p2 = $('#wSecondary');
@@ -993,18 +1039,328 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     });
   }
 
+  /* ---------- game 3: long-sentence breakdown ----------
+     Chunks are split by "|"; "*" marks the main predicate, "<类型>" marks a modifier that can be folded away. */
+  var SENTS = [
+    ['The students|<定语从句>who failed the exam last week|*have been given|a second chance.', '上周考试没及格的学生得到了第二次机会。', '学生们得到了第二次机会。'],
+    ['<状语从句>Although he had little money,|he|*managed to finish|his studies|<介词短语>at a top university.', '虽然他没什么钱，但他还是在一所顶尖大学完成了学业。', '他完成了学业。'],
+    ['The book|<分词短语>written by a young teacher|*has become|a best seller|<介词短语>in China.', '这本由一位年轻教师写的书在中国成了畅销书。', '这本书成了畅销书。'],
+    ['People|<定语从句>who exercise regularly|*are|less likely to get sick.', '经常锻炼的人不太容易生病。', '人们不太容易生病。'],
+    ['<分词短语>Faced with rising prices,|many families|*have cut|their spending|<介词短语>on clothes and travel.', '面对不断上涨的物价，许多家庭削减了在服装和旅行上的开支。', '许多家庭削减了开支。'],
+    ['The idea|<同位语从句>that money can buy happiness|*is not supported|<介词短语>by recent research.', '“金钱能买到幸福”这一观点并没有得到最新研究的支持。', '这个观点没有得到支持。'],
+    ['<不定式短语>To improve their English,|many students|*watch|American TV shows|<介词短语>with subtitles.', '为了提高英语，许多学生看带字幕的美剧。', '许多学生看美剧。'],
+    ['The city,|<插入语>as far as I know,|*has|more than ten universities.', '据我所知，这座城市有十多所大学。', '这座城市有十多所大学。'],
+    ['Scientists|<介词短语>at Harvard|*have found|that children who sleep well learn faster.', '哈佛的科学家发现，睡得好的孩子学得更快。', '科学家发现睡得好的孩子学得更快。'],
+    ['The woman|<分词短语>standing at the door|*is|our new English teacher.', '站在门口的那位女士是我们的新英语老师。', '那位女士是我们的新英语老师。'],
+    ['<状语从句>When the economy slows down,|young people|<介词短语>without work experience|*find|it harder to get a job.', '经济放缓时，没有工作经验的年轻人更难找到工作。', '年轻人更难找到工作。'],
+    ['Many old buildings|<定语从句>that were built in the 1950s|*will be pulled down|<介词短语>within the next five years.', '许多建于上世纪五十年代的老建筑将在未来五年内被拆除。', '许多老建筑将被拆除。'],
+    ['<分词短语>Compared with his brother,|Tom|*is|much more patient.', '和他哥哥相比，汤姆耐心得多。', '汤姆耐心得多。'],
+    ['The number of people|<定语从句>who work from home|*has increased|sharply|<介词短语>since 2020.', '自 2020 年以来，在家办公的人数急剧增加。', '人数急剧增加。'],
+    ['The company|<定语从句>whose products are sold all over the world|*was founded|<介词短语>by two college students|<介词短语>in a small garage.', '这家产品远销全球的公司是由两名大学生在一个小车库里创办的。', '这家公司被创办了。'],
+    ['<状语从句>If you keep practicing every day,|your speaking|*will improve|<介词短语>in a few months.', '如果你每天坚持练习，几个月后你的口语就会提高。', '你的口语会提高。'],
+    ['Students|<分词短语>living far from home|*often feel|lonely|<介词短语>during their first year.', '离家很远的学生在第一年常常感到孤独。', '学生们常常感到孤独。'],
+    ['The new law,|<定语从句>which took effect last month,|*has reduced|traffic accidents|<介词短语>by 20 percent.', '上个月生效的新法律使交通事故减少了 20%。', '新法律减少了交通事故。'],
+    ['The fact|<同位语从句>that she had never studied abroad|*surprised|everyone|<介词短语>at the interview.', '她从没出国留学过，这一事实让面试现场的所有人都很惊讶。', '这个事实让所有人都很惊讶。'],
+    ['<状语从句>Because the tickets were sold out,|we|*had to watch|the concert|<介词短语>on TV.', '因为票卖完了，我们只好在电视上看演唱会。', '我们只好看演唱会。'],
+    ['A man|<介词短语>with a big smile|*walked|into the classroom.', '一个满脸笑容的男人走进了教室。', '一个男人走进了教室。'],
+    ['The problem|<定语从句>we are facing now|*is|not a lack of money but a lack of time.', '我们现在面临的问题不是缺钱，而是缺时间。', '问题不是缺钱，而是缺时间。'],
+    ['<分词短语>Having finished his homework,|the boy|*went out|<不定式短语>to play football.', '做完作业后，男孩出去踢足球了。', '男孩出去了。'],
+    ['Most of the water|<定语从句>that we use every day|*is wasted|<介词短语>in the kitchen and bathroom.', '我们每天用的水大多浪费在厨房和浴室里。', '大部分水被浪费了。'],
+    ['Online shopping,|<插入语>however,|*has brought|new problems|<介词短语>for small shop owners.', '然而，网购给小店主带来了新问题。', '网购带来了新问题。'],
+    ['The film|<定语从句>that we watched yesterday|*made|everyone cry.', '我们昨天看的那部电影让所有人都哭了。', '这部电影让所有人都哭了。'],
+    ['<状语从句>Unless we take action now,|many animals|<介词短语>in the wild|*will disappear|<介词短语>within fifty years.', '除非我们现在就采取行动，否则许多野生动物将在五十年内消失。', '许多动物将会消失。'],
+    ['The girl|<分词短语>chosen to represent our school|*won|first prize|<介词短语>in the speech contest.', '被选出代表我们学校的那个女孩在演讲比赛中得了一等奖。', '那个女孩得了一等奖。'],
+    ['Anyone|<定语从句>who wants to join the club|*should sign up|<介词短语>before Friday.', '想加入俱乐部的人都应该在周五前报名。', '任何人都应该报名。'],
+    ['<介词短语>Despite the heavy rain,|thousands of fans|*waited|<介词短语>outside the stadium|<介词短语>for hours.', '尽管下着大雨，成千上万的球迷还是在体育场外等了好几个小时。', '成千上万的球迷在等待。'],
+    ['The house|<定语从句>where I grew up|*was sold|<介词短语>to a foreign company.', '我长大的那栋房子被卖给了一家外国公司。', '那栋房子被卖掉了。'],
+    ['Young people|<定语从句>who spend too much time on their phones|*may have|trouble sleeping.', '花太多时间玩手机的年轻人可能会睡不好。', '年轻人可能会睡不好。'],
+    ['<分词短语>Built more than 600 years ago,|the Forbidden City|*attracts|millions of visitors every year.', '故宫建于六百多年前，每年吸引数百万游客。', '故宫每年吸引数百万游客。'],
+    ['Her decision|<不定式短语>to study medicine|*was|a surprise|<介词短语>to her parents.', '她学医的决定让她父母很意外。', '她的决定是个意外。'],
+    ['<状语从句>As technology develops,|robots|*are replacing|workers|<介词短语>in many factories.', '随着技术的发展，机器人正在许多工厂里取代工人。', '机器人正在取代工人。'],
+    ['The man,|<插入语>it is said,|*used to be|a famous singer.', '据说，这个男人曾经是一位著名歌手。', '这个男人曾经是一位著名歌手。'],
+    ['Children|<分词短语>raised in big families|*are|usually better at sharing.', '在大家庭中长大的孩子通常更懂得分享。', '孩子们通常更懂得分享。'],
+    ['<状语从句>While some people enjoy living in big cities,|others|*prefer|the quiet life|<介词短语>in the countryside.', '有些人喜欢住在大城市，而另一些人更喜欢乡村的宁静生活。', '另一些人更喜欢宁静的生活。'],
+    ['What he said|<介词短语>at the meeting|*made|everyone angry.', '他在会上说的话让所有人都很生气。', '他说的话让所有人都很生气。'],
+    ['<插入语>To be honest,|I|*didn\'t enjoy|the trip|<介词短语>at all.', '说实话，我一点也不喜欢这次旅行。', '我不喜欢这次旅行。'],
+    ['The teacher|<定语从句>who taught us math|*left|the school|<状语从句>after she got married.', '教我们数学的那位老师结婚后离开了学校。', '那位老师离开了学校。'],
+    ['The map|<分词短语>hanging on the wall|*shows|the cities|<定语从句>that we will visit.', '挂在墙上的地图标出了我们将要去的城市。', '地图标出了城市。'],
+    ['The news|<同位语从句>that the exam was cancelled|*made|all the students happy.', '考试取消的消息让所有学生都很高兴。', '这个消息让所有学生都很高兴。'],
+    ['Parents|<介词短语>in big cities|*spend|a lot of money|<介词短语>on after-school classes.', '大城市的父母在课外班上花很多钱。', '父母花很多钱。'],
+    ['The bridge,|<分词短语>completed in 2018,|*connects|Hong Kong, Zhuhai and Macao.', '这座 2018 年建成的大桥连接了香港、珠海和澳门。', '这座大桥连接了香港、珠海和澳门。']
+  ];
+  var TYPE_TIP = {
+    '定语从句': '修饰前面的名词，常用 who / which / that / whose / where 引导，引导词有时会省略',
+    '状语从句': '说明时间、原因、条件、让步等，常用 when / because / if / although / as 引导',
+    '同位语从句': '说明前面名词（fact / idea / news）的具体内容，用 that 引导',
+    '分词短语': '以 -ing 或 -ed 形式开头，修饰名词或说明当时的情况',
+    '不定式短语': 'to + 动词，表示目的，或修饰前面的名词',
+    '介词短语': '介词 + 名词，说明地点、时间、方式、对象等',
+    '插入语': '插在句中补充说明，去掉后句子依然完整'
+  };
+  var TYPES = Object.keys(TYPE_TIP);
+  var LS_N = 5;
+  var ls = { level: 1, list: [], si: 0, step: 0, ask: 0, mistakes: 0, miss: {}, began: false, over: false, timer: null, busy: false };
+  var LSM = (function () {
+    try { return JSON.parse(store.get('wg.ls.mastery') || '{}') || {}; } catch (e) { return {}; }
+  })();
+  function saveLsm() { store.set('wg.ls.mastery', JSON.stringify(LSM)); }
+
+  function parseSent(row) {
+    var chunks = row[0].split('|').map(function (raw) {
+      var c = { text: raw, pred: false, type: '' };
+      var m = /^<([^>]+)>/.exec(raw);
+      if (m) { c.type = m[1]; c.text = raw.slice(m[0].length); }
+      else if (raw.charAt(0) === '*') { c.pred = true; c.text = raw.slice(1); }
+      return c;
+    });
+    var core = chunks.filter(function (c) { return !c.type; })
+      .map(function (c) { return c.text.replace(/,$/, ''); }).join(' ');
+    core = core.charAt(0).toUpperCase() + core.slice(1);
+    if (!/[.!?]$/.test(core)) core += '.';
+    return { key: row[0], chunks: chunks, zh: row[1], coreZh: row[2], core: core,
+      mods: chunks.map(function (c, i) { return c.type ? i : -1; }).filter(function (i) { return i >= 0; }) };
+  }
+  function pickSents(n) {
+    var weak = [], ok = [], fresh = [];
+    shuffle(SENTS).forEach(function (row) {
+      var m = LSM[row[0]];
+      (!m ? fresh : m.ok ? ok : weak).push(row);
+    });
+    weak.sort(function (a, b) { return LSM[b[0]].at - LSM[a[0]].at; });
+    ok.sort(function (a, b) { return LSM[a[0]].at - LSM[b[0]].at; });
+    var nWeak = Math.round(n * WEAK_SHARE);
+    // shaky ones first, one known sentence to review, then new ones
+    var out = weak.slice(0, nWeak).concat(ok.slice(0, 1));
+    var rest = fresh.concat(ok.slice(1), weak.slice(nWeak));
+    out = out.concat(rest.slice(0, n - out.length));
+    return shuffle(out).map(parseSent);
+  }
+  function lsStats() {
+    var ok = 0, weak = 0;
+    SENTS.forEach(function (row) { var m = LSM[row[0]]; if (m) { if (m.ok) ok++; else weak++; } });
+    return { ok: ok, weak: weak };
+  }
+  function drawLsProg() {
+    var st = lsStats();
+    $('#lsOk').textContent = st.ok;
+    $('#lsTotal').textContent = SENTS.length;
+    $('#lsWeak').textContent = st.weak;
+    $('#lsBar').style.width = st.ok / SENTS.length * 100 + '%';
+  }
+  function updLs() {
+    $('#lsLevel').textContent = '第' + ls.level + '关';
+    $('#lsNum').textContent = Math.min(ls.si + 1, LS_N) + '/' + LS_N;
+    $('#lsMiss').textContent = ls.mistakes;
+    drawLsProg();
+  }
+  function sayLine(t) {
+    if (!state.sound) return;
+    stopSpeech();
+    deviceSpeak(t);
+  }
+  function lsMsg(t, good) {
+    var m = $('#lsMsg');
+    m.textContent = t;
+    m.className = 'ls-msg' + (good ? ' good' : '');
+  }
+  function lsMistake(el) {
+    ls.mistakes++;
+    ls.miss[ls.list[ls.si].key] = true;
+    sfx.wrong();
+    if (el) {
+      el.classList.remove('ls-wrong');
+      void el.offsetWidth;
+      el.classList.add('ls-wrong');
+    }
+    updLs();
+  }
+
+  function lsNew() {
+    ls.timer.reset();
+    ls.list = pickSents(LS_N);
+    ls.si = 0; ls.mistakes = 0; ls.miss = {}; ls.began = false; ls.over = false;
+    lsStart();
+  }
+  function lsStart() {
+    ls.step = 1; ls.ask = 0; ls.busy = false;
+    $('#lsCore').hidden = true;
+    $('#lsOpts').textContent = '';
+    lsMsg('');
+    drawLs();
+    updLs();
+  }
+  function drawLs() {
+    var s = ls.list[ls.si];
+    var box = $('#lsSent');
+    box.textContent = '';
+    $('#lsStep').textContent = ['', '第 1 步：点出整句的谓语动词', '第 2 步：点掉修饰成分，留下主干', '第 3 步：绿框圈出的修饰成分是什么？', '拆完了'][ls.step];
+    s.chunks.forEach(function (c, ci) {
+      if (ls.step === 1) {
+        c.text.split(/\s+/).forEach(function (w) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'ls-w';
+          b.dataset.c = ci;
+          b.textContent = w;
+          box.appendChild(b);
+          box.appendChild(document.createTextNode(' '));
+        });
+        return;
+      }
+      var el = document.createElement(ls.step === 2 ? 'button' : 'span');
+      if (ls.step === 2) el.type = 'button';
+      el.className = 'ls-c' + (c.pred ? ' ls-pred' : '') + (c.folded ? ' ls-fold' : '') +
+        (ls.step === 3 && s.mods[ls.ask] === ci ? ' ls-ask' : '');
+      el.dataset.c = ci;
+      el.textContent = c.text;
+      box.appendChild(el);
+      box.appendChild(document.createTextNode(' '));
+    });
+  }
+  function lsTap(el) {
+    if (ls.over || ls.busy || !el.dataset.c) return;
+    var s = ls.list[ls.si], ci = +el.dataset.c, c = s.chunks[ci];
+    if (!ls.began) { ls.began = true; ls.timer.start(); }
+    if (ls.step === 1) {
+      if (c.pred) {
+        sfx.match();
+        lsMsg('对！整句的谓语是 ' + c.text + '。', true);
+        ls.step = 2;
+        drawLs();
+      } else {
+        lsMistake(el);
+        lsMsg(c.type ? '这个词在修饰成分里，不是整句的谓语。' : '这个词不是谓语。想想：整句话是谁，做了什么？');
+      }
+    } else if (ls.step === 2) {
+      if (c.folded) return;
+      if (!c.type) {
+        lsMistake(el);
+        lsMsg('这块是主干的一部分，去掉句子就不完整了。');
+        return;
+      }
+      c.folded = true;
+      sfx.flip();
+      var left = s.mods.filter(function (i) { return !s.chunks[i].folded; }).length;
+      if (left) {
+        lsMsg('折叠了一块，还有 ' + left + ' 块修饰成分。', true);
+        drawLs();
+      } else {
+        sfx.match();
+        lsMsg('主干出来了：' + s.core, true);
+        sayLine(s.core);
+        ls.step = 3;
+        drawLs();
+        lsAsk();
+      }
+    }
+  }
+  function lsAsk() {
+    var s = ls.list[ls.si], right = s.chunks[s.mods[ls.ask]].type;
+    var opts = shuffle([right].concat(shuffle(TYPES.filter(function (t) { return t !== right; })).slice(0, 2)));
+    var box = $('#lsOpts');
+    box.textContent = '';
+    opts.forEach(function (t) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip chunk';
+      b.textContent = t;
+      b.addEventListener('click', function () {
+        if (ls.busy || b.disabled) return;
+        if (t !== right) {
+          lsMistake(b);
+          b.disabled = true;
+          lsMsg('不是' + t + '。' + t + '：' + TYPE_TIP[t] + '。');
+          return;
+        }
+        sfx.match();
+        lsMsg('对，是' + right + '：' + TYPE_TIP[right] + '。', true);
+        ls.ask++;
+        if (ls.ask < s.mods.length) {
+          ls.busy = true;
+          setTimeout(function () { ls.busy = false; drawLs(); lsAsk(); }, reduce ? 0 : 900);
+        } else {
+          lsDone();
+        }
+      });
+      box.appendChild(b);
+    });
+  }
+  function lsDone() {
+    var s = ls.list[ls.si];
+    ls.step = 4;
+    LSM[s.key] = { ok: ls.miss[s.key] ? 0 : 1, at: Date.now() };
+    saveLsm();
+    drawLs();
+    var core = $('#lsCore');
+    core.hidden = false;
+    core.innerHTML = '';
+    [['b', s.core], ['span', s.coreZh], ['small', '全句：' + s.zh]].forEach(function (x) {
+      var e = document.createElement(x[0]);
+      e.textContent = x[1];
+      core.appendChild(e);
+    });
+    var last = ls.si === ls.list.length - 1;
+    var next = document.createElement('button');
+    next.type = 'button';
+    next.className = 'btn chunk primary';
+    next.textContent = last ? '看本关结果' : '下一句';
+    next.addEventListener('click', function () {
+      if (last) { lsWin(); return; }
+      ls.si++;
+      lsStart();
+    });
+    var box = $('#lsOpts');
+    box.textContent = '';
+    box.appendChild(next);
+    updLs();
+  }
+  function lsNote(list) {
+    var nb = list.filter(function (p) { return p.weak; }).length, st = lsStats();
+    return (nb ? '虚线框的 ' + nb + ' 句还要再练，后面的关卡会再出现。' : '这关每一句都拆对了！') +
+      '已掌握 ' + st.ok + ' 句 · 待巩固 ' + st.weak + ' 句';
+  }
+  function lsMark(p) {
+    p.weak = !(p.weak && p.tapped);
+    p.tapped = true;
+    LSM[p.key] = { ok: p.weak ? 0 : 1, at: Date.now() };
+    saveLsm();
+    $('#wNote').textContent = lsNote(ls.won);
+    drawLsProg();
+    return p.weak;
+  }
+  function lsWin() {
+    ls.over = true;
+    var sec = ls.timer.stop();
+    var stars = ls.mistakes <= 1 ? 3 : (ls.mistakes <= 4 ? 2 : 1);
+    var lvl = ls.level;
+    store.set('wg.ls.level', String(lvl + 1));
+    ls.won = ls.list.map(function (s) { return { key: s.key, w: s.core, zh: s.coreZh, weak: !!ls.miss[s.key] }; });
+    showWin({
+      title: '第' + lvl + '关 通关！',
+      stars: stars,
+      line: '失误 ' + ls.mistakes + ' 次 · 用时 ' + fmt(sec),
+      note: lsNote(ls.won),
+      wordsTitle: '这局拆出的主干（点一下听朗读；虚线 = 再练，再点 = 掌握）',
+      words: ls.won,
+      say: sayLine,
+      onWord: lsMark,
+      primary: { label: '下一关', fn: function () { ls.level++; lsNew(); } },
+      secondary: { label: '再玩本关', fn: lsNew }
+    });
+  }
+
   /* ---------- tabs, sound, boot ---------- */
+  var GAMES = { mem: ['Mem', function () { return mem; }], mt: ['Mt', function () { return mt; }], ls: ['Ls', function () { return ls; }] };
   function setTab(t) {
     var prev = state.tab;
     state.tab = t;
-    var isMem = t === 'mem';
-    $('#tabMem').setAttribute('aria-selected', isMem ? 'true' : 'false');
-    $('#tabMt').setAttribute('aria-selected', isMem ? 'false' : 'true');
-    $('#panelMem').hidden = !isMem;
-    $('#panelMt').hidden = isMem;
+    Object.keys(GAMES).forEach(function (k) {
+      $('#tab' + GAMES[k][0]).setAttribute('aria-selected', k === t ? 'true' : 'false');
+      $('#panel' + GAMES[k][0]).hidden = k !== t;
+    });
     if (prev !== t) {
-      (prev === 'mem' ? mem : mt).timer.pause();
-      var cur = isMem ? mem : mt;
+      GAMES[prev][1]().timer.pause();
+      var cur = GAMES[t][1]();
       if (cur.began && !cur.over) cur.timer.start();
     }
   }
@@ -1017,6 +1373,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
   function start(d) {
     mem.timer = makeTimer($('#memTime'));
     mt.timer = makeTimer($('#mtTime'));
+    ls.timer = makeTimer($('#lsTime'));
     if (d && DIFF[d.diff]) mem.diff = d.diff;
     $$('[data-diff]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.diff === mem.diff ? 'true' : 'false'); });
 
@@ -1034,6 +1391,17 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     $('#mtHint').addEventListener('click', mtHint);
     $('#tabMem').addEventListener('click', function () { setTab('mem'); });
     $('#tabMt').addEventListener('click', function () { setTab('mt'); });
+    $('#tabLs').addEventListener('click', function () { setTab('ls'); });
+    $('#lsSent').addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (b) lsTap(b);
+    });
+    $('#lsReset').addEventListener('click', lsNew);
+    $('#lsRestart').addEventListener('click', function () {
+      store.set('wg.ls.level', '1');
+      ls.level = 1;
+      lsNew();
+    });
     $('#soundBtn').addEventListener('click', function () {
       state.sound = !state.sound;
       store.set('wg.sound', state.sound ? '1' : '0');
@@ -1093,7 +1461,10 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     memNew();
     loadProg();
     mtNew();
-    if (d && d.tab === 'mt') setTab('mt');
+    var lv = parseInt(store.get('wg.ls.level'), 10);
+    if (lv >= 1 && lv < 1000) ls.level = lv;
+    lsNew();
+    if (d && GAMES[d.tab]) setTab(d.tab);
     try { window.claude && window.claude.hot && window.claude.hot.snapshot && window.claude.hot.snapshot(function () { return { tab: state.tab, diff: mem.diff }; }); } catch (e) {}
   }
 
