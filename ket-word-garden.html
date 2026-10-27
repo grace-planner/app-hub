@@ -592,7 +592,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
       b.type = 'button';
       b.className = 'pill' + (p.weak ? ' weak' : '');
       b.innerHTML = p.w + ' <small>' + p.zh + '</small>';
-      b.addEventListener('click', function () { speak(p.w); });
+      b.addEventListener('click', function () { speak(p.w); if (o.onWord) o.onWord(p); });
       w.appendChild(b);
     });
     var p1 = $('#wPrimary'), p2 = $('#wSecondary');
@@ -763,6 +763,11 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     cetPool().forEach(function (p) { var m = MASTER[p.w]; if (m) { if (m.ok) ok++; else weak++; } });
     return { ok: ok, weak: weak };
   }
+  // tapping a word on the win screen means "I'm not sure of this one": queue it for review
+  function markWeak(p) {
+    MASTER[p.w] = { ok: 0, at: Date.now() };
+    saveMaster();
+  }
   function grade(p, bad, last) {
     if (LIB.cur !== 'cet4') return;
     var m = MASTER[p.w];
@@ -776,7 +781,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     LIB.loading = true;
     $('#mtBoard').textContent = '';
     $('#mtTip').textContent = '正在加载四级词库……';
-    fetch('cet4-words.json').then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }).then(function (arr) {
+    fetch('cet4-words.json?v=2').then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }).then(function (arr) {
       LIB.data = arr.map(function (x) { return { w: x[0], zh: x[1], e: '', t: 'cet4' }; });
       LIB.loading = false;
       fillRange();
@@ -953,6 +958,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
       line: '得分 ' + mt.score + ' · 失误 ' + mt.mistakes + ' 次 · 用时 ' + fmt(sec),
       note: note,
       words: words,
+      onWord: LIB.cur === 'cet4' ? markWeak : null,
       primary: { label: '下一关', fn: function () { mt.level++; mt.base = mt.score; mtNew(); } },
       secondary: { label: '再玩本关', fn: mtNew }
     });
