@@ -185,6 +185,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
 .learned-h { margin: 16px 0 0; font-size: 13px; color: var(--ink-soft); }
 .learned { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 18px; }
 .pill { font-family: var(--font-word); font-size: 14px; padding: 4px 10px; border: 2px solid var(--line); border-radius: 999px; background: var(--word-bg); }
+.pill.weak { border-color: var(--coral); border-style: dashed; }
 .pill small { font-family: var(--font-ui); font-size: 12px; color: var(--ink-soft); margin-left: 4px; }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; }
 
@@ -550,6 +551,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
       start: function () { if (id || t0) return; t0 = Date.now(); id = setInterval(draw, 500); },
       pause: function () { if (!t0) return; acc += Date.now() - t0; t0 = 0; clearInterval(id); id = 0; draw(); },
       stop: function () { this.pause(); return sec(); },
+      ms: function () { return acc + (t0 ? Date.now() - t0 : 0); },
       reset: function () { clearInterval(id); id = 0; t0 = 0; acc = 0; draw(); }
     };
   }
@@ -588,7 +590,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     o.words.forEach(function (p) {
       var b = document.createElement('button');
       b.type = 'button';
-      b.className = 'pill';
+      b.className = 'pill' + (p.weak ? ' weak' : '');
       b.innerHTML = p.w + ' <small>' + p.zh + '</small>';
       b.addEventListener('click', function () { speak(p.w); });
       w.appendChild(b);
@@ -727,13 +729,47 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     if (LIB.range === 'all') return list;
     return list.filter(function (x) { return LIB.range.indexOf(x.w.charAt(0).toLowerCase()) >= 0; });
   }
+  /* CET-4 familiarity: each word remembers whether its last match was clean (ok) or shaky
+     (wrong pair, hint, or a long think). Every level is ~40% shaky words and ~60% known ones. */
+  var SLOW = 10000, WEAK_SHARE = 0.4;
+  var MASTER = (function () {
+    try { return JSON.parse(store.get('wg.cet4.mastery') || '{}') || {}; } catch (e) { return {}; }
+  })();
+  function saveMaster() { store.set('wg.cet4.mastery', JSON.stringify(MASTER)); }
   function pickCet(n) {
-    var used = {}, out = [];
+    var used = {}, out = [], weak = [], ok = [], fresh = [];
     shuffle(cetPool()).forEach(function (p) {
-      if (out.length >= n || used[p.zh]) return;
-      used[p.zh] = true; out.push(p);
+      var m = MASTER[p.w];
+      (!m ? fresh : m.ok ? ok : weak).push(p);
     });
+    // shaky words from the latest levels first; known words reviewed longest ago first
+    weak.sort(function (a, b) { return MASTER[b.w].at - MASTER[a.w].at; });
+    ok.sort(function (a, b) { return MASTER[a.w].at - MASTER[b.w].at; });
+    function take(list, k) {
+      for (var i = 0; i < list.length && k > 0; i++) {
+        if (used[list[i].zh]) continue;
+        used[list[i].zh] = true; out.push(list[i]); k--;
+      }
+      return k;
+    }
+    var nWeak = Math.round(n * WEAK_SHARE);
+    var short = take(weak, nWeak) + take(ok, n - nWeak);
+    take(fresh, short);
+    take(weak.concat(ok), n - out.length);
     return out;
+  }
+  function cetStats() {
+    var ok = 0, weak = 0;
+    cetPool().forEach(function (p) { var m = MASTER[p.w]; if (m) { if (m.ok) ok++; else weak++; } });
+    return { ok: ok, weak: weak };
+  }
+  function grade(p, bad, last) {
+    if (LIB.cur !== 'cet4') return;
+    var m = MASTER[p.w];
+    // the last pair on the board is matched by elimination, so it only counts when it went wrong
+    if (last && !bad) { if (m) m.at = Date.now(); }
+    else MASTER[p.w] = { ok: bad ? 0 : 1, at: Date.now() };
+    saveMaster();
   }
   function loadCet() {
     if (LIB.loading) return;
@@ -772,7 +808,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     $('#cetRange').hidden = !cet;
     $('#cetNote').hidden = !cet;
     $('#mtTip').textContent = cet
-      ? '先点一个中文意思，再点它对应的英文单词，配对成功就消掉。点一下会读出单词。'
+      ? '先点一个中文意思，再点它对应的英文单词，配对成功就消掉。配错、用提示或想了很久的词会记成「不太熟」，之后每关大约 6 成认识的词 + 4 成不太熟的词。'
       : '先点一张图片，再点它的单词，配对成功就消掉。连续配对对分数加倍。';
   }
   function setLib(lib) {
@@ -802,6 +838,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     if (LIB.cur === 'cet4' && !LIB.data) { loadCet(); return; }
     mt.timer.reset();
     mt.over = false; mt.busy = false; mt.sel = null; mt.combo = 0; mt.mistakes = 0; mt.began = false;
+    mt.bad = {}; mt.mark = 0;
     mt.score = mt.base;
     var n = LV[Math.min(mt.level, LV.length) - 1];
     mt.picks = LIB.cur === 'cet4' ? pickCet(n) : pick(n);
@@ -853,6 +890,10 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
       mt.sel = null;
       mt.combo++;
       mt.score += 10 * Math.min(mt.combo, 5);
+      var now = mt.timer.ms();
+      if (now - mt.mark > SLOW) mt.bad[t.p.w] = true;
+      mt.mark = now;
+      grade(t.p, !!mt.bad[t.p.w], mt.left === 1);
       sfx.match();
       [a, t].forEach(function (x) {
         x.gone = true;
@@ -866,6 +907,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     } else {
       mt.mistakes++;
       mt.combo = 0;
+      mt.bad[a.p.w] = mt.bad[t.p.w] = true;
       mt.sel = null;
       mt.busy = true;
       sfx.wrong();
@@ -885,8 +927,9 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     $$('.tile.sel').forEach(function (e) { e.classList.remove('sel'); });
     mt.sel = null;
     clearHints();
-    var id = rem[Math.floor(Math.random() * rem.length)].id;
-    rem.filter(function (t) { return t.id === id; }).forEach(function (t) { t.el.classList.add('hint'); });
+    var h = rem[Math.floor(Math.random() * rem.length)];
+    mt.bad[h.p.w] = true;
+    rem.filter(function (t) { return t.id === h.id; }).forEach(function (t) { t.el.classList.add('hint'); });
     mt.combo = 0;
     updMt();
     setTimeout(clearHints, 1900);
@@ -897,12 +940,19 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     var stars = mt.mistakes <= 1 ? 3 : (mt.mistakes <= 4 ? 2 : 1);
     var lvl = mt.level;
     saveProg(lvl + 1, mt.score);
+    var note = '', words = mt.picks;
+    if (LIB.cur === 'cet4') {
+      words = mt.picks.map(function (p) { return { w: p.w, zh: p.zh, weak: !!mt.bad[p.w] }; });
+      var nb = words.filter(function (p) { return p.weak; }).length, st = cetStats();
+      note = (nb ? '虚线框的 ' + nb + ' 个词还不太熟，后面的关卡会再出现。' : '这关全部配对得很利落！') +
+        '已认识 ' + st.ok + ' 个 · 待巩固 ' + st.weak + ' 个';
+    }
     showWin({
       title: '第' + lvl + '关 通关！',
       stars: stars,
       line: '得分 ' + mt.score + ' · 失误 ' + mt.mistakes + ' 次 · 用时 ' + fmt(sec),
-      note: '',
-      words: mt.picks,
+      note: note,
+      words: words,
       primary: { label: '下一关', fn: function () { mt.level++; mt.base = mt.score; mtNew(); } },
       secondary: { label: '再玩本关', fn: mtNew }
     });
