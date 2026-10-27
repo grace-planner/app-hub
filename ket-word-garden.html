@@ -592,7 +592,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
       b.type = 'button';
       b.className = 'pill' + (p.weak ? ' weak' : '');
       b.innerHTML = p.w + ' <small>' + p.zh + '</small>';
-      b.addEventListener('click', function () { speak(p.w); if (o.onWord) o.onWord(p); });
+      b.addEventListener('click', function () { speak(p.w); if (o.onWord) b.classList.toggle('weak', o.onWord(p)); });
       w.appendChild(b);
     });
     var p1 = $('#wPrimary'), p2 = $('#wSecondary');
@@ -763,10 +763,19 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     cetPool().forEach(function (p) { var m = MASTER[p.w]; if (m) { if (m.ok) ok++; else weak++; } });
     return { ok: ok, weak: weak };
   }
-  // tapping a word on the win screen means "I'm not sure of this one": queue it for review
+  // win-screen taps: the first tap marks a word shaky (dashed), the next one marks it known (solid)
   function markWeak(p) {
-    MASTER[p.w] = { ok: 0, at: Date.now() };
+    p.weak = !(p.weak && p.tapped);
+    p.tapped = true;
+    MASTER[p.w] = { ok: p.weak ? 0 : 1, at: Date.now() };
     saveMaster();
+    $('#wNote').textContent = cetNote(mt.won);
+    return p.weak;
+  }
+  function cetNote(words) {
+    var nb = words.filter(function (p) { return p.weak; }).length, st = cetStats();
+    return (nb ? '虚线框的 ' + nb + ' 个词还不太熟，后面的关卡会再出现。' : '这关全部配对得很利落！') +
+      '已认识 ' + st.ok + ' 个 · 待巩固 ' + st.weak + ' 个';
   }
   function grade(p, bad, last) {
     if (LIB.cur !== 'cet4') return;
@@ -947,10 +956,8 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
     saveProg(lvl + 1, mt.score);
     var note = '', words = mt.picks;
     if (LIB.cur === 'cet4') {
-      words = mt.picks.map(function (p) { return { w: p.w, zh: p.zh, weak: !!mt.bad[p.w] }; });
-      var nb = words.filter(function (p) { return p.weak; }).length, st = cetStats();
-      note = (nb ? '虚线框的 ' + nb + ' 个词还不太熟，后面的关卡会再出现。' : '这关全部配对得很利落！') +
-        '已认识 ' + st.ok + ' 个 · 待巩固 ' + st.weak + ' 个';
+      words = mt.won = mt.picks.map(function (p) { return { w: p.w, zh: p.zh, weak: !!mt.bad[p.w] }; });
+      note = cetNote(words);
     }
     showWin({
       title: '第' + lvl + '关 通关！',
