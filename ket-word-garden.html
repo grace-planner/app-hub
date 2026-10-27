@@ -99,9 +99,9 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
 .sync-row .btn { flex: none; }
 .voice-note { margin: 0; font-size: 13px; color: var(--ink-soft); }
 
-.tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 18px; }
+.tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 18px; }
 .tab { font-family: var(--font-display); font-weight: 600; font-size: clamp(13px, 3.5vw, 17px); padding: 11px 2px; border-radius: 14px; white-space: nowrap; }
-@media (max-width: 360px) { .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 340px) { .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .tab[aria-selected="true"] { background: var(--coral); color: var(--on-accent); }
 
 .controls { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -152,6 +152,12 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
 .ear-opt.wrong { background: var(--coral); color: var(--on-accent); animation: shake 0.35s; }
 .ear-next:empty { display: none; }
 .ear-next { margin-top: 14px; }
+/* collocation game */
+.col-sent { font-family: var(--font-word); font-size: clamp(18px, 5vw, 22px); line-height: 1.6; text-align: left; margin: 0; }
+.col-gap { display: inline-block; min-width: 3.2em; padding: 0 6px; border-bottom: 3px solid var(--line); text-align: center; color: var(--ink-soft); }
+.col-gap.filled { color: var(--teal); font-weight: 700; }
+.col-hint { margin: 10px 0 0; font-size: 15px; color: var(--ink-soft); text-align: left; }
+.col-opt { font-family: var(--font-word); min-height: 60px; }
 /* long-sentence game */
 .ls-card { border: 3px solid var(--line); border-radius: 16px; background: var(--surface); padding: 14px 14px 16px; box-shadow: 0 4px 0 var(--shadow); }
 .ls-step { margin: 0 0 8px; font-family: var(--font-display); font-weight: 600; font-size: 16px; }
@@ -175,6 +181,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
 .emoji { font-size: clamp(30px, 9vw, 50px); line-height: 1; }
 .word { font-family: var(--font-word); font-weight: 700; font-size: clamp(13px, 3.7vw, 20px); padding: 0 4px; text-align: center; line-height: 1.2; }
 .word.long { font-size: clamp(10px, 2.7vw, 15px); }
+.word.xl { font-size: clamp(10px, 2.5vw, 13px); }
 .zhtxt { font-family: var(--font-display); font-weight: 600; font-size: clamp(14px, 4.2vw, 21px); padding: 0 4px; text-align: center; line-height: 1.25; overflow-wrap: anywhere; }
 .libbar { display: grid; gap: 10px; margin-bottom: 4px; }
 .libbar select { width: 100%; min-width: 0; font: inherit; font-size: 16px; color: var(--ink); background: var(--word-bg); border: 3px solid var(--line); border-radius: 12px; padding: 9px 12px; }
@@ -250,7 +257,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
       <span class="sticker" aria-hidden="true">ABC</span>
       <div>
         <h1>英语乐园</h1>
-        <p class="sub">翻牌 · 消消乐 · 长难句 · 听音</p>
+        <p class="sub">单词 · 短语 · 长难句 · 听力</p>
       </div>
     </div>
     <div class="tools">
@@ -286,10 +293,11 @@ button.ls-w, button.ls-c { cursor: pointer; }
   </section>
 
   <div class="tabs" role="tablist" aria-label="选择游戏">
-    <button class="tab chunk" role="tab" id="tabMem" type="button" aria-selected="true" aria-controls="panelMem">翻牌记忆</button>
-    <button class="tab chunk" role="tab" id="tabMt" type="button" aria-selected="false" aria-controls="panelMt">单词消消乐</button>
-    <button class="tab chunk" role="tab" id="tabLs" type="button" aria-selected="false" aria-controls="panelLs">拆长难句</button>
-    <button class="tab chunk" role="tab" id="tabEar" type="button" aria-selected="false" aria-controls="panelEar">听音消消乐</button>
+    <button class="tab chunk" role="tab" id="tabMem" type="button" aria-selected="true" aria-controls="panelMem">翻牌</button>
+    <button class="tab chunk" role="tab" id="tabMt" type="button" aria-selected="false" aria-controls="panelMt">消消乐</button>
+    <button class="tab chunk" role="tab" id="tabLs" type="button" aria-selected="false" aria-controls="panelLs">长难句</button>
+    <button class="tab chunk" role="tab" id="tabEar" type="button" aria-selected="false" aria-controls="panelEar">听音</button>
+    <button class="tab chunk" role="tab" id="tabCol" type="button" aria-selected="false" aria-controls="panelCol">搭配</button>
   </div>
 
   <section id="panelMem" role="tabpanel" aria-labelledby="tabMem">
@@ -315,6 +323,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
       <div class="controls" role="group" aria-label="词库">
         <button class="chip chunk" type="button" data-lib="ket" aria-pressed="true">KET · 图片配对</button>
         <button class="chip chunk" type="button" data-lib="cet4" aria-pressed="false">四级 · 中文配对</button>
+        <button class="chip chunk" type="button" data-lib="phr" aria-pressed="false">四级 · 短语</button>
       </div>
       <select id="cetRange" aria-label="四级词汇范围" hidden></select>
       <p class="voice-note" id="cetNote" hidden>四级词表整理自 KyleBing/english-vocabulary（BSD-3-Clause），中文释义经过逐词校对。四级单词没有录好的声音，会用设备自带的英语声音朗读，可以在右上角的设置里换声音。</p>
@@ -326,7 +335,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
       <div class="stat"><span>用时</span><b id="mtTime">00:00</b></div>
     </div>
     <div class="mastery" id="cetProg" hidden>
-      <div class="mastery-row"><span>已熟悉 <b id="cetOk">0</b> / <span id="cetTotal">0</span> 个词</span><span>待巩固 <b id="cetWeak">0</b></span></div>
+      <div class="mastery-row"><span>已熟悉 <b id="cetOk">0</b> / <span id="cetTotal">0</span> <span id="cetUnit">个词</span></span><span>待巩固 <b id="cetWeak">0</b></span></div>
       <div class="mastery-bar" aria-hidden="true"><i id="cetBar"></i></div>
     </div>
     <p class="tip" id="mtTip">先点一张图片，再点它的单词，配对成功就消掉。连续配对对分数加倍。</p>
@@ -389,6 +398,30 @@ button.ls-w, button.ls-c { cursor: pointer; }
     <div class="foot">
       <button class="btn chunk" type="button" id="earReset">重玩本关</button>
       <button class="btn chunk" type="button" id="earRestart">回到第1关</button>
+    </div>
+  </section>
+  <section id="panelCol" role="tabpanel" aria-labelledby="tabCol" hidden>
+    <div class="stats">
+      <div class="stat"><span>关卡</span><b id="colLevel">第1关</b></div>
+      <div class="stat"><span>题目</span><b id="colNum">1/10</b></div>
+      <div class="stat"><span>答错</span><b id="colMiss">0</b></div>
+      <div class="stat"><span>用时</span><b id="colTime">00:00</b></div>
+    </div>
+    <div class="mastery">
+      <div class="mastery-row"><span>已掌握 <b id="colOk">0</b> / <span id="colTotal">0</span> 个搭配</span><span>待巩固 <b id="colWeak">0</b></span></div>
+      <div class="mastery-bar" aria-hidden="true"><i id="colBar"></i></div>
+    </div>
+    <p class="tip">句子里空了搭配中的一个词，看提示里的意思，点出该填的词。答错或想了很久的搭配会再出现。</p>
+    <div class="ear-card">
+      <p class="col-sent" id="colSent"></p>
+      <p class="col-hint" id="colHint"></p>
+      <div class="ear-opts" id="colOpts"></div>
+      <p class="ear-reveal" id="colReveal" aria-live="polite"></p>
+      <div class="ear-next" id="colNext"></div>
+    </div>
+    <div class="foot">
+      <button class="btn chunk" type="button" id="colReset">重玩本关</button>
+      <button class="btn chunk" type="button" id="colRestart">回到第1关</button>
     </div>
   </section>
 </main>
@@ -516,7 +549,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
      Every wg.* key carries a last-changed time; a sync merges both sides key by key (newer wins),
      and the two mastery maps word by word, so playing on two devices never loses progress. */
   var SYNC_URL = 'https://word-gaden-sync-mhzretymko.cn-hangzhou.fcapp.run';
-  var MAPS = { 'wg.cet4.mastery': 1, 'wg.ls.mastery': 1, 'wg.ear.ket': 1, 'wg.ear.cet4': 1 };
+  var MAPS = { 'wg.cet4.mastery': 1, 'wg.phr.mastery': 1, 'wg.col.mastery': 1, 'wg.ls.mastery': 1, 'wg.ear.ket': 1, 'wg.ear.cet4': 1 };
   var sync = { key: store.get('wg.sync.key') || '', timer: 0, busy: false, again: false };
   function rawGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function rawSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -593,7 +626,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
   }
   var state = { tab: 'mem', sound: store.get('wg.sound') !== '0', topic: store.get('wg.topic') || '' };
   if (!TOPICS.some(function (t) { return t.k === state.topic; })) state.topic = '';
-  var LIB = { cur: store.get('wg.mtlib') === 'cet4' ? 'cet4' : 'ket', range: store.get('wg.cetrange') || 'all', data: null, loading: false };
+  var LIB = { cur: { cet4: 'cet4', phr: 'phr' }[store.get('wg.mtlib')] || 'ket', range: store.get('wg.cetrange') || 'all', data: null, phr: null, loading: false };
   if (LIB.range !== 'all' && !GROUPS.some(function (g) { return g[0] === LIB.range; })) LIB.range = 'all';
 
   function shuffle(a) {
@@ -608,7 +641,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
     return state.topic ? WORDS.filter(function (x) { return x.t === state.topic; }) : WORDS;
   }
   function pick(n) { return shuffle(pool()).slice(0, n); }
-  function wordCls(w) { return 'word' + (w.length > 8 ? ' long' : ''); }
+  function wordCls(w) { return 'word' + (w.length > 8 ? ' long' : '') + (w.length > 14 ? ' xl' : ''); }
   function fmt(s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
 
   /* ---------- sound ---------- */
@@ -910,11 +943,16 @@ button.ls-w, button.ls-c { cursor: pointer; }
   var LV = [6, 8, 10];
   var mt = { level: 1, base: 0, score: 0, combo: 0, mistakes: 0, left: 0, tiles: [], picks: [], sel: null, busy: false, over: false, began: false, timer: null };
 
+  // CET-4 words and phrases keep a familiarity record; KET pairs do not
+  function tracked() { return LIB.cur !== 'ket'; }
+  function libReady() { return LIB.cur === 'cet4' ? !!LIB.data : LIB.cur === 'phr' ? !!LIB.phr : true; }
   function progKey() {
+    if (LIB.cur === 'phr') return 'wg.mt.phr';
     if (LIB.cur === 'cet4') return 'wg.mt.cet4.' + LIB.range;
     return 'wg.mt.' + (state.topic || 'all');
   }
   function cetPool() {
+    if (LIB.cur === 'phr') return LIB.phr || [];
     var list = LIB.data || [];
     if (LIB.range === 'all') return list;
     return list.filter(function (x) { return LIB.range.indexOf(x.w.charAt(0).toLowerCase()) >= 0; });
@@ -922,19 +960,20 @@ button.ls-w, button.ls-c { cursor: pointer; }
   /* CET-4 familiarity: each word remembers whether its last match was clean (ok) or shaky
      (wrong pair, hint, or a long think). Every level is ~40% shaky words and ~60% known ones. */
   var SLOW = 10000, WEAK_SHARE = 0.4;
-  var MASTER = (function () {
-    try { return JSON.parse(store.get('wg.cet4.mastery') || '{}') || {}; } catch (e) { return {}; }
-  })();
-  function saveMaster() { store.set('wg.cet4.mastery', JSON.stringify(MASTER)); }
+  function loadMap(k) { try { return JSON.parse(store.get(k) || '{}') || {}; } catch (e) { return {}; } }
+  var MASTERS = { cet4: loadMap('wg.cet4.mastery'), phr: loadMap('wg.phr.mastery') };
+  var MASTER = MASTERS.cet4;
+  function M() { return MASTERS[LIB.cur] || {}; }
+  function saveMaster() { if (MASTERS[LIB.cur]) store.set('wg.' + LIB.cur + '.mastery', JSON.stringify(MASTERS[LIB.cur])); }
   function pickCet(n) {
     var used = {}, out = [], weak = [], ok = [], fresh = [];
     shuffle(cetPool()).forEach(function (p) {
-      var m = MASTER[p.w];
+      var m = M()[p.w];
       (!m ? fresh : m.ok ? ok : weak).push(p);
     });
     // shaky words from the latest levels first; known words reviewed longest ago first
-    weak.sort(function (a, b) { return MASTER[b.w].at - MASTER[a.w].at; });
-    ok.sort(function (a, b) { return MASTER[a.w].at - MASTER[b.w].at; });
+    weak.sort(function (a, b) { return M()[b.w].at - M()[a.w].at; });
+    ok.sort(function (a, b) { return M()[a.w].at - M()[b.w].at; });
     function take(list, k) {
       for (var i = 0; i < list.length && k > 0; i++) {
         if (used[list[i].zh]) continue;
@@ -950,41 +989,53 @@ button.ls-w, button.ls-c { cursor: pointer; }
   }
   function cetStats() {
     var ok = 0, weak = 0;
-    cetPool().forEach(function (p) { var m = MASTER[p.w]; if (m) { if (m.ok) ok++; else weak++; } });
+    cetPool().forEach(function (p) { var m = M()[p.w]; if (m) { if (m.ok) ok++; else weak++; } });
     return { ok: ok, weak: weak };
   }
   // win-screen taps: the first tap marks a word shaky (dashed), the next one marks it known (solid)
   function markWeak(p) {
     p.weak = !(p.weak && p.tapped);
     p.tapped = true;
-    MASTER[p.w] = { ok: p.weak ? 0 : 1, at: Date.now() };
+    M()[p.w] = { ok: p.weak ? 0 : 1, at: Date.now() };
     saveMaster();
     $('#wNote').textContent = cetNote(mt.won);
     drawMastery();
     return p.weak;
   }
   function drawMastery() {
-    var on = LIB.cur === 'cet4' && !!LIB.data;
+    var on = tracked() && libReady();
     $('#cetProg').hidden = !on;
     if (!on) return;
     var st = cetStats(), total = cetPool().length;
     $('#cetOk').textContent = st.ok;
     $('#cetTotal').textContent = total;
     $('#cetWeak').textContent = st.weak;
+    $('#cetUnit').textContent = LIB.cur === 'phr' ? '个短语' : '个词';
     $('#cetBar').style.width = (total ? st.ok / total * 100 : 0) + '%';
   }
   function cetNote(words) {
-    var nb = words.filter(function (p) { return p.weak; }).length, st = cetStats();
-    return (nb ? '虚线框的 ' + nb + ' 个词还不太熟，后面的关卡会再出现。' : '这关全部配对得很利落！') +
+    var nb = words.filter(function (p) { return p.weak; }).length, st = cetStats(), u = LIB.cur === 'phr' ? '个短语' : '个词';
+    return (nb ? '虚线框的 ' + nb + ' ' + u + '还不太熟，后面的关卡会再出现。' : '这关全部配对得很利落！') +
       '已认识 ' + st.ok + ' 个 · 待巩固 ' + st.weak + ' 个';
   }
   function grade(p, bad, last) {
-    if (LIB.cur !== 'cet4') return;
-    var m = MASTER[p.w];
+    if (!tracked()) return;
+    var MM = M(), m = MM[p.w];
     // the last pair on the board is matched by elimination, so it only counts when it went wrong
     if (last && !bad) { if (m) m.at = Date.now(); }
-    else MASTER[p.w] = { ok: bad ? 0 : 1, at: Date.now() };
+    else MM[p.w] = { ok: bad ? 0 : 1, at: Date.now() };
     saveMaster();
+  }
+  var phrReq = null;
+  function phrFetch() {
+    if (!phrReq) {
+      phrReq = fetch('cet4-phrases.json?v=1').then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }).then(function (arr) {
+        if (!LIB.phr) LIB.phr = arr.map(function (x) { return { w: x[0], zh: x[1], s: x[2], e: '', t: 'phr' }; });
+        return LIB.phr;
+      });
+      phrReq.catch(function () { phrReq = null; });
+    }
+    return phrReq;
   }
   var cetReq = null;
   function cetFetch() {
@@ -1002,7 +1053,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
     LIB.loading = true;
     $('#mtBoard').textContent = '';
     $('#mtTip').textContent = '正在加载四级词库……';
-    cetFetch().then(function () {
+    (LIB.cur === 'phr' ? phrFetch() : cetFetch()).then(function () {
       LIB.loading = false;
       fillRange();
       drawLib();
@@ -1033,7 +1084,9 @@ button.ls-w, button.ls-c { cursor: pointer; }
     $$('[data-lib]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.lib === LIB.cur ? 'true' : 'false'); });
     $('#cetRange').hidden = !cet;
     $('#cetNote').hidden = !cet;
-    $('#mtTip').textContent = cet
+    $('#mtTip').textContent = LIB.cur === 'phr'
+      ? '先点一个中文意思，再点它对应的英文短语，配对成功就消掉。配错、用提示或想了很久的短语会再出现。'
+      : cet
       ? '先点一个中文意思，再点它对应的英文单词，配对成功就消掉。配错、用提示或想了很久的词会记成「不太熟」，之后每关大约 6 成认识的词 + 4 成不太熟的词。'
       : '先点一张图片，再点它的单词，配对成功就消掉。连续配对对分数加倍。';
   }
@@ -1062,13 +1115,13 @@ button.ls-w, button.ls-c { cursor: pointer; }
     $('#mtCombo').textContent = mt.combo > 1 ? '×' + mt.combo : '—';
   }
   function mtNew() {
-    if (LIB.cur === 'cet4' && !LIB.data) { loadCet(); return; }
+    if (!libReady()) { loadCet(); return; }
     mt.timer.reset();
     mt.over = false; mt.busy = false; mt.sel = null; mt.combo = 0; mt.mistakes = 0; mt.began = false;
     mt.bad = {}; mt.mark = 0;
     mt.score = mt.base;
     var n = LV[Math.min(mt.level, LV.length) - 1];
-    mt.picks = LIB.cur === 'cet4' ? pickCet(n) : pick(n);
+    mt.picks = tracked() ? pickCet(n) : pick(n);
     preload(mt.picks);
     mt.left = mt.picks.length;
     mt.tiles = shuffle(mt.picks.reduce(function (a, p, i) {
@@ -1168,7 +1221,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
     var lvl = mt.level;
     saveProg(lvl + 1, mt.score);
     var note = '', words = mt.picks;
-    if (LIB.cur === 'cet4') {
+    if (tracked()) {
       words = mt.won = mt.picks.map(function (p) { return { w: p.w, zh: p.zh, weak: !!mt.bad[p.w] }; });
       note = cetNote(words);
     }
@@ -1178,7 +1231,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
       line: '得分 ' + mt.score + ' · 失误 ' + mt.mistakes + ' 次 · 用时 ' + fmt(sec),
       note: note,
       words: words,
-      onWord: LIB.cur === 'cet4' ? markWeak : null,
+      onWord: tracked() ? markWeak : null,
       primary: { label: '下一关', fn: function () { mt.level++; mt.base = mt.score; mtNew(); } },
       secondary: { label: '再玩本关', fn: mtNew }
     });
@@ -1682,8 +1735,168 @@ button.ls-w, button.ls-c { cursor: pointer; }
     earNew();
   }
 
+  /* ---------- game 5: collocation quick-answer ----------
+     Each phrase's example sentence has one word in [brackets]; that word is the blank. Distractors come
+     from the same kind of word (preposition/particle or common verb), with the phrase's meaning as a hint. */
+  var COL_N = 10, COL_SLOW = 10000;
+  var PARTS = ['in', 'on', 'at', 'with', 'for', 'to', 'of', 'from', 'about', 'by', 'into', 'as', 'up', 'out', 'off', 'over', 'down', 'away', 'back', 'after', 'through'];
+  var VERBS = ['make', 'take', 'do', 'have', 'get', 'give', 'put', 'keep', 'pay', 'set', 'come', 'go', 'bring', 'turn', 'catch', 'hold'];
+  var col = { level: 1, list: [], qi: 0, mistakes: 0, miss: {}, began: false, over: false, timer: null, asked: 0, answered: true, won: [] };
+  var COLM = loadMap('wg.col.mastery');
+  (function () { var lv = parseInt(store.get('wg.col.level'), 10); if (lv >= 1 && lv < 1000) col.level = lv; })();
+  function colSave() { store.set('wg.col.mastery', JSON.stringify(COLM)); }
+  function colPick(n) {
+    var weak = [], ok = [], seen = [], fresh = [];
+    shuffle(LIB.phr).forEach(function (p) {
+      var m = COLM[p.w];
+      if (m) (m.ok ? ok : weak).push(p);
+      else if (MASTERS.phr[p.w] && MASTERS.phr[p.w].ok) seen.push(p);
+      else fresh.push(p);
+    });
+    weak.sort(function (a, b) { return COLM[b.w].at - COLM[a.w].at; });
+    ok.sort(function (a, b) { return COLM[a.w].at - COLM[b.w].at; });
+    var nWeak = Math.round(n * WEAK_SHARE);
+    var out = weak.slice(0, nWeak).concat(ok.slice(0, 2));
+    out = out.concat(seen.concat(fresh, ok.slice(2), weak.slice(nWeak)).slice(0, n - out.length));
+    return shuffle(out);
+  }
+  function colStats() {
+    var ok = 0, weak = 0;
+    (LIB.phr || []).forEach(function (p) { var m = COLM[p.w]; if (m) { if (m.ok) ok++; else weak++; } });
+    return { ok: ok, weak: weak };
+  }
+  function updCol() {
+    var st = colStats(), total = (LIB.phr || []).length;
+    $('#colLevel').textContent = '第' + col.level + '关';
+    $('#colNum').textContent = Math.min(col.qi + 1, COL_N) + '/' + COL_N;
+    $('#colMiss').textContent = col.mistakes;
+    $('#colOk').textContent = st.ok;
+    $('#colTotal').textContent = total;
+    $('#colWeak').textContent = st.weak;
+    $('#colBar').style.width = (total ? st.ok / total * 100 : 0) + '%';
+  }
+  function colNew() {
+    col.timer.reset();
+    if (!LIB.phr) {
+      $('#colSent').textContent = '正在加载短语库……';
+      $('#colOpts').textContent = '';
+      phrFetch().then(colNew, function () { $('#colSent').textContent = '短语库没有加载成功，刷新页面后再试一次。'; });
+      return;
+    }
+    col.list = colPick(COL_N);
+    col.qi = 0; col.mistakes = 0; col.miss = {}; col.began = false; col.over = false;
+    colAsk();
+  }
+  function colParts(p) {
+    var m = /^(.*)\[([^\]]+)\](.*)$/.exec(p.s);
+    return { before: m[1], answer: m[2], after: m[3] };
+  }
+  function colAsk() {
+    var p = col.list[col.qi], x = colParts(p);
+    var low = x.answer.toLowerCase(), cap = x.answer !== low;
+    var pool = VERBS.indexOf(low) >= 0 ? VERBS : PARTS;
+    var opts = shuffle([low].concat(shuffle(pool.filter(function (w) { return w !== low; })).slice(0, 3)));
+    var sent = $('#colSent');
+    sent.textContent = '';
+    sent.appendChild(document.createTextNode(x.before));
+    var gap = document.createElement('span');
+    gap.className = 'col-gap';
+    gap.id = 'colGap';
+    gap.textContent = '___';
+    sent.appendChild(gap);
+    sent.appendChild(document.createTextNode(x.after));
+    $('#colHint').textContent = '提示：' + p.zh;
+    var box = $('#colOpts');
+    box.textContent = '';
+    opts.forEach(function (w) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ear-opt chunk col-opt';
+      b.textContent = cap ? w.charAt(0).toUpperCase() + w.slice(1) : w;
+      b.addEventListener('click', function () { colAnswer(b, w === low); });
+      if (w === low) box.dataset.right = String(box.children.length);
+      box.appendChild(b);
+    });
+    $('#colNext').textContent = '';
+    $('#colReveal').textContent = '';
+    col.answered = false;
+    col.asked = Date.now();
+    updCol();
+  }
+  function colAnswer(b, right) {
+    if (col.answered || col.over) return;
+    if (!col.began) { col.began = true; col.timer.start(); }
+    col.answered = true;
+    var p = col.list[col.qi], x = colParts(p);
+    $('#colOpts').children[+$('#colOpts').dataset.right].classList.add('right');
+    var gap = $('#colGap');
+    gap.textContent = x.answer;
+    gap.classList.add('filled');
+    if (right) {
+      if (Date.now() - col.asked > COL_SLOW) col.miss[p.w] = true;
+      sfx.match();
+    } else {
+      col.mistakes++;
+      col.miss[p.w] = true;
+      b.classList.add('wrong');
+      sfx.wrong();
+    }
+    COLM[p.w] = { ok: col.miss[p.w] ? 0 : 1, at: Date.now() };
+    colSave();
+    $('#colReveal').textContent = (right ? '对！' : '应该是 ' + x.answer + '。') + p.w + '：' + p.zh;
+    speak(p.s.replace(/[\[\]]/g, ''));
+    updCol();
+    var nx = document.createElement('button');
+    nx.type = 'button';
+    nx.className = 'btn chunk primary';
+    nx.textContent = col.qi === col.list.length - 1 ? '看本关结果' : '下一题';
+    nx.addEventListener('click', colNext);
+    $('#colNext').textContent = '';
+    $('#colNext').appendChild(nx);
+    if (right) setTimeout(function () { if (col.answered && $('#colNext').contains(nx)) colNext(); }, reduce ? 600 : 1600);
+  }
+  function colNext() {
+    if (col.over || !col.answered) return;
+    if (col.qi >= col.list.length - 1) { colWin(); return; }
+    col.qi++;
+    colAsk();
+  }
+  function colNote() {
+    var nb = col.won.filter(function (p) { return p.weak; }).length, st = colStats();
+    return (nb ? '虚线框的 ' + nb + ' 个搭配还不熟，后面的关卡会再出现。' : '这关搭配全对！') +
+      '已掌握 ' + st.ok + ' 个 · 待巩固 ' + st.weak + ' 个';
+  }
+  function colMark(p) {
+    p.weak = !(p.weak && p.tapped);
+    p.tapped = true;
+    COLM[p.w] = { ok: p.weak ? 0 : 1, at: Date.now() };
+    colSave();
+    $('#wNote').textContent = colNote();
+    updCol();
+    return p.weak;
+  }
+  function colWin() {
+    col.over = true;
+    var sec = col.timer.stop();
+    var stars = col.mistakes <= 1 ? 3 : (col.mistakes <= 3 ? 2 : 1);
+    var lvl = col.level;
+    store.set('wg.col.level', String(lvl + 1));
+    col.won = col.list.map(function (p) { return { w: p.w, zh: p.zh, weak: !!col.miss[p.w] }; });
+    showWin({
+      title: '第' + lvl + '关 通关！',
+      stars: stars,
+      line: '答错 ' + col.mistakes + ' 次 · 用时 ' + fmt(sec),
+      note: colNote(),
+      wordsTitle: '这局练的搭配（点一下听；虚线 = 再练，再点 = 掌握）',
+      words: col.won,
+      onWord: colMark,
+      primary: { label: '下一关', fn: function () { col.level++; colNew(); } },
+      secondary: { label: '再玩本关', fn: colNew }
+    });
+  }
+
   /* ---------- tabs, sound, boot ---------- */
-  var GAMES = { mem: ['Mem', function () { return mem; }], mt: ['Mt', function () { return mt; }], ls: ['Ls', function () { return ls; }], ear: ['Ear', function () { return ear; }] };
+  var GAMES = { mem: ['Mem', function () { return mem; }], mt: ['Mt', function () { return mt; }], ls: ['Ls', function () { return ls; }], ear: ['Ear', function () { return ear; }], col: ['Col', function () { return col; }] };
   function setTab(t) {
     var prev = state.tab;
     state.tab = t;
@@ -1692,6 +1905,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
       $('#panel' + GAMES[k][0]).hidden = k !== t;
     });
     if (t === 'ear' && !ear.list.length) earNew();
+    if (t === 'col' && !col.list.length) colNew();
     if (prev !== t) {
       GAMES[prev][1]().timer.pause();
       var cur = GAMES[t][1]();
@@ -1709,6 +1923,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
     mt.timer = makeTimer($('#mtTime'));
     ls.timer = makeTimer($('#lsTime'));
     ear.timer = makeTimer($('#earTime'));
+    col.timer = makeTimer($('#colTime'));
     earLoad();
     if (d && DIFF[d.diff]) mem.diff = d.diff;
     $$('[data-diff]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.diff === mem.diff ? 'true' : 'false'); });
@@ -1729,6 +1944,13 @@ button.ls-w, button.ls-c { cursor: pointer; }
     $('#tabMt').addEventListener('click', function () { setTab('mt'); });
     $('#tabLs').addEventListener('click', function () { setTab('ls'); });
     $('#tabEar').addEventListener('click', function () { setTab('ear'); });
+    $('#tabCol').addEventListener('click', function () { setTab('col'); });
+    $('#colReset').addEventListener('click', colNew);
+    $('#colRestart').addEventListener('click', function () {
+      store.set('wg.col.level', '1');
+      col.level = 1;
+      colNew();
+    });
     $('#earPlay').addEventListener('click', earPlay);
     $('#earReset').addEventListener('click', earNew);
     $('#earRestart').addEventListener('click', function () {
