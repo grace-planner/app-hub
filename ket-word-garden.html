@@ -94,6 +94,9 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
 .voice label { font-family: var(--font-display); font-weight: 600; font-size: 17px; }
 .voice select { width: 100%; min-width: 0; font: inherit; font-size: 16px; color: var(--ink); background: var(--word-bg); border: 3px solid var(--line); border-radius: 12px; padding: 10px 12px; }
 .voice .btn { justify-self: start; }
+.voice input { width: 100%; min-width: 0; font: inherit; font-size: 16px; color: var(--ink); background: var(--word-bg); border: 3px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.sync-row { display: flex; gap: 8px; }
+.sync-row .btn { flex: none; }
 .voice-note { margin: 0; font-size: 13px; color: var(--ink-soft); }
 
 .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 18px; }
@@ -262,6 +265,12 @@ button.ls-w, button.ls-c { cursor: pointer; }
     <select id="voiceSel"></select>
     <button class="btn chunk" type="button" id="voiceTest">试听 apple</button>
     <p class="voice-note" id="voiceNote"></p>
+    <label for="syncKey">进度同步口令</label>
+    <div class="sync-row">
+      <input id="syncKey" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="自己想一个，至少 6 个字">
+      <button class="btn chunk" type="button" id="syncBtn">开启同步</button>
+    </div>
+    <p class="voice-note" id="syncNote">每台设备填同一个口令，进度会自动同步。</p>
   </section>
 
   <div class="tabs" role="tablist" aria-label="选择游戏">
@@ -454,8 +463,91 @@ button.ls-w, button.ls-c { cursor: pointer; }
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
-    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+    set: function (k, v) {
+      try { localStorage.setItem(k, v); } catch (e) {}
+      if (k.indexOf('wg.sync.') !== 0) touch(k);
+    }
   };
+
+  /* ---------- cross-device sync (Aliyun Function Compute + OSS, see sync/game-progress.js) ----------
+     Every wg.* key carries a last-changed time; a sync merges both sides key by key (newer wins),
+     and the two mastery maps word by word, so playing on two devices never loses progress. */
+  var SYNC_URL = 'https://word-gaden-sync-mhzretymko.cn-hangzhou.fcapp.run';
+  var MAPS = { 'wg.cet4.mastery': 1, 'wg.ls.mastery': 1 };
+  var sync = { key: store.get('wg.sync.key') || '', timer: 0, busy: false, again: false };
+  function rawGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function rawSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function mtimes() { try { return JSON.parse(rawGet('wg.sync.mtime') || '{}') || {}; } catch (e) { return {}; } }
+  function touch(k) {
+    var m = mtimes();
+    m[k] = Date.now();
+    rawSet('wg.sync.mtime', JSON.stringify(m));
+    if (sync.key && SYNC_URL) { clearTimeout(sync.timer); sync.timer = setTimeout(syncNow, 3000); }
+  }
+  function snapshot() {
+    var keys = {};
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k.indexOf('wg.') === 0 && k.indexOf('wg.sync.') !== 0) keys[k] = localStorage.getItem(k);
+      }
+    } catch (e) {}
+    return { keys: keys, mtime: mtimes() };
+  }
+  function parseMap(v) { try { return JSON.parse(v || '{}') || {}; } catch (e) { return {}; } }
+  function mergeSnap(a, b) {
+    var out = { keys: {}, mtime: {} }, seen = {};
+    Object.keys(a.keys).concat(Object.keys(b.keys)).forEach(function (k) {
+      if (seen[k]) return;
+      seen[k] = 1;
+      var ta = a.mtime[k] || 0, tb = b.mtime[k] || 0;
+      out.mtime[k] = Math.max(ta, tb);
+      if (!(k in b.keys)) { out.keys[k] = a.keys[k]; return; }
+      if (!(k in a.keys)) { out.keys[k] = b.keys[k]; return; }
+      if (MAPS[k]) {
+        var ma = parseMap(a.keys[k]), mb = parseMap(b.keys[k]);
+        Object.keys(mb).forEach(function (w) { if (!ma[w] || (mb[w].at || 0) > (ma[w].at || 0)) ma[w] = mb[w]; });
+        out.keys[k] = JSON.stringify(ma);
+        return;
+      }
+      out.keys[k] = tb > ta ? b.keys[k] : a.keys[k];
+    });
+    return out;
+  }
+  function syncCall(body) {
+    body.key = sync.key;
+    return fetch(SYNC_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || ('http ' + r.status)); return j; }); });
+  }
+  function syncNote(t) { var n = document.querySelector('#syncNote'); if (n) n.textContent = t; }
+  function syncNow(first) {
+    if (!sync.key || !SYNC_URL) return;
+    if (sync.busy) { sync.again = true; return; }
+    sync.busy = true;
+    clearTimeout(sync.timer);
+    syncNote('同步中……');
+    var local = snapshot(), merged, changed = false;
+    syncCall({ action: 'load' }).then(function (res) {
+      var remote = res.data && res.data.keys ? res.data : { keys: {}, mtime: {} };
+      merged = mergeSnap(local, remote);
+      Object.keys(merged.keys).forEach(function (k) {
+        if (rawGet(k) !== merged.keys[k]) { rawSet(k, merged.keys[k]); changed = true; }
+      });
+      rawSet('wg.sync.mtime', JSON.stringify(merged.mtime));
+      if (JSON.stringify(merged) === JSON.stringify(remote)) return null;
+      return syncCall({ action: 'save', data: merged });
+    }).then(function () {
+      var d = new Date();
+      syncNote('已同步 · ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'));
+      // another device had newer progress: reload once so every game picks it up
+      if (changed && first) location.reload();
+    }).catch(function (e) {
+      syncNote('同步失败（' + e.message + '），玩的时候会自动重试。');
+    }).then(function () {
+      sync.busy = false;
+      if (sync.again) { sync.again = false; syncNow(); }
+    });
+  }
   var state = { tab: 'mem', sound: store.get('wg.sound') !== '0', topic: store.get('wg.topic') || '' };
   if (!TOPICS.some(function (t) { return t.k === state.topic; })) state.topic = '';
   var LIB = { cur: store.get('wg.mtlib') === 'cet4' ? 'cet4' : 'ket', range: store.get('wg.cetrange') || 'all', data: null, loading: false };
@@ -1424,6 +1516,17 @@ button.ls-w, button.ls-c { cursor: pointer; }
       speak('apple', true);
     });
     $('#voiceTest').addEventListener('click', function () { speak('apple', true); });
+    $('#syncKey').value = sync.key;
+    if (sync.key) $('#syncBtn').textContent = '更换口令';
+    $('#syncBtn').addEventListener('click', function () {
+      var k = $('#syncKey').value.trim();
+      if (k.length < 6) { syncNote('口令至少要 6 个字。'); return; }
+      sync.key = k;
+      rawSet('wg.sync.key', k);
+      $('#syncBtn').textContent = '更换口令';
+      syncNow(true);
+    });
+    syncNow(true);
     try {
       if (window.speechSynthesis) window.speechSynthesis.addEventListener('voiceschanged', function () { fillVoices(); });
     } catch (e) {}
