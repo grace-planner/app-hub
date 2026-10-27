@@ -99,8 +99,9 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
 .sync-row .btn { flex: none; }
 .voice-note { margin: 0; font-size: 13px; color: var(--ink-soft); }
 
-.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 18px; }
-.tab { font-family: var(--font-display); font-weight: 600; font-size: clamp(14px, 4vw, 17px); padding: 11px 4px; border-radius: 14px; }
+.tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 18px; }
+.tab { font-family: var(--font-display); font-weight: 600; font-size: clamp(13px, 3.5vw, 17px); padding: 11px 2px; border-radius: 14px; white-space: nowrap; }
+@media (max-width: 360px) { .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .tab[aria-selected="true"] { background: var(--coral); color: var(--on-accent); }
 
 .controls { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -140,6 +141,17 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-h
 .face.front.kind-word { background: var(--word-bg); }
 .card.matched .face.front { background: var(--good-bg); border-color: var(--teal); }
 
+/* listening game */
+.ear-card { border: 3px solid var(--line); border-radius: 16px; background: var(--surface); padding: 16px 14px; box-shadow: 0 4px 0 var(--shadow); text-align: center; }
+.ear-play { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 600; font-size: 19px; padding: 14px 26px; border-radius: 999px; background: var(--sun); color: var(--on-accent); }
+.ear-reveal { min-height: 1.5em; margin: 12px 0 0; font-size: 16px; color: var(--ink-soft); }
+.ear-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.ear-opt { min-height: 76px; padding: 10px 8px; border-radius: 16px; font-family: var(--font-display); font-weight: 600; font-size: clamp(15px, 4.4vw, 19px); line-height: 1.3; overflow-wrap: anywhere; }
+.ear-opts.pics .ear-opt { font-size: clamp(34px, 10vw, 50px); }
+.ear-opt.right { background: var(--good-bg); border-color: var(--teal); }
+.ear-opt.wrong { background: var(--coral); color: var(--on-accent); animation: shake 0.35s; }
+.ear-next:empty { display: none; }
+.ear-next { margin-top: 14px; }
 /* long-sentence game */
 .ls-card { border: 3px solid var(--line); border-radius: 16px; background: var(--surface); padding: 14px 14px 16px; box-shadow: 0 4px 0 var(--shadow); }
 .ls-step { margin: 0 0 8px; font-family: var(--font-display); font-weight: 600; font-size: 16px; }
@@ -238,7 +250,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
       <span class="sticker" aria-hidden="true">ABC</span>
       <div>
         <h1>英语乐园</h1>
-        <p class="sub">翻牌 · 消消乐 · 长难句</p>
+        <p class="sub">翻牌 · 消消乐 · 长难句 · 听音</p>
       </div>
     </div>
     <div class="tools">
@@ -277,6 +289,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
     <button class="tab chunk" role="tab" id="tabMem" type="button" aria-selected="true" aria-controls="panelMem">翻牌记忆</button>
     <button class="tab chunk" role="tab" id="tabMt" type="button" aria-selected="false" aria-controls="panelMt">单词消消乐</button>
     <button class="tab chunk" role="tab" id="tabLs" type="button" aria-selected="false" aria-controls="panelLs">拆长难句</button>
+    <button class="tab chunk" role="tab" id="tabEar" type="button" aria-selected="false" aria-controls="panelEar">听音消消乐</button>
   </div>
 
   <section id="panelMem" role="tabpanel" aria-labelledby="tabMem">
@@ -346,6 +359,36 @@ button.ls-w, button.ls-c { cursor: pointer; }
     <div class="foot">
       <button class="btn chunk" type="button" id="lsReset">重玩本关</button>
       <button class="btn chunk" type="button" id="lsRestart">回到第1关</button>
+    </div>
+  </section>
+  <section id="panelEar" role="tabpanel" aria-labelledby="tabEar" hidden>
+    <div class="controls" role="group" aria-label="词库">
+      <button class="chip chunk" type="button" data-ear="ket" aria-pressed="true">KET · 真人录音</button>
+      <button class="chip chunk" type="button" data-ear="cet4" aria-pressed="false">四级 · 设备朗读</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>关卡</span><b id="earLevel">第1关</b></div>
+      <div class="stat"><span>题目</span><b id="earNum">1/10</b></div>
+      <div class="stat"><span>答错</span><b id="earMiss">0</b></div>
+      <div class="stat"><span>用时</span><b id="earTime">00:00</b></div>
+    </div>
+    <div class="mastery">
+      <div class="mastery-row"><span>听得懂 <b id="earOk">0</b> / <span id="earTotal">0</span> 个词</span><span>待巩固 <b id="earWeak">0</b></span></div>
+      <div class="mastery-bar" aria-hidden="true"><i id="earBar"></i></div>
+    </div>
+    <p class="tip">只听读音，不看英文，点出它的意思。听不清就再点喇叭。答错或想了很久的词会再出现。</p>
+    <div class="ear-card">
+      <button class="ear-play chunk" type="button" id="earPlay">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor"/><path d="M15.5 9a4 4 0 010 6M18 6.5a8 8 0 010 11"/></svg>
+        <span id="earPlayTxt">开始听</span>
+      </button>
+      <p class="ear-reveal" id="earReveal" aria-live="polite"></p>
+      <div class="ear-opts" id="earOpts"></div>
+      <div class="ear-next" id="earNext"></div>
+    </div>
+    <div class="foot">
+      <button class="btn chunk" type="button" id="earReset">重玩本关</button>
+      <button class="btn chunk" type="button" id="earRestart">回到第1关</button>
     </div>
   </section>
 </main>
@@ -473,7 +516,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
      Every wg.* key carries a last-changed time; a sync merges both sides key by key (newer wins),
      and the two mastery maps word by word, so playing on two devices never loses progress. */
   var SYNC_URL = 'https://word-gaden-sync-mhzretymko.cn-hangzhou.fcapp.run';
-  var MAPS = { 'wg.cet4.mastery': 1, 'wg.ls.mastery': 1 };
+  var MAPS = { 'wg.cet4.mastery': 1, 'wg.ls.mastery': 1, 'wg.ear.ket': 1, 'wg.ear.cet4': 1 };
   var sync = { key: store.get('wg.sync.key') || '', timer: 0, busy: false, again: false };
   function rawGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function rawSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -943,13 +986,23 @@ button.ls-w, button.ls-c { cursor: pointer; }
     else MASTER[p.w] = { ok: bad ? 0 : 1, at: Date.now() };
     saveMaster();
   }
+  var cetReq = null;
+  function cetFetch() {
+    if (!cetReq) {
+      cetReq = fetch('cet4-words.json?v=2').then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }).then(function (arr) {
+        if (!LIB.data) LIB.data = arr.map(function (x) { return { w: x[0], zh: x[1], e: '', t: 'cet4' }; });
+        return LIB.data;
+      });
+      cetReq.catch(function () { cetReq = null; });
+    }
+    return cetReq;
+  }
   function loadCet() {
     if (LIB.loading) return;
     LIB.loading = true;
     $('#mtBoard').textContent = '';
     $('#mtTip').textContent = '正在加载四级词库……';
-    fetch('cet4-words.json?v=2').then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }).then(function (arr) {
-      LIB.data = arr.map(function (x) { return { w: x[0], zh: x[1], e: '', t: 'cet4' }; });
+    cetFetch().then(function () {
       LIB.loading = false;
       fillRange();
       drawLib();
@@ -1441,8 +1494,196 @@ button.ls-w, button.ls-c { cursor: pointer; }
     });
   }
 
+  /* ---------- game 4: listening ----------
+     Hear a word, tap its meaning. Familiarity is kept apart from reading (wg.ear.<lib>), and new
+     CET-4 words that are already known by sight come first: "认识但听不出" is the gap this closes. */
+  var EAR_N = 10, EAR_SLOW = 10000;
+  var ear = { lib: store.get('wg.ear.lib') === 'cet4' ? 'cet4' : 'ket', level: 1, list: [], qi: -1, mistakes: 0, miss: {}, began: false, over: false, timer: null, asked: 0, answered: true, won: [] };
+  var EARM = {};
+  function earKey() { return 'wg.ear.' + ear.lib; }
+  function earLoad() {
+    try { EARM = JSON.parse(store.get(earKey()) || '{}') || {}; } catch (e) { EARM = {}; }
+    var lv = parseInt(store.get('wg.ear.level.' + ear.lib), 10);
+    ear.level = lv >= 1 && lv < 1000 ? lv : 1;
+  }
+  function earSave() { store.set(earKey(), JSON.stringify(EARM)); }
+  function earPool() { return ear.lib === 'cet4' ? (LIB.data || []) : pool(); }
+  function earFace(p) { return ear.lib === 'cet4' ? p.zh : p.e; }
+  function earPick(n) {
+    var weak = [], ok = [], seen = [], fresh = [], used = {}, out = [];
+    shuffle(earPool()).forEach(function (p) {
+      var m = EARM[p.w];
+      if (m) (m.ok ? ok : weak).push(p);
+      else if (ear.lib === 'cet4' && MASTER[p.w] && MASTER[p.w].ok) seen.push(p);
+      else fresh.push(p);
+    });
+    weak.sort(function (a, b) { return EARM[b.w].at - EARM[a.w].at; });
+    ok.sort(function (a, b) { return EARM[a.w].at - EARM[b.w].at; });
+    function take(list, k) {
+      for (var i = 0; i < list.length && k > 0; i++) {
+        var f = earFace(list[i]);
+        if (used[f]) continue;
+        used[f] = true; out.push(list[i]); k--;
+      }
+    }
+    take(weak, Math.round(n * WEAK_SHARE));
+    take(ok, 2);
+    take(seen.concat(fresh), n - out.length);
+    take(ok.concat(weak), n - out.length);
+    return shuffle(out);
+  }
+  function earStats() {
+    var ok = 0, weak = 0;
+    earPool().forEach(function (p) { var m = EARM[p.w]; if (m) { if (m.ok) ok++; else weak++; } });
+    return { ok: ok, weak: weak };
+  }
+  function updEar() {
+    var st = earStats(), total = earPool().length;
+    $('#earLevel').textContent = '第' + ear.level + '关';
+    $('#earNum').textContent = Math.max(1, Math.min(ear.qi + 1, EAR_N)) + '/' + EAR_N;
+    $('#earMiss').textContent = ear.mistakes;
+    $('#earOk').textContent = st.ok;
+    $('#earTotal').textContent = total;
+    $('#earWeak').textContent = st.weak;
+    $('#earBar').style.width = (total ? st.ok / total * 100 : 0) + '%';
+    $$('[data-ear]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.ear === ear.lib ? 'true' : 'false'); });
+  }
+  function earNew() {
+    ear.timer.reset();
+    if (ear.lib === 'cet4' && !LIB.data) {
+      $('#earOpts').textContent = '';
+      $('#earReveal').textContent = '正在加载四级词库……';
+      cetFetch().then(earNew, function () { $('#earReveal').textContent = '四级词库没有加载成功，刷新页面后再试一次。'; });
+      return;
+    }
+    ear.list = earPick(EAR_N);
+    ear.qi = -1; ear.mistakes = 0; ear.miss = {}; ear.began = false; ear.over = false; ear.answered = true;
+    $('#earOpts').textContent = '';
+    $('#earNext').textContent = '';
+    $('#earReveal').textContent = '点上面的喇叭开始，会读出一个单词。';
+    $('#earPlayTxt').textContent = '开始听';
+    updEar();
+  }
+  function earSay() { var p = ear.list[ear.qi]; if (p) speak(p.w, true); }
+  function earPlay() {
+    if (ear.over) return;
+    if (ear.qi < 0) {
+      ear.began = true;
+      ear.timer.start();
+      ear.qi = 0;
+      $('#earPlayTxt').textContent = '再听一遍';
+      earAsk();
+      return;
+    }
+    earSay();
+  }
+  function earAsk() {
+    var p = ear.list[ear.qi], face = earFace(p), used = {};
+    used[face] = true;
+    var others = [];
+    shuffle(earPool()).some(function (x) {
+      var f = earFace(x);
+      if (!used[f]) { used[f] = true; others.push(x); }
+      return others.length >= 3;
+    });
+    var box = $('#earOpts');
+    box.textContent = '';
+    box.className = 'ear-opts' + (ear.lib === 'ket' ? ' pics' : '');
+    shuffle([p].concat(others)).forEach(function (x) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ear-opt chunk';
+      b.textContent = earFace(x);
+      b.setAttribute('aria-label', x.zh);
+      b.addEventListener('click', function () { earAnswer(b, x === p); });
+      if (x === p) box.dataset.right = String(box.children.length);
+      box.appendChild(b);
+    });
+    $('#earNext').textContent = '';
+    $('#earReveal').textContent = '听到的是哪个意思？';
+    ear.answered = false;
+    ear.asked = Date.now();
+    earSay();
+    updEar();
+  }
+  function earAnswer(b, right) {
+    if (ear.answered || ear.over) return;
+    ear.answered = true;
+    var p = ear.list[ear.qi];
+    var rightBtn = $('#earOpts').children[+$('#earOpts').dataset.right];
+    rightBtn.classList.add('right');
+    if (right) {
+      if (Date.now() - ear.asked > EAR_SLOW) ear.miss[p.w] = true;
+      sfx.match();
+    } else {
+      ear.mistakes++;
+      ear.miss[p.w] = true;
+      b.classList.add('wrong');
+      sfx.wrong();
+    }
+    EARM[p.w] = { ok: ear.miss[p.w] ? 0 : 1, at: Date.now() };
+    earSave();
+    $('#earReveal').textContent = (right ? '对！' : '是这个：') + p.w + ' · ' + p.zh;
+    updEar();
+    if (right) { setTimeout(earNext, reduce ? 300 : 1100); return; }
+    var nx = document.createElement('button');
+    nx.type = 'button';
+    nx.className = 'btn chunk primary';
+    nx.textContent = ear.qi === ear.list.length - 1 ? '看本关结果' : '下一题';
+    nx.addEventListener('click', earNext);
+    $('#earNext').textContent = '';
+    $('#earNext').appendChild(nx);
+  }
+  function earNext() {
+    if (ear.over || ear.qi < 0) return;
+    if (ear.qi >= ear.list.length - 1) { earWin(); return; }
+    ear.qi++;
+    earAsk();
+  }
+  function earNote() {
+    var nb = ear.won.filter(function (p) { return p.weak; }).length, st = earStats();
+    return (nb ? '虚线框的 ' + nb + ' 个词还没听出来，后面的关卡会再出现。' : '这关全部一听就懂！') +
+      '听得懂 ' + st.ok + ' 个 · 待巩固 ' + st.weak + ' 个';
+  }
+  function earMark(p) {
+    p.weak = !(p.weak && p.tapped);
+    p.tapped = true;
+    EARM[p.w] = { ok: p.weak ? 0 : 1, at: Date.now() };
+    earSave();
+    $('#wNote').textContent = earNote();
+    updEar();
+    return p.weak;
+  }
+  function earWin() {
+    ear.over = true;
+    var sec = ear.timer.stop();
+    var stars = ear.mistakes <= 1 ? 3 : (ear.mistakes <= 3 ? 2 : 1);
+    var lvl = ear.level;
+    store.set('wg.ear.level.' + ear.lib, String(lvl + 1));
+    ear.won = ear.list.map(function (p) { return { w: p.w, zh: p.zh, weak: !!ear.miss[p.w] }; });
+    showWin({
+      title: '第' + lvl + '关 通关！',
+      stars: stars,
+      line: '答错 ' + ear.mistakes + ' 次 · 用时 ' + fmt(sec),
+      note: earNote(),
+      wordsTitle: '这局听过的单词（点一下再听；虚线 = 再练，再点 = 听懂了）',
+      words: ear.won,
+      say: function (w) { speak(w, true); },
+      onWord: earMark,
+      primary: { label: '下一关', fn: function () { ear.level++; earNew(); } },
+      secondary: { label: '再玩本关', fn: earNew }
+    });
+  }
+  function setEarLib(lib) {
+    if (ear.lib === lib) return;
+    ear.lib = lib;
+    store.set('wg.ear.lib', lib);
+    earLoad();
+    earNew();
+  }
+
   /* ---------- tabs, sound, boot ---------- */
-  var GAMES = { mem: ['Mem', function () { return mem; }], mt: ['Mt', function () { return mt; }], ls: ['Ls', function () { return ls; }] };
+  var GAMES = { mem: ['Mem', function () { return mem; }], mt: ['Mt', function () { return mt; }], ls: ['Ls', function () { return ls; }], ear: ['Ear', function () { return ear; }] };
   function setTab(t) {
     var prev = state.tab;
     state.tab = t;
@@ -1450,6 +1691,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
       $('#tab' + GAMES[k][0]).setAttribute('aria-selected', k === t ? 'true' : 'false');
       $('#panel' + GAMES[k][0]).hidden = k !== t;
     });
+    if (t === 'ear' && !ear.list.length) earNew();
     if (prev !== t) {
       GAMES[prev][1]().timer.pause();
       var cur = GAMES[t][1]();
@@ -1466,6 +1708,8 @@ button.ls-w, button.ls-c { cursor: pointer; }
     mem.timer = makeTimer($('#memTime'));
     mt.timer = makeTimer($('#mtTime'));
     ls.timer = makeTimer($('#lsTime'));
+    ear.timer = makeTimer($('#earTime'));
+    earLoad();
     if (d && DIFF[d.diff]) mem.diff = d.diff;
     $$('[data-diff]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.diff === mem.diff ? 'true' : 'false'); });
 
@@ -1484,6 +1728,15 @@ button.ls-w, button.ls-c { cursor: pointer; }
     $('#tabMem').addEventListener('click', function () { setTab('mem'); });
     $('#tabMt').addEventListener('click', function () { setTab('mt'); });
     $('#tabLs').addEventListener('click', function () { setTab('ls'); });
+    $('#tabEar').addEventListener('click', function () { setTab('ear'); });
+    $('#earPlay').addEventListener('click', earPlay);
+    $('#earReset').addEventListener('click', earNew);
+    $('#earRestart').addEventListener('click', function () {
+      store.set('wg.ear.level.' + ear.lib, '1');
+      ear.level = 1;
+      earNew();
+    });
+    $$('[data-ear]').forEach(function (b) { b.addEventListener('click', function () { setEarLib(b.dataset.ear); }); });
     $('#lsSent').addEventListener('click', function (e) {
       var b = e.target.closest('button');
       if (b) lsTap(b);
