@@ -326,7 +326,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
         <button class="chip chunk" type="button" data-lib="phr" aria-pressed="false">四级 · 短语</button>
       </div>
       <select id="cetRange" aria-label="四级词汇范围" hidden></select>
-      <p class="voice-note" id="cetNote" hidden>四级词表整理自 KyleBing/english-vocabulary（BSD-3-Clause），中文释义经过逐词校对。四级单词没有录好的声音，会用设备自带的英语声音朗读，可以在右上角的设置里换声音。</p>
+      <p class="voice-note" id="cetNote" hidden>四级词表整理自 KyleBing/english-vocabulary（BSD-3-Clause），中文释义经过逐词校对。四级单词也有录好的自然发音；如果某个词的录音没加载出来，会改用设备自带的英语声音朗读，可以在右上角的设置里换声音。</p>
     </div>
     <div class="stats">
       <div class="stat"><span>关卡</span><b id="mtLevel">第1关</b></div>
@@ -672,24 +672,26 @@ button.ls-w, button.ls-c { cursor: pointer; }
   var voice = { list: [], uri: store.get('wg.voice') || CLIP, built: -1 };
   var clips = {};
   var nowClip = null;
+  var CETSET = {};
+  function hasClip(word) { return KETSET[word] || CETSET[word]; }
   function clipFor(word) {
     var a = clips[word];
     if (!a) {
-      a = new Audio('ket-audio/' + word + '.mp3?v=5');
+      a = new Audio(KETSET[word] ? 'ket-audio/' + word + '.mp3?v=5' : 'cet4-audio/' + encodeURIComponent(word) + '.mp3?v=1');
       a.preload = 'auto';
       a.addEventListener('error', function () { a.bad = true; });
       clips[word] = a;
     }
     return a;
   }
-  function preload(list) { list.forEach(function (p) { if (KETSET[p.w]) clipFor(p.w); }); }
+  function preload(list) { list.forEach(function (p) { if (hasClip(p.w)) clipFor(p.w); }); }
   function stopSpeech() {
     try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
     if (nowClip) { try { nowClip.pause(); nowClip.currentTime = 0; } catch (e) {} nowClip = null; }
   }
   function playClip(word) {
     return new Promise(function (resolve) {
-      if (!KETSET[word]) { resolve(false); return; }
+      if (!hasClip(word)) { resolve(false); return; }
       var a = clipFor(word);
       if (a.bad) { resolve(false); return; }
       try {
@@ -1041,7 +1043,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
   function cetFetch() {
     if (!cetReq) {
       cetReq = fetch('cet4-words.json?v=2').then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }).then(function (arr) {
-        if (!LIB.data) LIB.data = arr.map(function (x) { return { w: x[0], zh: x[1], e: '', t: 'cet4' }; });
+        if (!LIB.data) LIB.data = arr.map(function (x) { CETSET[x[0]] = true; return { w: x[0], zh: x[1], e: '', t: 'cet4' }; });
         return LIB.data;
       });
       cetReq.catch(function () { cetReq = null; });
