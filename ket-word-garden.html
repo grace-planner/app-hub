@@ -677,7 +677,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
   function clipFor(word) {
     var a = clips[word];
     if (!a) {
-      a = new Audio(KETSET[word] ? 'ket-audio/' + word + '.mp3?v=5' : 'cet4-audio/' + encodeURIComponent(word) + '.mp3?v=1');
+      a = new Audio(KETSET[word] ? 'ket-audio/' + word + '.mp3?v=5' : 'cet4-audio/' + encodeURIComponent(word) + '.mp3?v=2');
       a.preload = 'auto';
       a.addEventListener('error', function () { a.bad = true; });
       clips[word] = a;
