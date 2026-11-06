@@ -670,6 +670,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
   };
   var CLIP = '__clip';
   var voice = { list: [], uri: store.get('wg.voice') || CLIP, built: -1 };
+  var REPAIRED_CLIPS = {"beside":"cet4-audio-repaired/beside-3f44feea279e.wav","brook":"cet4-audio-repaired/brook-93d9ee91dedc.wav","cater":"cet4-audio-repaired/cater-a880c672e767.wav","cell":"cet4-audio-repaired/cell-a9fd23c49157.wav","centimetre":"cet4-audio-repaired/centimetre-d8e0e002fda3.wav","chalk":"cet4-audio-repaired/chalk-879d0aacd217.wav","chap":"cet4-audio-repaired/chap-0c1a5e5390c0.wav","chess":"cet4-audio-repaired/chess-c168110921bf.wav","cigar":"cet4-audio-repaired/cigar-51bad3c7841a.wav","complement":"cet4-audio-repaired/complement-155c9eeaab79.wav","comprise":"cet4-audio-repaired/comprise-3e3174ee638e.wav","concern":"cet4-audio-repaired/concern-f710c5fd0fe2.wav","consume":"cet4-audio-repaired/consume-fc97e5bb7434.wav","depth":"cet4-audio-repaired/depth-8f1979e97d7a.wav","dilemma":"cet4-audio-repaired/dilemma-29397f1bb090.wav","downfall":"cet4-audio-repaired/downfall-84c465dd6e2d.wav","drawer":"cet4-audio-repaired/drawer-8bf4fd622238.wav","four":"cet4-audio-repaired/four-198fa3533d48.wav","kitchen":"cet4-audio-repaired/kitchen-5204b047c3a3.wav","mistake":"cet4-audio-repaired/mistake-ed9ca10d42b1.wav","plural":"cet4-audio-repaired/plural-558869843d9a.wav","recycle":"cet4-audio-repaired/recycle-8bcfd4733282.wav","section":"cet4-audio-repaired/section-9a6756a671db.wav","solar":"cet4-audio-repaired/solar-0e6e6ffc7b2b.wav","sole":"cet4-audio-repaired/sole-090a8845dac2.wav","submit":"cet4-audio-repaired/submit-f1fab324b327.wav","tag":"cet4-audio-repaired/tag-eb79d9b7b611.wav","terminal":"cet4-audio-repaired/terminal-689f7b2ab791.wav","transform":"cet4-audio-repaired/transform-7e38f8844e2f.wav"};
   var clips = {};
   var nowClip = null;
   var CETSET = {};
@@ -677,7 +678,7 @@ button.ls-w, button.ls-c { cursor: pointer; }
   function clipFor(word) {
     var a = clips[word];
     if (!a) {
-      a = new Audio(KETSET[word] ? 'ket-audio/' + word + '.mp3?v=5' : 'cet4-audio/' + encodeURIComponent(word) + '.mp3?v=2');
+      a = new Audio(REPAIRED_CLIPS[word] || (KETSET[word] ? 'ket-audio/' + word + '.mp3?v=5' : 'cet4-audio/' + encodeURIComponent(word) + '.mp3?v=2'));
       a.preload = 'auto';
       a.addEventListener('error', function () { a.bad = true; });
       clips[word] = a;
@@ -2055,3 +2056,4 @@ button.ls-w, button.ls-c { cursor: pointer; }
 </script>
 </body>
 </html>
+
