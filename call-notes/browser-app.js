@@ -62,9 +62,11 @@ function validateBackup(raw){
     if(row.status!=='invalid'&&!row.meta)throw Error('备份缺少通话信息');if(row.draft)validateDraft(row.draft);if(['ready','done','review','awaiting_link','uncertain','writing'].includes(row.status)&&!row.draft)throw Error('备份缺少草稿');
     if(row.recordId!=null&&(typeof row.recordId!=='string'||row.recordId.length>200))throw Error('备份客户标识无效');
     const i=JSON.parse(JSON.stringify(row));delete i.file;delete i.audioCache;i.selectedItem=false;i.selectedAnalysis=false;i.selectedSave=false;
+    if(i.meta)i.meta=parseName(i.filename);
     if(i.status==='writing'){i.status='uncertain';i.message='备份时写入中断，需在飞书核对后恢复';}if(i.status==='processing'){i.status='error';i.message='备份时处理中断，请重新导入原始录音后重试';}return i;
   });
 }
 $('import-backup').onclick=async()=>{try{idle();const [file]=await chooseFile('.json');if(!file)return;if(file.size>100*1024*1024)throw Error('备份文件过大');const incoming=validateBackup(JSON.parse(await file.text()));idle();const existingIds=new Set(queue.items.map(i=>i.id)),fresh=incoming.filter(i=>!existingIds.has(i.id));if(!confirm(`从备份合并 ${fresh.length} 条新记录？\n本地已有的同一录音记录保持原样。备份不含录音和密钥；需要分析时请重新导入原始录音。`))return;const items=[...queue.items,...fresh];await set('queue',items);queue.items=items;publish();await storageStatus();$('notice').textContent=`已恢复 ${fresh.length} 条记录。相同录音的本地记录未覆盖；分析前请重新导入原始录音。`;}catch(e){showError(e);}};
 $('persist-storage').onclick=async()=>{try{idle();const ok=await navigator.storage?.persist?.();await storageStatus();if(!ok)alert('浏览器尚未授予持久存储保护。可正常使用，请定期导出备份；手动清除网站数据仍会删除记录。');}catch(e){showError(e);}};
 await import('./renderer.js');
+try{await initialized;document.body.inert=false;}catch{}
