@@ -82,6 +82,7 @@ $('clean-archive').onclick=action(async()=>{const n=await call('clean-archive-fi
 $('empty-trash').onclick=action(async()=>{const n=await call('clear-trash');if(n)notice(`已永久清空回收站中的 ${n} 项。`);});
 $('open-settings').onclick=action(async()=>{await fillSettings();$('settings').showModal();});
 $('aliyun-setup').onclick=async()=>{try{await call('aliyun-setup');await fillSettings();alert('左侧百炼配置已保存，密钥仅本次页面会话有效。');}catch(e){alert(e.message);}};
+$('diagnose-aliyun').onclick=async()=>{const f=$('settings-form'),box=$('aliyun-diagnostic');try{box.hidden=false;box.textContent='正在检查，不会提交录音或进行模型推理…';await call('settings',{...Object.fromEntries(new FormData(f).entries()),autoWrite:false});const r=await call('diagnose-aliyun'),line=(name,v)=>`${name}：${v.message}${v.status?`（HTTP ${v.status}）`:''}\n地址：${v.url}`;box.textContent=line('录音转写',r.audio)+'\n\n'+line('跟进总结',r.text);await fillSettings();}catch(e){box.hidden=false;box.textContent=e.message;}};
 $('close-settings').onclick=()=>{$('settings').close();for(const k of ['audioKey','textKey'])$('settings-form').elements[k].value='';};
 $('settings-form').onsubmit=async e=>{e.preventDefault();try{await call('settings',{...Object.fromEntries(new FormData(e.target).entries()),autoWrite:false});$('settings').close();await fillSettings();notice('设置已保存');}catch(err){alert(err.message);}};
 $('import').onclick=action(async()=>{page='inbox';filter='all';notice('正在导入并匹配号码，不调用 AI…');render(await call('import'));notice('导入完成。已匹配默认勾选；可补选未匹配录音。');});
