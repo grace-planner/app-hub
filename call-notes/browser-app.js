@@ -1,5 +1,5 @@
 import {get,set,batch,openDB,storageError,hashFile,MAX_FILE,path} from './browser-platform.js';
-import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,recordSnapshot,recencyGuard,validateDraft} from './core.js?v=20261118-evidence-only';
+import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,recordSnapshot,recencyGuard,validateDraft} from './core.js?v=20261118-summary-detail';
 const $=id=>document.getElementById(id);
 const defaults={proxy:PROXY,audioProvider:'aliyun',audioBase:'https://dashscope.aliyuncs.com/api/v1',audioModel:'qwen-audio-3.1-asr-flash',textBase:'https://dashscope.aliyuncs.com/compatible-mode/v1',textModel:'qwen-plus',autoWrite:false};
 let settings,queue,keys={audio:'',text:''},busy=false,ready=false,lastError='',backupAt=null;
