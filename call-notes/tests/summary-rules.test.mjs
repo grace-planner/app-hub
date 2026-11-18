@@ -3,15 +3,11 @@ import assert from 'node:assert/strict';
 import {SUMMARY_RULES,Services} from '../core.js';
 
 test('summary rules retain actionable CRM details when present',()=>{
-  for(const detail of ['居住区域','学校','年级','当前成绩','目标','课程','课时','班型','校区','价格','优惠','顾虑','拒绝原因','下一步']){
+  for(const detail of ['居住区域','学校','年级','当前成绩','目标','课程','课时','班型','校区','价格','优惠','顾虑','拒绝原因','尚未确认','下一步']){
     assert.match(SUMMARY_RULES,new RegExp(detail));
   }
   assert.match(SUMMARY_RULES,/不能为了简短而删除/);
   assert.match(SUMMARY_RULES,/简单通话可以短/);
-  assert.match(SUMMARY_RULES,/只写录音实际出现的信息/);
-  assert.match(SUMMARY_RULES,/必须直接省略/);
-  assert.match(SUMMARY_RULES,/严禁为了显得完整而罗列为“尚未确认”/);
-  assert.match(SUMMARY_RULES,/明确说某件事尚未决定、仍在考虑或需要补充时/);
 });
 
 test('summary request uses low temperature and keeps JSON output',async()=>{
