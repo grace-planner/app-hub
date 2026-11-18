@@ -180,7 +180,7 @@ class Services {
     const base=httpURL(this.settings.audioBase);
     const host=new URL(base).hostname;
     if(!host.endsWith('.aliyuncs.com'))throw Error('阿里云转写需填写百炼控制台提供的 aliyuncs.com 地址');
-    if(this.settings.audioModel!=='qwen3-asr-flash')throw Error('此版本阿里云转写模型请填写 qwen3-asr-flash');
+    if(this.settings.audioModel!=='qwen-audio-3.1-asr-flash')throw Error('此版本阿里云转写模型请填写 qwen-audio-3.1-asr-flash');
     const pcm=await normalizedPCM(file);
     const config=base+'|'+this.settings.audioModel;
     const parts=checkpoint.cache?.config===config?[...checkpoint.cache.parts]:[];
