@@ -68,6 +68,11 @@ function render(items){
     const status=document.createElement('span');status.className='badge '+i.status;status.textContent=labels[i.status]||i.status;
     const buttons=document.createElement('div');buttons.className='row-actions';
     if(i.draft){const b=document.createElement('button');b.textContent='查看';b.disabled=wasRunning;b.onclick=action(()=>openDraft(i));buttons.append(b);}
+    if(i.draft&&!i.trashedAt&&['ready','review','awaiting_link'].includes(i.status)){
+      const b=document.createElement('button');b.textContent='重新生成摘要';b.disabled=wasRunning;
+      b.onclick=action(async()=>{if(!confirm('用当前转写重新生成摘要（不重新转写、不写飞书），继续吗？'))return;await call('regenerate-summary',i.id);notice('摘要已重新生成');});
+      buttons.append(b);
+    }
     if(!i.trashedAt&&i.meta&&i.status!=='done'&&i.status!=='uncertain'){
       const b=document.createElement('button');b.textContent=i.recordId?'更换关联':'关联客户';b.disabled=wasRunning;b.onclick=action(async()=>{currentLinkId=i.id;$('link-query').value='';$('link-results').replaceChildren();$('link').showModal();if(i.matchCount>1&&i.meta?.phone)renderCandidates(await call('matches',i.id));});buttons.append(b);
     }

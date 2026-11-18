@@ -1,5 +1,5 @@
 import {get,set,batch,openDB,storageError,hashFile,MAX_FILE,path} from './browser-platform.js';
-import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,recordSnapshot,recencyGuard,validateDraft} from './core.js?v=20261118-summary-v2';
+import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,recordSnapshot,recencyGuard,validateDraft} from './core.js?v=20261118-regen';
 const $=id=>document.getElementById(id);
 const defaults={proxy:PROXY,audioProvider:'aliyun',audioBase:'https://dashscope.aliyuncs.com/api/v1',audioModel:'qwen-audio-3.1-asr-flash',textBase:'https://dashscope.aliyuncs.com/compatible-mode/v1',textModel:'qwen-plus',autoWrite:false};
 let settings,queue,keys={audio:'',text:''},busy=false,ready=false,lastError='',backupAt=null;
@@ -30,6 +30,7 @@ const handlers={
   state:async()=>{await initialized;if(!ready)throw Error(lastError||'初始化失败');return {settings,hasAliyunKey:!!keys.audio&&keys.audio===keys.text,items:queue.publicItems(),running:busy||queue.running};},
   settings:async raw=>{idle();const next=checkSettings(raw),value=String(raw.aliyunKey||'').trim(),addressChanged=next.audioBase!==settings.audioBase||next.textBase!==settings.textBase;let nextKeys={...keys};if(value)nextKeys={audio:value,text:value};else if(addressChanged)nextKeys={audio:'',text:''};await set('settings',next);settings=next;keys=nextKeys;queue.services=new Services(settings,keys);return {settings,hasAliyunKey:!!keys.audio&&keys.audio===keys.text};},
   'diagnose-aliyun':async()=>{idle();return queue.services.diagnoseAliyun();},
+  'regenerate-summary':async id=>{await queue.regenerateSummary(id);return true;},
   import:importRecordings,
   process:async selected=>{idle();if(!keys.audio||!keys.text)throw Error('请先在连接与设置中输入本次会话的转写和总结密钥');const ids=window.crmView.actionIds(queue.items,selected,'analysis');if(!ids.length)throw Error('请勾选要分析的录音；从备份恢复后请先重新导入原始录音');queue.process(false,ids).catch(showError);publish();return true;},
   stop:()=>{queue.stop=true;return true;},
@@ -68,5 +69,5 @@ function validateBackup(raw){
 }
 $('import-backup').onclick=async()=>{try{idle();const [file]=await chooseFile('.json');if(!file)return;if(file.size>100*1024*1024)throw Error('备份文件过大');const incoming=validateBackup(JSON.parse(await file.text()));idle();const existingIds=new Set(queue.items.map(i=>i.id)),fresh=incoming.filter(i=>!existingIds.has(i.id));if(!confirm(`从备份合并 ${fresh.length} 条新记录？\n本地已有的同一录音记录保持原样。备份不含录音和密钥；需要分析时请重新导入原始录音。`))return;const items=[...queue.items,...fresh];await set('queue',items);queue.items=items;publish();await storageStatus();$('notice').textContent=`已恢复 ${fresh.length} 条记录。相同录音的本地记录未覆盖；分析前请重新导入原始录音。`;}catch(e){showError(e);}};
 $('persist-storage').onclick=async()=>{try{idle();const ok=await navigator.storage?.persist?.();await storageStatus();if(!ok)alert('浏览器尚未授予持久存储保护。可正常使用，请定期导出备份；手动清除网站数据仍会删除记录。');}catch(e){showError(e);}};
-await import('./renderer.js?v=20261118-key-detail');
+await import('./renderer.js?v=20261118-regen');
 try{await initialized;document.body.inert=false;}catch{}
