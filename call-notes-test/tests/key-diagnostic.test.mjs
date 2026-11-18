@@ -29,7 +29,7 @@ test('aliyun diagnostic checks audio and text endpoints separately',async()=>{
   assert.equal(requests[1].options.headers.Authorization,'Bearer shared-secret');
   const audioBody=JSON.parse(requests[0].options.body),textBody=JSON.parse(requests[1].options.body);
   assert.equal(audioBody.model,'qwen-audio-3.1-asr-flash');
-  assert.match(audioBody.input.messages[0].content[0].input_audio.data,/^data:audio\/wav;base64,/);
+  assert.match(audioBody.input.messages[0].content[0].input_audio.data,/^https:\/\/dashscope\.oss-cn-beijing\.aliyuncs\.com\//);
   assert.equal(textBody.model,'qwen-plus');
 });
 
