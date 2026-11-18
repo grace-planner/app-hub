@@ -1,12 +1,12 @@
 import {get,set,batch,openDB,storageError,hashFile,MAX_FILE,path} from './browser-platform.js';
-import {PROXY,Queue,Services,httpURL,parseName,fieldText,recordSnapshot,recencyGuard,validateDraft} from './core.js';
+import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,recordSnapshot,recencyGuard,validateDraft} from './core.js';
 const $=id=>document.getElementById(id);
-const defaults={proxy:PROXY,audioProvider:'aliyun',audioBase:'https://dashscope.aliyuncs.com/compatible-mode/v1',audioModel:'qwen-audio-3.1-asr-flash',textBase:'https://dashscope.aliyuncs.com/compatible-mode/v1',textModel:'qwen-plus',autoWrite:false};
+const defaults={proxy:PROXY,audioProvider:'aliyun',audioBase:'https://dashscope.aliyuncs.com/api/v1',audioModel:'qwen-audio-3.1-asr-flash',textBase:'https://dashscope.aliyuncs.com/compatible-mode/v1',textModel:'qwen-plus',autoWrite:false};
 let settings,queue,keys={audio:'',text:''},busy=false,ready=false,lastError='',backupAt=null;
 const listeners=[];
 function publish(items=queue?.publicItems()||[]){for(const fn of listeners)fn({items,running:busy||!!queue?.running,operation:queue?.operation});}
 function idle(){if(!ready)throw Error(lastError||'正在打开本地数据库，请稍后重试');if(storageError)throw storageError;if(busy||queue.running)throw Error('请等待当前操作结束');}
-function checkSettings(raw){const next={audioProvider:raw.audioProvider==='aliyun'?'aliyun':'openai',proxy:PROXY,autoWrite:false};for(const k of ['audioBase','textBase'])next[k]=httpURL(raw[k]);for(const k of ['audioModel','textModel']){next[k]=String(raw[k]||'').trim();if(!next[k]||next[k].length>160)throw Error('请填写有效的模型名称');}if(next.audioModel==='qwen3-asr-flash')next.audioModel='qwen-audio-3.1-asr-flash';return next;}
+function checkSettings(raw){const next={audioProvider:raw.audioProvider==='aliyun'?'aliyun':'openai',proxy:PROXY,autoWrite:false};for(const k of ['audioBase','textBase'])next[k]=httpURL(raw[k]);for(const k of ['audioModel','textModel']){next[k]=String(raw[k]||'').trim();if(!next[k]||next[k].length>160)throw Error('请填写有效的模型名称');}if(next.audioModel==='qwen3-asr-flash')next.audioModel='qwen-audio-3.1-asr-flash';if(next.audioProvider==='aliyun')next.audioBase=aliyunAudioBase(next.audioBase);return next;}
 function chooseFile(accept,multiple=false){return new Promise(resolve=>{const input=document.createElement('input');input.type='file';input.accept=accept;input.multiple=multiple;input.hidden=true;document.body.append(input);const finish=files=>{input.remove();resolve(files);};input.onchange=()=>finish([...input.files]);input.oncancel=()=>finish([]);input.click();});}
 async function withBusy(fn){idle();busy=true;publish();try{return await fn();}finally{busy=false;publish();}}
 async function importRecordings(){
@@ -29,7 +29,7 @@ async function importRecordings(){
 const handlers={
   state:async()=>{await initialized;if(!ready)throw Error(lastError||'初始化失败');return {settings,hasAudioKey:!!keys.audio,hasTextKey:!!keys.text,items:queue.publicItems(),running:busy||queue.running};},
   settings:async raw=>{idle();const next=checkSettings(raw),nextKeys={...keys};for(const [k,base]of [['audio','audioBase'],['text','textBase']]){if(raw[k+'Key']?.trim())nextKeys[k]=raw[k+'Key'].trim();else if(next[base]!==settings[base])nextKeys[k]='';}await set('settings',next);settings=next;keys=nextKeys;queue.services=new Services(settings,keys);return {settings,hasAudioKey:!!keys.audio,hasTextKey:!!keys.text};},
-  'aliyun-setup':async()=>{idle();const base=httpURL(settings.textBase);if(!new URL(base).hostname.endsWith('.aliyuncs.com')||!base.endsWith('/compatible-mode/v1'))throw Error('请先在右侧保存百炼 Base URL');if(!keys.text)throw Error('请先在右侧保存百炼密钥');const next={...settings,audioProvider:'aliyun',audioBase:base,audioModel:'qwen-audio-3.1-asr-flash'};await set('settings',next);settings=next;keys.audio=keys.text;queue.services=new Services(settings,keys);return true;},
+  'aliyun-setup':async()=>{idle();const base=httpURL(settings.textBase);if(!new URL(base).hostname.endsWith('.aliyuncs.com')||!base.endsWith('/compatible-mode/v1'))throw Error('请先在右侧保存百炼 Base URL');if(!keys.text)throw Error('请先在右侧保存百炼密钥');const next={...settings,audioProvider:'aliyun',audioBase:aliyunAudioBase(base),audioModel:'qwen-audio-3.1-asr-flash'};await set('settings',next);settings=next;keys.audio=keys.text;queue.services=new Services(settings,keys);return true;},
   import:importRecordings,
   process:async selected=>{idle();if(!keys.audio||!keys.text)throw Error('请先在连接与设置中输入本次会话的转写和总结密钥');const ids=window.crmView.actionIds(queue.items,selected,'analysis');if(!ids.length)throw Error('请勾选要分析的录音；从备份恢复后请先重新导入原始录音');queue.process(false,ids).catch(showError);publish();return true;},
   stop:()=>{queue.stop=true;return true;},
