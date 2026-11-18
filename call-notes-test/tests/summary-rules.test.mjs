@@ -7,11 +7,16 @@ test('summary rules retain actionable CRM details when present',()=>{
     assert.match(SUMMARY_RULES,new RegExp(detail));
   }
   assert.match(SUMMARY_RULES,/不能为了简短而删除/);
-  assert.match(SUMMARY_RULES,/简单通话可以短/);
+  assert.match(SUMMARY_RULES,/信息很少或无效的通话只写一句/);
   assert.match(SUMMARY_RULES,/只写录音实际出现的信息/);
   assert.match(SUMMARY_RULES,/必须直接省略/);
-  assert.match(SUMMARY_RULES,/严禁为了显得完整而罗列为“尚未确认”/);
+  assert.match(SUMMARY_RULES,/不写“尚未确认年级、学校、成绩、课程”等缺失清单/);
   assert.match(SUMMARY_RULES,/明确说某件事尚未决定、仍在考虑或需要补充时/);
+  assert.match(SUMMARY_RULES,/不得列举录音未提到的字段/);
+  assert.match(SUMMARY_RULES,/信息很少或无效的通话只写一句/);
+  assert.match(SUMMARY_RULES,/当前顾问是龚老师/);
+  assert.match(SUMMARY_RULES,/其他老师/);
+  assert.match(SUMMARY_RULES,/宫老师/);
 });
 
 test('summary request uses low temperature and keeps JSON output',async()=>{
