@@ -137,6 +137,27 @@ function httpURL(raw) {
   if(u.protocol!=='https:' || u.username || u.password) throw Error('接口地址必须是 HTTPS，且不能包含账号密码');
   return u.toString().replace(/\/$/,'');
 }
+const ALIYUN_ASR_PATH='/services/aigc/multimodal-generation/generation';
+function aliyunAudioBase(raw) {
+  const u=new URL(httpURL(raw));
+  if(!u.hostname.endsWith('.aliyuncs.com'))throw Error('阿里云转写需填写百炼控制台提供的 aliyuncs.com 地址');
+  if(u.search||u.hash)throw Error('百炼转写地址不能包含查询参数或页面锚点');
+  const path=u.pathname.replace(/\/$/,'');
+  if(path.endsWith('/compatible-mode/v1'))u.pathname='/api/v1';
+  else if(path.endsWith('/api/v1'+ALIYUN_ASR_PATH))u.pathname=path.slice(0,-ALIYUN_ASR_PATH.length);
+  else if(!path.endsWith('/api/v1'))throw Error('百炼原生转写地址应以 /api/v1 结尾');
+  return u.toString().replace(/\/$/,'');
+}
+function aliyunASRRequest(base,model,audioData,apiKey='') {
+  const url=aliyunAudioBase(base)+ALIYUN_ASR_PATH;
+  const body={model,input:{messages:[{role:'user',content:[{type:'input_audio',input_audio:{data:audioData}}]}]},parameters:{format:'wav',sample_rate:'16000',language_hints:['zh','en']}};
+  return {url,options:{method:'POST',headers:{Authorization:'Bearer '+apiKey,'Content-Type':'application/json','X-DashScope-SSE':'disable'},body:JSON.stringify(body)}};
+}
+function aliyunTranscript(d) {
+  const text=d?.output?.text;
+  if(typeof text!=='string'||!text.trim())throw Error('阿里云原生接口未返回完整的转写文字');
+  return text.trim();
+}
 async function jsonRequest(url,options={},fetcher=fetch) {
   let response;try{response=await fetcher(url,{...options,redirect:'error',signal:AbortSignal.timeout(180000)});}catch(e){if(e.name==='TypeError')throw Error('无法连接接口，请检查网络或接口是否允许此网站跨域调用；写入结果需在飞书核对。');throw e;}
   if(!response.ok) {
@@ -177,9 +198,7 @@ class Services {
     return d.text;
   }
   async transcribeAliyun(file,checkpoint={}) {
-    const base=httpURL(this.settings.audioBase);
-    const host=new URL(base).hostname;
-    if(!host.endsWith('.aliyuncs.com'))throw Error('阿里云转写需填写百炼控制台提供的 aliyuncs.com 地址');
+    const base=aliyunAudioBase(this.settings.audioBase);
     if(this.settings.audioModel!=='qwen-audio-3.1-asr-flash')throw Error('此版本阿里云转写模型请填写 qwen-audio-3.1-asr-flash');
     const pcm=await normalizedPCM(file);
     const config=base+'|'+this.settings.audioModel;
@@ -189,10 +208,9 @@ class Services {
       checkpoint.progress?.(`转写录音 · 第 ${chunk.index+1} 段`);
       const uri='data:audio/wav;base64,'+toBase64(chunk.bytes);
       if(uri.length>10*1000*1000)throw Error('音频分段超过百炼大小限制');
-      const d=await jsonRequest(base+'/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+this.keys.audio,'Content-Type':'application/json'},body:JSON.stringify({model:this.settings.audioModel,messages:[{role:'user',content:[{type:'input_audio',input_audio:{data:uri}}]}],stream:false,asr_options:{enable_itn:true}})},this.fetcher);
-      const choice=d.choices?.[0];
-      if(choice?.finish_reason!=='stop'||typeof choice.message?.content!=='string')throw Error('阿里云未返回完整的转写文字');
-      parts[chunk.index]=choice.message.content;
+      const request=aliyunASRRequest(base,this.settings.audioModel,uri,this.keys.audio);
+      const d=await jsonRequest(request.url,request.options,this.fetcher);
+      parts[chunk.index]=aliyunTranscript(d);
       await checkpoint.save?.({config,parts:[...parts]});
     }
     const result=mergeText(parts);
@@ -364,4 +382,4 @@ class Queue {
   async recover(id){if(this.running)throw Error('请等当前批次完成');const i=this.items.find(i=>i.id===id);if(!i||i.trashedAt||!['uncertain','skipped','ambiguous','error'].includes(i.status)||!i.file)throw Error('此记录不能重试');i.status='queued';i.selectedItem=true;i.message='已选中，点击上方分析选中录音即可重试';await this.persist();}
 }
 function toBase64(bytes){let s='';for(let i=0;i<bytes.length;i+=32768)s+=String.fromCharCode(...bytes.subarray(i,i+32768));return btoa(s);}
-export {PROXY,INTENTS,fieldText,phones,parseName,logEntries,dateMillis,updateMoment,recencyGuard,planFields,recordSnapshot,normalizeAIDraft,validateDraft,draftDisposition,nameSuggestion,httpURL,jsonRequest,Services,Queue};
+export {PROXY,INTENTS,fieldText,phones,parseName,logEntries,dateMillis,updateMoment,recencyGuard,planFields,recordSnapshot,normalizeAIDraft,validateDraft,draftDisposition,nameSuggestion,httpURL,aliyunAudioBase,aliyunASRRequest,aliyunTranscript,jsonRequest,Services,Queue};
