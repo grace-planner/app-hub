@@ -17,6 +17,12 @@ test('model probe does not call a 400 response successful',async()=>{
   assert.equal(result.verdict,'request_error');
 });
 
+test('model probe returns sanitized provider detail',async()=>{
+  const result=await modelProbe('https://dashscope.aliyuncs.com/api/v1/test',{method:'POST'},async()=>({status:401,json:async()=>({error:{message:'Incorrect API key provided: sk-secret-key'}})}));
+  assert.equal(result.detail,'Incorrect API key provided: [密钥已隐藏]');
+  assert.equal(JSON.stringify(result).includes('sk-secret-key'),false);
+});
+
 test('aliyun diagnostic checks audio and text endpoints separately',async()=>{
   const requests=[];
   const fetcher=async(url,options)=>{requests.push({url,options});return {status:200};};
@@ -24,6 +30,9 @@ test('aliyun diagnostic checks audio and text endpoints separately',async()=>{
   const result=await services.diagnoseAliyun();
   assert.equal(result.audio.verdict,'accepted');
   assert.equal(result.text.verdict,'accepted');
+  assert.equal(result.key.length,'shared-secret'.length);
+  assert.match(result.key.sha256,/^[0-9a-f]{16}$/);
+  assert.equal(JSON.stringify(result).includes('shared-secret'),false);
   assert.equal(requests.length,2);
   assert.equal(requests[0].options.headers.Authorization,'Bearer shared-secret');
   assert.equal(requests[1].options.headers.Authorization,'Bearer shared-secret');
