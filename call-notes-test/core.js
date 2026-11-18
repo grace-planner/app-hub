@@ -173,10 +173,10 @@ function aliyunTranscript(d) {
   if(typeof text!=='string'||!text.trim())throw Error('阿里云原生接口未返回完整的转写文字');
   return text.trim();
 }
-async function authProbe(url,apiKey,fetcher=fetch) {
+async function modelProbe(url,options,fetcher=fetch) {
   let response;
   try {
-    response=await fetcher(url,{method:'POST',headers:{Authorization:'Bearer '+apiKey,'Content-Type':'application/json','X-DashScope-SSE':'disable'},body:'{}',redirect:'error',signal:AbortSignal.timeout(30000)});
+    response=await fetcher(url,{...options,redirect:'error',signal:AbortSignal.timeout(30000)});
   } catch(e) {
     return {verdict:'network',status:null,message:'无法连接该接口，请检查网络、地址或浏览器跨域限制'};
   }
@@ -184,7 +184,13 @@ async function authProbe(url,apiKey,fetcher=fetch) {
   if(response.status===403)return {verdict:'forbidden',status:403,message:'接口识别了请求，但账号或密钥没有访问权限'};
   if(response.status===404)return {verdict:'wrong_endpoint',status:404,message:'接口地址不存在或不支持当前调用方式'};
   if(response.status>=500)return {verdict:'service_error',status:response.status,message:'阿里云服务暂时异常'};
-  return {verdict:'accepted',status:response.status,message:'密钥已被接口接受（未提交录音或模型推理）'};
+  if(response.status>=200&&response.status<300)return {verdict:'accepted',status:response.status,message:'真实最小模型请求成功'};
+  return {verdict:'request_error',status:response.status,message:'密钥未被拒绝，但模型请求返回错误'};
+}
+function silentWavData(){
+  const samples=1600,buffer=new ArrayBuffer(44+samples*2),view=new DataView(buffer),write=(offset,text)=>{for(let i=0;i<text.length;i++)view.setUint8(offset+i,text.charCodeAt(i));};
+  write(0,'RIFF');view.setUint32(4,36+samples*2,true);write(8,'WAVEfmt ');view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);view.setUint32(24,16000,true);view.setUint32(28,32000,true);view.setUint16(32,2,true);view.setUint16(34,16,true);write(36,'data');view.setUint32(40,samples*2,true);
+  return 'data:audio/wav;base64,'+toBase64(new Uint8Array(buffer));
 }
 async function jsonRequest(url,options={},fetcher=fetch) {
   let response;try{response=await fetcher(url,{...options,redirect:'error',signal:AbortSignal.timeout(180000)});}catch(e){if(e.name==='TypeError')throw Error('无法连接接口，请检查网络或接口是否允许此网站跨域调用；写入结果需在飞书核对。');throw e;}
@@ -211,10 +217,12 @@ class Services {
   }
   async search(phone){return (await this.candidates(phone)).filter(i=>phones(i.fields?.['号码/微信']).includes(phone));}
   async diagnoseAliyun() {
-    if(!this.keys.audio||!this.keys.text)throw Error('请先填写转写和总结密钥');
-    const audioUrl=aliyunAudioBase(this.settings.audioBase)+ALIYUN_ASR_PATH;
+    if(!this.keys.audio||!this.keys.text||this.keys.audio!==this.keys.text)throw Error('请先保存同一把百炼密钥');
+    const audioRequest=aliyunASRRequest(this.settings.audioBase,this.settings.audioModel,silentWavData(),this.keys.audio);
+    const audioUrl=audioRequest.url;
     const textUrl=httpURL(this.settings.textBase)+'/chat/completions';
-    const [audio,text]=await Promise.all([authProbe(audioUrl,this.keys.audio,this.fetcher),authProbe(textUrl,this.keys.text,this.fetcher)]);
+    const textOptions={method:'POST',headers:{Authorization:'Bearer '+this.keys.text,'Content-Type':'application/json'},body:JSON.stringify({model:this.settings.textModel,temperature:0,max_tokens:1,messages:[{role:'user',content:'只回复1'}]})};
+    const [audio,text]=await Promise.all([modelProbe(audioUrl,audioRequest.options,this.fetcher),modelProbe(textUrl,textOptions,this.fetcher)]);
     return {audio:{...audio,url:audioUrl},text:{...text,url:textUrl}};
   }
   async transcribe(file,checkpoint={}) {
@@ -416,4 +424,4 @@ class Queue {
   async recover(id){if(this.running)throw Error('请等当前批次完成');const i=this.items.find(i=>i.id===id);if(!i||i.trashedAt||!['uncertain','skipped','ambiguous','error'].includes(i.status)||!i.file)throw Error('此记录不能重试');i.status='queued';i.selectedItem=true;i.message='已选中，点击上方分析选中录音即可重试';await this.persist();}
 }
 function toBase64(bytes){let s='';for(let i=0;i<bytes.length;i+=32768)s+=String.fromCharCode(...bytes.subarray(i,i+32768));return btoa(s);}
-export {PROXY,INTENTS,SUMMARY_RULES,fieldText,phones,parseName,logEntries,dateMillis,updateMoment,recencyGuard,planFields,recordSnapshot,normalizeAIDraft,validateDraft,draftDisposition,nameSuggestion,httpURL,aliyunAudioBase,aliyunASRRequest,aliyunTranscript,authProbe,jsonRequest,Services,Queue};
+export {PROXY,INTENTS,SUMMARY_RULES,fieldText,phones,parseName,logEntries,dateMillis,updateMoment,recencyGuard,planFields,recordSnapshot,normalizeAIDraft,validateDraft,draftDisposition,nameSuggestion,httpURL,aliyunAudioBase,aliyunASRRequest,aliyunTranscript,modelProbe,jsonRequest,Services,Queue};
