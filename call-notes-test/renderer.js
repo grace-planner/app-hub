@@ -57,7 +57,7 @@ function render(items){
 }
 async function fillSettings(){
   const state=await call('state');const f=$('settings-form');for(const [k,v]of Object.entries(state.settings))if(f.elements[k])f.elements[k].value=v;
-  for(const k of ['audio','text']){f.elements[k+'Key'].value='';$(k+'-key-state').textContent=state[k==='audio'?'hasAudioKey':'hasTextKey']?'密钥本次会话可用':'本次会话尚未输入密钥';}
+  f.elements.aliyunKey.value='';$('aliyun-key-state').textContent=state.hasAliyunKey?'同一把密钥已供转写和总结使用':'本次会话尚未输入密钥';
   return state;
 }
 async function openDraft(item){
@@ -81,9 +81,8 @@ $('restore-items').onclick=action(async()=>{const ids=visibleItems().filter(i=>i
 $('clean-archive').onclick=action(async()=>{const n=await call('clean-archive-files');if(n)notice(`已清理 ${n} 条归档录音；归档文字结果仍保留。`);});
 $('empty-trash').onclick=action(async()=>{const n=await call('clear-trash');if(n)notice(`已永久清空回收站中的 ${n} 项。`);});
 $('open-settings').onclick=action(async()=>{await fillSettings();$('settings').showModal();});
-$('aliyun-setup').onclick=async()=>{try{await call('aliyun-setup');await fillSettings();alert('左侧百炼配置已保存，密钥仅本次页面会话有效。');}catch(e){alert(e.message);}};
-$('diagnose-aliyun').onclick=async()=>{const f=$('settings-form'),box=$('aliyun-diagnostic');try{box.hidden=false;box.textContent='正在检查，不会提交录音或进行模型推理…';await call('settings',{...Object.fromEntries(new FormData(f).entries()),autoWrite:false});const r=await call('diagnose-aliyun'),line=(name,v)=>`${name}：${v.message}${v.status?`（HTTP ${v.status}）`:''}\n地址：${v.url}`;box.textContent=line('录音转写',r.audio)+'\n\n'+line('跟进总结',r.text);await fillSettings();}catch(e){box.hidden=false;box.textContent=e.message;}};
-$('close-settings').onclick=()=>{$('settings').close();for(const k of ['audioKey','textKey'])$('settings-form').elements[k].value='';};
+$('diagnose-aliyun').onclick=async()=>{const f=$('settings-form'),box=$('aliyun-diagnostic');if(!confirm('将向百炼发送一段极短静音和一个最短文本，真实检查两个模型。可能产生极少量费用，继续吗？'))return;try{box.hidden=false;box.textContent='正在进行真实最小模型检查…';await call('settings',{...Object.fromEntries(new FormData(f).entries()),autoWrite:false});const r=await call('diagnose-aliyun'),line=(name,v)=>`${name}：${v.message}${v.status?`（HTTP ${v.status}）`:''}\n地址：${v.url}`;box.textContent=line('录音转写',r.audio)+'\n\n'+line('跟进总结',r.text);await fillSettings();}catch(e){box.hidden=false;box.textContent=e.message;}};
+$('close-settings').onclick=()=>{$('settings').close();$('settings-form').elements.aliyunKey.value='';};
 $('settings-form').onsubmit=async e=>{e.preventDefault();try{await call('settings',{...Object.fromEntries(new FormData(e.target).entries()),autoWrite:false});$('settings').close();await fillSettings();notice('设置已保存');}catch(err){alert(err.message);}};
 $('import').onclick=action(async()=>{page='inbox';filter='all';notice('正在导入并匹配号码，不调用 AI…');render(await call('import'));notice('导入完成。已匹配默认勾选；可补选未匹配录音。');});
 $('process').onclick=action(async()=>{await call('process',selectedIds('analysis'));notice('正在分析选中的录音；不会自动写入飞书。');});
