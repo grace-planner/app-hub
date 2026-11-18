@@ -1,5 +1,5 @@
 import {get,set,batch,openDB,storageError,hashFile,MAX_FILE,path} from './browser-platform.js';
-import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,recordSnapshot,recencyGuard,validateDraft} from './core.js?v=20261118-summary-detail';
+import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,recordSnapshot,recencyGuard,validateDraft} from './core.js?v=20261118-evidence-only';
 const $=id=>document.getElementById(id);
 const defaults={proxy:PROXY,audioProvider:'aliyun',audioBase:'https://dashscope.aliyuncs.com/api/v1',audioModel:'qwen-audio-3.1-asr-flash',textBase:'https://dashscope.aliyuncs.com/compatible-mode/v1',textModel:'qwen-plus',autoWrite:false};
 let settings,queue,keys={audio:'',text:''},busy=false,ready=false,lastError='',backupAt=null;
@@ -40,7 +40,7 @@ const handlers={
   'clear-trash':async()=>{idle();const n=queue.items.filter(i=>i.trashedAt).length;if(!n||!confirm(`永久清空回收站中的 ${n} 项及浏览器录音副本？\n此操作不可撤销，请先导出备份。不会删除原文件夹或飞书中的内容。`))return 0;return queue.clearTrash();},
   test:async()=>{idle();if(!confirm('向现有飞书云函数发送无客户含义的只读查询，检查接口是否正常？'))return '已取消';await queue.services.search('connection-check-no-phone');return '飞书接口返回正常；尚未验证实际客户匹配或写入。';}
 };
-window.crm={onQueue:fn=>listeners.push(fn),call:async(channel,...args)=>{try{if(!['state','stop'].includes(channel))idle();if(!handlers[channel])throw Error('不支持的操作');return {ok:true,data:await handlers[channel](...args)};}catch(e){return {ok:false,error:e.message};}}};
+window.crm={onQueue:fn=>listeners.push(fn),call:async(channel,...args)=>{try{if(!['state','stop'].includes(channel))idle();if(!handlers[channel])throw Error('不支持的操作');return {ok:true,data:await handlers[channel](...args)};}catch(e){return {ok:false,error:e.message};}};
 function showError(e){$('notice').textContent=e.message;if(storageError){ready=false;lastError=e.message;}publish();}
 async function storageStatus(){const e=await navigator.storage?.estimate?.(),persistent=await navigator.storage?.persisted?.();$('storage-status').textContent=(e?`此网站所在域已用 ${(e.usage/1024/1024).toFixed(1)} MB。`:'')+(persistent?'已获浏览器持久存储保护。':'建议点击“保护本地存储”。')+'清除网站数据仍会删除记录。'+(backupAt?'最近导出：'+new Date(backupAt).toLocaleString('zh-CN'):'请定期导出备份。');}
 async function boot(){
