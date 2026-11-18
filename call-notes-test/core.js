@@ -182,6 +182,15 @@ function aliyunTranscript(d) {
   if(typeof text!=='string'||!text.trim())throw Error('阿里云原生接口未返回完整的转写文字');
   return text.trim();
 }
+async function probeDetail(response){
+  if(response.status<300||typeof response.json!=='function')return '';
+  try{const error=await response.json();const value=error.error?.message||error.message||error.msg||error.Message||(typeof error.error==='string'?error.error:'')||error.code||'';return String(value).replace(/sk-[\w-]+/g,'[密钥已隐藏]').replace(/Bearer\s+\S+/gi,'Bearer [已隐藏]').slice(0,240);}catch{return '';}
+}
+async function keyFingerprint(key){
+  const text=String(key||'');let sha256=null;
+  if(globalThis.crypto?.subtle){const digest=await globalThis.crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));sha256=[...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,16);}
+  return {length:text.length,sha256};
+}
 async function modelProbe(url,options,fetcher=fetch) {
   let response;
   try {
@@ -189,12 +198,13 @@ async function modelProbe(url,options,fetcher=fetch) {
   } catch(e) {
     return {verdict:'network',status:null,message:'无法连接该接口，请检查网络、地址或浏览器跨域限制'};
   }
-  if(response.status===401)return {verdict:'invalid_key',status:401,message:'接口拒绝了这把密钥'};
-  if(response.status===403)return {verdict:'forbidden',status:403,message:'接口识别了请求，但账号或密钥没有访问权限'};
-  if(response.status===404)return {verdict:'wrong_endpoint',status:404,message:'接口地址不存在或不支持当前调用方式'};
-  if(response.status>=500)return {verdict:'service_error',status:response.status,message:'阿里云服务暂时异常'};
-  if(response.status>=200&&response.status<300)return {verdict:'accepted',status:response.status,message:'真实最小模型请求成功'};
-  return {verdict:'request_error',status:response.status,message:'密钥未被拒绝，但模型请求返回错误'};
+  const detail=await probeDetail(response),withDetail=result=>detail?{...result,detail}:result;
+  if(response.status===401)return withDetail({verdict:'invalid_key',status:401,message:'接口拒绝了这把密钥'});
+  if(response.status===403)return withDetail({verdict:'forbidden',status:403,message:'接口识别了请求，但账号或密钥没有访问权限'});
+  if(response.status===404)return withDetail({verdict:'wrong_endpoint',status:404,message:'接口地址不存在或不支持当前调用方式'});
+  if(response.status>=500)return withDetail({verdict:'service_error',status:response.status,message:'阿里云服务暂时异常'});
+  if(response.status>=200&&response.status<300)return withDetail({verdict:'accepted',status:response.status,message:'真实最小模型请求成功'});
+  return withDetail({verdict:'request_error',status:response.status,message:'密钥未被拒绝，但模型请求返回错误'});
 }
 const ALIYUN_DIAGNOSTIC_AUDIO='https://dashscope.oss-cn-beijing.aliyuncs.com/samples/audio/paraformer/hello_world_female2.wav';
 async function jsonRequest(url,options={},fetcher=fetch) {
@@ -227,8 +237,8 @@ class Services {
     const audioUrl=audioRequest.url;
     const textUrl=httpURL(this.settings.textBase)+'/chat/completions';
     const textOptions={method:'POST',headers:{Authorization:'Bearer '+this.keys.text,'Content-Type':'application/json'},body:JSON.stringify({model:this.settings.textModel,temperature:0,max_tokens:1,messages:[{role:'user',content:'只回复1'}]})};
-    const [audio,text]=await Promise.all([modelProbe(audioUrl,audioRequest.options,this.fetcher),modelProbe(textUrl,textOptions,this.fetcher)]);
-    return {audio:{...audio,url:audioUrl},text:{...text,url:textUrl}};
+    const [audio,text,key]=await Promise.all([modelProbe(audioUrl,audioRequest.options,this.fetcher),modelProbe(textUrl,textOptions,this.fetcher),keyFingerprint(this.keys.audio)]);
+    return {key,audio:{...audio,url:audioUrl},text:{...text,url:textUrl}};
   }
   async transcribe(file,checkpoint={}) {
     if(!this.keys.audio) throw Error('请先在设置中保存转写 API 密钥');
