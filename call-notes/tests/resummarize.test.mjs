@@ -8,7 +8,7 @@ const item={id:'one',recordId:'customer',status:'ready',transcript:'客户正在
 test('resummarization uses stored text even without audio and preserves other draft fields',async()=>{
   const calls=[];
   const queue=new Queue('test',{
-    summarize:async(...args)=>{calls.push(args);return {...draft,summary:'客户正在上课。',intent:'E',next_purpose:null};},
+    summarize:async(...args)=>{calls.push(args);return {...draft,summary:'客户正在上课，约稍后联系。',latest_summary:'约稍后联系。',intent:'E',next_purpose:null};},
     transcribe:()=>assert.fail('不应重新转写'),
     proxy:()=>assert.fail('不应访问飞书')
   });
@@ -16,7 +16,7 @@ test('resummarization uses stored text even without audio and preserves other dr
   queue.persist=async()=>{};
   await queue.resummarize(item.id);
   assert.deepEqual(calls,[[item.transcript,item.meta]]);
-  assert.deepEqual(queue.items[0].draft,{...draft,summary:'客户正在上课。',follow_up_evidence:null});
+  assert.deepEqual(queue.items[0].draft,{...draft,summary:'客户正在上课，约稍后联系。',latest_summary:'约稍后联系。',follow_up_evidence:null});
   assert.equal(queue.items[0].status,'review');
   assert.equal(queue.items[0].selectedItem,false);
 });

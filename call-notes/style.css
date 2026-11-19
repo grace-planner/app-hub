@@ -408,3 +408,84 @@ main > header h1 {
   .panel-head:has(#archive-phone-search:not([hidden])) { flex-wrap: wrap; }
   #archive-phone-search { width: 100%; }
 }
+
+#review .original-grid details { margin: 0; }
+#review .original-grid details > summary { color: #674a88; cursor: pointer; font-size: 12px; }
+#review .original-grid > div:has(#original-log-details:not([open])) { display: grid; align-items: center; }
+#review #latest-summary-hint { display: block; margin: 5px 0 0; }
+#review .original-grid details > span { margin-block-start: 6px; }
+#review textarea[name="latest_summary"] { min-height: 3.5em; }
+
+#review .review-notes {
+  min-block-size: 6em;
+  line-height: 1.55;
+  resize: none;
+}
+#review .review-notes-group {
+  position: relative;
+}
+#review .review-notes-group > label {
+  padding-inline-end: 44px;
+}
+#review .review-notes-group .clearable-field {
+  position: static;
+}
+#review .review-notes-group textarea {
+  padding-inline-end: 12px;
+}
+#review .review-notes-group .field-clear {
+  inset-block-start: -9px;
+  inset-inline-end: 0;
+  width: 40px;
+  height: 40px;
+}
+#review .review-date-control {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+#review .review-date-control > input {
+  flex: 1 1 0;
+  width: auto;
+}
+#review .review-date-control > input::-webkit-datetime-edit {
+  padding-inline-end: 0;
+}
+#review .review-date-control > .field-clear {
+  position: static;
+  transform: none;
+  flex: 0 0 40px;
+  height: 42px;
+}
+@media (max-width: 700px) {
+  #review .review-short-fields {
+    grid-template-columns: minmax(56px,1fr) minmax(68px,1.6fr) minmax(46px,.95fr) minmax(49px,1fr);
+    gap: 5px;
+  }
+  #review .review-short-fields label {
+    font-size: clamp(11px, 3.2vw, 12px);
+    white-space: nowrap;
+  }
+  #review .review-short-fields select {
+    min-height: 44px;
+    font-size: 12px;
+    padding-inline: 4px 13px;
+  }
+  #review .review-short-fields select[name="customer_group"] {
+    font-size: clamp(12px, 3.7vw, 15px);
+  }
+  #review .review-short-fields label:has(> select)::after {
+    inset-inline-end: 6px;
+    bottom: 20px;
+    width: 5px;
+    height: 5px;
+  }
+  #review .review-follow-up {
+    grid-template-columns: minmax(0,1fr);
+    gap: 12px;
+    margin: 16px 0;
+    padding-block-start: 14px;
+    border-block-start: 1px solid #e7dfef;
+  }
+  #review .review-follow-up > .clearable-group { margin: 0; }
+}

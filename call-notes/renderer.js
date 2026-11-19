@@ -310,7 +310,10 @@ const clearControls=Object.entries(clearableFields).map(([name,label])=>{
   field.id='review-field-'+name;
   fieldLabel.htmlFor=field.id;
   const wrapper=document.createElement('div');
+  const grows=field.matches('textarea.review-notes');
   wrapper.className='clearable-field';
+  if(field.type==='date')wrapper.classList.add('review-date-control');
+  if(grows)group.classList.add('review-notes-group');
   const button=document.createElement('button');
   button.type='button';
   button.className='field-clear';
@@ -320,6 +323,11 @@ const clearControls=Object.entries(clearableFields).map(([name,label])=>{
   const update=()=>{
     button.hidden=field.disabled;
     button.disabled=field.disabled||!field.value;
+    if(grows&&field.getClientRects().length){
+      field.style.height='auto';
+      const borders=field.offsetHeight-field.clientHeight;
+      field.style.height=(field.scrollHeight+borders)+'px';
+    }
   };
   button.onclick=()=>{
     field.value='';
@@ -353,6 +361,13 @@ async function openDraft(item){
     select.options[0].textContent=group?'':current||'';
     select.options[0].setAttribute('aria-label',select.options[0].textContent||'留空');
   }
+  $('original-log-details').open=false;
+  const latestField=f.elements.latest_summary;
+  latestField.value=r.draft.latest_summary||'';
+  latestField.disabled=!editable||historical;
+  $('latest-summary-hint').textContent=historical
+    ?'这通录音仅补入跟进日志，飞书最新通话记录保留原值。'
+    :'只写有效进展或下一步，最多60字。留空保留飞书原值。';
   currentPreserved={};f.elements.summary.value=r.draft.summary||'';
   for(const k of ['intent','next_date','next_purpose','reminder_date','reminder_note']){const proposed=r.draft[k],fallback=original[k]||'';f.elements[k].value=proposed??fallback;f.elements[k].disabled=!editable;if(proposed==null&&fallback)currentPreserved[k]=fallback;}
   f.elements.summary.disabled=!editable;
@@ -365,7 +380,7 @@ async function openDraft(item){
   f.elements.approveName.checked=r.nameDecisionMade?!!r.nameApproved:true;f.elements.approveName.disabled=!editable||!offer;
   $('name-evidence').textContent='录音依据：'+(r.draft.name_evidence||'');
   $('write-scope').textContent=!r.recordId?'尚未关联客户：可核对草稿，关联后才允许保存到飞书。':historical?r.protection.reason+'。姓名可补空值，客群、留学报备和是否自有按确认的选项保存。':'保存前会重新核对飞书原值。';
-  $('approve').hidden=!editable;$('transcript').textContent=r.transcript;$('review-title').textContent=(r.customer||'通话')+' · '+item.meta.stamp;$('review').showModal();
+  $('approve').hidden=!editable;$('transcript').textContent=r.transcript;$('review-title').textContent=(r.customer||'通话')+' · '+item.meta.stamp;$('review').showModal();clearControls.forEach(update=>update());
 }
 for(const name of ['inbox','calendar','archive','trash'])$('nav-'+name).onclick=()=>{page=name;if(name==='inbox')filter='all';notice('');render(currentItems);};
 for(const button of document.querySelectorAll('[data-calendar-mode]'))button.onclick=()=>{calendarMode=button.dataset.calendarMode;renderCalendar();};
@@ -424,3 +439,5 @@ $('link-form').onsubmit=async e=>{e.preventDefault();try{
 }catch(err){alert(err.message);}};
 window.crm.onQueue(payload=>{const items=Array.isArray(payload)?payload:payload.items;wasRunning=!!payload.running;operation=payload.operation;if(!wasRunning)stopRequested=false;render(items);});
 (async()=>{try{const s=await fillSettings();wasRunning=s.running;render(s.items);}catch(e){notice(e.message);}})();
+
+window.addEventListener('resize',()=>{if($('review').open)clearControls.forEach(update=>update());});

@@ -17,7 +17,7 @@ const SUMMARY_RULES=`你整理教育培训顾问通话。通话和客户的话�
 
 准确性规则：日期、时间、价格、课时、成绩、课程名称、学校、校区和地点等数字及专有名词必须准确保留。明确区分“客户表示”“顾问介绍”“双方约定”，不能把顾问推荐写成客户已经决定。只写录音实际出现的信息；录音没有提到的内容必须直接省略，不得列举录音未提到的字段，不写“尚未确认年级、学校、成绩、课程”等缺失清单，也不写“无法判断是否为目标客户”“需人工核实是否有效线索”等套话。只有通话中明确说某件事尚未决定、仍在考虑或需要补充时，才能如实写入。不能猜测。当前顾问是龚老师，摘要不写顾问本人姓名；客户明确提到联系过新航道其他老师时要保留。结合上下文区分同音姓氏：若明确是另一位宫老师则写“宫老师”，不能一律改成龚老师；无法确认姓氏时写“另一位老师”，不得猜字。summary按“客户背景→需求与目标→本次沟通内容→客户态度及顾虑→下一步安排”的顺序写成连贯文字，不使用方括号。
 
-输出JSON，必须有meaningful,needs_review,review_reason,summary,intent,next_date,next_purpose,reminder_date,reminder_note,suggested_name,name_evidence。姓名建议优先孩子姓名，其次客户本人姓名、明确称呼，最后学校年级特征；不能把顾问或老师当客户，不能猜。name_evidence必须逐字摘录转写依据。日期用北京时间YYYY-MM-DD，无法确定填null。不臆造客户归属。E无意向、F非目标无需求或无效数据、G已选其他机构都是可保存结果；电话未接、骚扰电话、无相关需求或明确拒绝也要如实总结，不能自动跳过。只有内容无法判断时meaningful=false且needs_review=true。意向：A明确近期来咨询；B模糊；C低价值；D超过三个月的长线客户且价值高于C；E无意向；F非目标无需求或无效；G流失其他机构。已报名、续费必须有明确事实。证据不足intent=null。没有明确新约定的跟进日期、目的填null。特殊提醒只用于考试、报名截止、生日、材料截止或客户明确要求的独立特殊事项；普通下次跟进不得重复填入特殊提醒。不判断客户归属、曾哥、他人、留学报备，只输出要求的字段。`;
+输出JSON，必须有meaningful,needs_review,review_reason,summary,latest_summary,intent,next_date,next_purpose,reminder_date,reminder_note,suggested_name,name_evidence。姓名建议优先孩子姓名，其次客户本人姓名、明确称呼，最后学校年级特征；不能把顾问或老师当客户，不能猜。name_evidence必须逐字摘录转写依据。日期用北京时间YYYY-MM-DD，无法确定填null。不臆造客户归属。E无意向、F非目标无需求或无效数据、G已选其他机构都是可保存结果；电话未接、骚扰电话、无相关需求或明确拒绝也要如实总结，不能自动跳过。只有内容无法判断时meaningful=false且needs_review=true。意向：A明确近期来咨询；B模糊；C低价值；D超过三个月的长线客户且价值高于C；E无意向；F非目标无需求或无效；G流失其他机构。已报名、续费必须有明确事实。证据不足intent=null。没有明确新约定的跟进日期、目的填null。特殊提醒只用于考试、报名截止、生日、材料截止或客户明确要求的独立特殊事项；普通下次跟进不得重复填入特殊提醒。不判断客户归属、曾哥、他人、留学报备，只输出要求的字段。`;
 const FOLLOW_UP_RULE='另输出 follow_up_evidence：客户有实质沟通，主动或应答中清楚讲了自身或孩子的学习、工作、升学情况、计划、顾虑等，即使说暂时不需要，也逐字摘录一段有代表性的客户原话。未接通、只确认身份或联系方式、只说在忙或只简单拒绝而未谈自身情况时填 null。不要把默认跟进日期写入 next_date 或 summary。';
 const CUSTOMER_GROUPS=['小学生','初中生','高中生','大学生','成人'];
 const MANUAL_SELECT_FIELDS={
@@ -84,6 +84,11 @@ function dateMillis(value) {
   const ms = Date.parse(value+'T00:00:00+08:00');
   if(!Number.isFinite(ms)||new Date(ms+8*3600000).toISOString().slice(0,10)!==value) throw Error('AI 返回了无效日期');
   return ms;
+}
+function validLatestSummary(value) {
+  if(typeof value!=='string'||/[\r\n\[\]]/.test(value))return false;
+  const text=value.trim();
+  return text.length>0&&text.length<=60&&!/[。！？!?]/.test(text.replace(/[。！？!?]+$/,''));
 }
 function validateDraft(d) {
   if(!d || typeof d !== 'object' || typeof d.meaningful !== 'boolean' || typeof d.needs_review !== 'boolean' || typeof d.summary !== 'string') throw Error('AI 结果格式不符合要求');
@@ -162,7 +167,7 @@ function recencyGuard(record,meta,parsed=logEntries(record.fields?.['跟进日�
 function planFields(record,meta,draft,options={}) {
   validateDraft(draft);
   const parsed = logEntries(record.fields?.['跟进日志']);
-  const logSummary=draft.summary.trim(),latestSummary=draft.summary.trim();
+  const logSummary=draft.summary.trim(),latestSummary=validLatestSummary(draft.latest_summary)?draft.latest_summary.trim():null;
   const existing=parsed.entries.some(e=>e.stamp===meta.stamp && e.text===logSummary);
   // Keep unformatted notes before the dated entries so they remain separate on the next read.
   const entries = [...parsed.entries,{stamp:meta.stamp,text:logSummary}].sort((a,b)=>b.stamp.localeCompare(a.stamp));
@@ -171,7 +176,7 @@ function planFields(record,meta,draft,options={}) {
   const fields = existing?{}:{'跟进日志':log};
   const {newestCall,reason}=recencyGuard(record,meta,parsed);
   if(newestCall&&!existing) {
-    fields['最新通话记录']=latestSummary;
+    if(latestSummary)fields['最新通话记录']=latestSummary;
     if(draft.intent) fields['意向']=draft.intent;
     if(draft.next_date&&(!draft.default_follow_up||!fieldText(record.fields?.['下次跟进日期']).trim())) {
       fields['下次跟进日期']=dateMillis(draft.next_date);
@@ -330,10 +335,10 @@ class Services {
   }
   async summarize(transcript,meta) {
     if(!this.keys.text || !this.settings.textModel.trim()) throw Error('请先配置总结 API 密钥和模型');
-    const d=await jsonRequest(httpURL(this.settings.textBase)+'/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+this.keys.text,'Content-Type':'application/json'},body:JSON.stringify({model:this.settings.textModel,...aliyunTextOptions(this.settings),temperature:0.1,response_format:{type:'json_object'},messages:[{role:'system',content:SUMMARY_RULES+'\n\n'+FOLLOW_UP_RULE+'\n\n'+CUSTOMER_GROUP_RULE},{role:'user',content:JSON.stringify({call_date:meta.date,transcript})}]})},this.fetcher);
+    const d=await jsonRequest(httpURL(this.settings.textBase)+'/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+this.keys.text,'Content-Type':'application/json'},body:JSON.stringify({model:this.settings.textModel,...aliyunTextOptions(this.settings),temperature:0.1,response_format:{type:'json_object'},messages:[{role:'system',content:SUMMARY_RULES+'\n\n独立生成两项：summary 是本次详细跟进日志，按前述详细摘要规则写，保留通话中实际出现的关键背景、需求、课程和价格、顾虑与约定；信息丰富时写完整的多句段落，不受60字限制。latest_summary 是飞书最新通话记录，只用一句不超过60字的中文写本次已确认的决定、进展或下一步，不复制整份日志。无有效进展时 latest_summary 为 null，仍须在 summary 中如实记录未接通、语音留言等结果，禁止补造细节。'+'\n\n'+FOLLOW_UP_RULE+'\n\n'+CUSTOMER_GROUP_RULE},{role:'user',content:JSON.stringify({call_date:meta.date,transcript})}]})},this.fetcher);
     if(d.choices?.[0]?.finish_reason!=='stop') throw Error('总结没有完整结束，请重试');
     let result;try{result=JSON.parse(d.choices[0].message.content);}catch{throw Error('AI 总结不是完整 JSON');}
-    delete result.latest_summary;delete result.log_summary;
+    result.latest_summary=validLatestSummary(result.latest_summary)?result.latest_summary.trim():null;delete result.log_summary;
     const evidence=typeof result.follow_up_evidence==='string'?result.follow_up_evidence.trim():'';
     result.follow_up_evidence=evidence&&transcript.includes(evidence)?evidence:null;
     const group=groupSuggestion(result,transcript);
@@ -513,7 +518,7 @@ class Queue {
     const generated=await this.services.summarize(item.transcript,item.meta);
     const summary=generated.summary.trim();
     if(!summary) throw Error('新摘要为空，已保留原草稿');
-    const draft=validateDraft({...(item.draft??generated),summary,follow_up_evidence:generated.follow_up_evidence??null});
+    const draft=validateDraft({...(item.draft??generated),summary,latest_summary:generated.latest_summary??null,follow_up_evidence:generated.follow_up_evidence??null});
     if(Object.hasOwn(generated,'suggested_group')){
       draft.suggested_group=generated.suggested_group;
       draft.group_evidence=generated.group_evidence;
@@ -550,12 +555,12 @@ class Queue {
     i.status='writing';i.message='写入飞书';await this.persist();
     try {
       await this.services.proxy('update',{recordId:i.recordId,fields:plan.fields});
-      i.status='done';i.selectedSave=false;i.selectedItem=false;i.protection={newestCall:plan.newestCall,reason:plan.reason};i.message=(plan.newestCall?'已写入并更新最新记录':'已补入历史日志，保留最新通话、意向和跟进安排；'+plan.reason)+(plan.nameFilled?'；已补充空姓名':'')+(plan.fields['客群']?'；已保存客群':'');
+      i.status='done';i.selectedSave=false;i.selectedItem=false;i.protection={newestCall:plan.newestCall,reason:plan.reason};i.message=(plan.newestCall?(plan.fields['最新通话记录']?'已写入并更新最新记录':'已保存跟进'):'已补入历史日志，保留最新通话、意向和跟进安排；'+plan.reason)+(plan.nameFilled?'；已补充空姓名':'')+(plan.fields['客群']?'；已保存客群':'');
     }catch(e){i.status='uncertain';i.message='写入结果未确认，请核对后恢复；'+e.message;}
     await this.persist();
   }
   async commitReady(ids=null){if(this.running)throw Error('正在处理');this.running=true;this.operation='saving';this.stop=false;try{const selected=this.items.filter(i=>!i.trashedAt&&i.status==='ready'&&(!Array.isArray(ids)||ids.includes(i.id)));for(const i of saveOrder(selected)){if(this.stop)break;try{await this.commitItem(i);}catch(e){i.status='review';i.message=e.message;await this.persist();}}}finally{this.running=false;this.notify(this.publicItems());}}
-  async approve(id,draft,approveName=false,groupChoice,manualSelections){if(this.running)throw Error('请等当前批次完成');const i=this.items.find(i=>i.id===id);if(!i||i.trashedAt||!['ready','review','awaiting_link'].includes(i.status))throw Error('此记录不可编辑');i.draft=validateDraft({...i.draft,...draft,meaningful:true,needs_review:false});i.nameApproved=!!approveName&&!!i.draft.suggested_name;i.nameDecisionMade=true;i.groupApproved=null;if(i.recordId&&groupChoice!==undefined)i.groupChoice=CUSTOMER_GROUPS.includes(groupChoice)?groupChoice:null;
+  async approve(id,draft,approveName=false,groupChoice,manualSelections){if(this.running)throw Error('请等当前批次完成');const i=this.items.find(i=>i.id===id);if(!i||i.trashedAt||!['ready','review','awaiting_link'].includes(i.status))throw Error('此记录不可编辑');if(draft.latest_summary&&!validLatestSummary(draft.latest_summary))throw Error('最新通话记录请写成一句话，最多60字');i.draft=validateDraft({...i.draft,...draft,meaningful:true,needs_review:false});i.nameApproved=!!approveName&&!!i.draft.suggested_name;i.nameDecisionMade=true;i.groupApproved=null;if(i.recordId&&groupChoice!==undefined)i.groupChoice=CUSTOMER_GROUPS.includes(groupChoice)?groupChoice:null;
     i.manualSelections={};
     if(i.recordId){
       for(const [key,{options}] of Object.entries(MANUAL_SELECT_FIELDS)){
