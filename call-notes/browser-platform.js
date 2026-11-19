@@ -1,11 +1,21 @@
-// Browser-only persistence. No recording, queue or key is uploaded for storage.
+// The public cloud test uses a separate browser database from the everyday queue.
+export const cloudTest=new URLSearchParams(globalThis.location?.search).get('cloud-test')==='1';
+let aliyunAudio;
+export function setAliyunAudio(loader){aliyunAudio=loader;}
+async function audioBlob(key){
+  if(typeof key==='string'&&key.startsWith('aliyun-audio/')){
+    if(!aliyunAudio)throw Error('请先连接阿里云同步');
+    return aliyunAudio(key.slice(13));
+  }
+  return get(key);
+}
 export const MAX_FILE=512*1024*1024;
 let connection;
 export let storageError=null;
 export async function openDB(){
   if(connection)return connection;
   connection=await new Promise((resolve,reject)=>{
-    const request=indexedDB.open('grace-call-notes-v1',1);
+    const request=indexedDB.open(cloudTest?'grace-call-notes-public-cloud-test-v1':'grace-call-notes-v1',1);
     request.onupgradeneeded=()=>request.result.createObjectStore('data');
     request.onsuccess=()=>resolve(request.result);
     request.onerror=()=>reject(Error('无法打开浏览器本地数据库，请使用普通浏览窗口并允许网站存储。'));
@@ -14,22 +24,22 @@ export async function openDB(){
 }
 export async function get(key){const db=await openDB();return new Promise((resolve,reject)=>{const r=db.transaction('data').objectStore('data').get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
 export async function set(key,value){return batch([{key,value}]);}
-export async function batch(changes){
+export async function batch(changes,{reportFailure=true}={}){
   const db=await openDB();
   try{await new Promise((resolve,reject)=>{const tx=db.transaction('data','readwrite'),store=tx.objectStore('data');for(const c of changes)c.remove?store.delete(c.key):store.put(c.value,c.key);tx.oncomplete=resolve;tx.onerror=tx.onabort=()=>reject(tx.error||Error('本地存储事务中断'));});}
-  catch(e){storageError=Error('浏览器保存失败（可能空间不足）。已停止操作，请先导出备份，再释放磁盘空间并重新打开页面。');throw storageError;}
+  catch(e){if(!reportFailure)throw e;storageError=Error('浏览器保存失败（可能空间不足）。已停止操作，请先导出备份，再释放磁盘空间并重新打开页面。');throw storageError;}
 }
 export const path={basename:s=>String(s).split(/[\\/]/).pop(),extname:s=>String(s).match(/\.[^.\\/]+$/)?.[0]||'',join:(...s)=>s.join('/')};
 const temporary=new Map();
 export const fs={
   mkdir:async()=>{},
-  stat:async key=>{const f=await get(key);if(!(f instanceof Blob))throw Error('未找到录音，请重新导入原始文件以恢复关联。');return {size:f.size};},
-  readFile:async(key,encoding)=>{if(key==='local/queue.json'){const s=await get('queue');if(s===undefined){const e=Error('empty');e.code='ENOENT';throw e;}return JSON.stringify(s);}const blob=await get(key);if(!(blob instanceof Blob))throw Error('未找到录音，请重新导入原始文件。');return new Uint8Array(await blob.arrayBuffer());},
+  stat:async key=>{const f=await audioBlob(key);if(!(f instanceof Blob))throw Error('未找到录音，请重新导入原始文件以恢复关联。');return {size:f.size};},
+  readFile:async(key,encoding)=>{if(key==='local/queue.json'){const s=await get('queue');if(s===undefined){const e=Error('empty');e.code='ENOENT';throw e;}return JSON.stringify(s);}const blob=await audioBlob(key);if(!(blob instanceof Blob))throw Error('未找到录音，请重新导入原始文件。');return new Uint8Array(await blob.arrayBuffer());},
   writeFile:async(key,s)=>temporary.set(key,JSON.parse(s)),
   rename:async(from,to)=>{await set('queue',temporary.get(from));temporary.delete(from);},
   rm:async key=>batch([{key,remove:true}])
 };
-export async function hashFile(key){const f=key instanceof Blob?key:await get(key);if(!(f instanceof Blob))throw Error('录音不在此浏览器中，请重新导入同一份原始录音。');if(f.size>MAX_FILE)throw Error('单个录音最多支持 512 MB');const digest=await crypto.subtle.digest('SHA-256',await f.arrayBuffer());return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');}
+export async function hashFile(key){const f=key instanceof Blob?key:await audioBlob(key);if(!(f instanceof Blob))throw Error('录音不在此浏览器中，请重新导入同一份原始录音。');if(f.size>MAX_FILE)throw Error('单个录音最多支持 512 MB');const digest=await crypto.subtle.digest('SHA-256',await f.arrayBuffer());return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');}
 export function readPCM(bytes){
   const v=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength),str=(p,n)=>String.fromCharCode(...bytes.subarray(p,p+n));
   if(bytes.length<44||str(0,4)!=='RIFF'||str(8,4)!=='WAVE')throw Error('需要有效的 WAV 文件');
@@ -49,7 +59,7 @@ export function readPCM(bytes){
 }
 function resample(count,rate,sample){const len=Math.max(1,Math.floor(count*16000/rate));if(len*2>MAX_FILE)throw Error('解码后的音频过大，请先将录音拆分。');const output=new Uint8Array(len*2),v=new DataView(output.buffer);for(let n=0;n<len;n++){const p=n*rate/16000,lo=Math.floor(p),f=p-lo,a=sample(lo)*(1-f)+sample(lo+1)*f;v.setInt16(n*2,Math.max(-32768,Math.min(32767,Math.round(a*32768))),true);}return output;}
 export async function normalizedPCM(key){
-  const file=await get(key);if(!(file instanceof Blob))throw Error('未找到录音，请重新导入原文件。');if(file.size>MAX_FILE)throw Error('单个录音最多支持 512 MB');const bytes=new Uint8Array(await file.arrayBuffer());
+  const file=await audioBlob(key);if(!(file instanceof Blob))throw Error('未找到录音，请重新导入原文件。');if(file.size>MAX_FILE)throw Error('单个录音最多支持 512 MB');const bytes=new Uint8Array(await file.arrayBuffer());
   try{return readPCM(bytes);}catch{}
   const Audio=globalThis.AudioContext||globalThis.webkitAudioContext;if(!Audio)throw Error('当前浏览器不支持音频解码，请使用新版 Chrome 或 Safari。');
   const ctx=new Audio();
