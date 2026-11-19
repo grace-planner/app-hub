@@ -267,7 +267,3 @@
 #storage-tools { margin-top: 16px; }
 #storage-tools .backup-actions { margin-top: 8px; }
 #storage-feedback { margin-bottom: 0; }
-
-#settings .sync-preference{display:flex;align-items:center;gap:8px}
-#settings .sync-preference input{width:auto;margin:0;accent-color:#784bbb}
-.cloud-test :is(#import,#process,#resummarize-selected,#commit,#empty-trash,#import-backup,#diagnose-aliyun,#test){display:none!important}

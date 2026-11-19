@@ -1,4 +1,4 @@
-import {MANUAL_SELECT_FIELDS} from './core.js?v=20261118-web-release1';
+import {MANUAL_SELECT_FIELDS} from './core.js?v=20261119-ui-parity1';
 const $=id=>document.getElementById(id);
 let currentItems=[],currentDraftId=null,currentLinkId=null,currentPreserved={},page='inbox',filter='all',wasRunning=false,calendarMode='1',calendarAnchor=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai'}).format(new Date());
 let currentManualValues=null,operation=null,stopRequested=false;
@@ -22,6 +22,7 @@ function selectedIds(p){return visibleItems().filter(i=>i.selectedItem&&eligible
 function renderOperationStatus(){
   const status=$('operation-status');
   const message={
+    syncing:'正在同步文字记录…',
     importing:'正在导入录音…',
     matching:'正在匹配客户…',
     analysis:'正在分析选中的录音…',
@@ -126,6 +127,16 @@ function render(items){
     const buttons=document.createElement('div');buttons.className='row-actions';
     const secondary=document.createElement('div');secondary.className='row-more-options';
     if(i.draft){const b=document.createElement('button');b.textContent='查看';b.disabled=wasRunning;b.onclick=action(()=>openDraft(i));buttons.append(b);}
+    if(i.hasTranscript){
+      const b=document.createElement('button');
+      b.textContent='查看转写原文';
+      b.disabled=wasRunning;
+      b.onclick=action(async()=>{
+        $('transcript-view-text').textContent=await call('transcript',i.id);
+        $('transcript-view').showModal();
+      });
+      buttons.append(b);
+    }
     if(eligible(i,'resummarize')){
       const button=document.createElement('button');
       button.textContent='重新总结';
