@@ -32,22 +32,32 @@ export function requestDriveToken() {
   });
 }
 
+export function canEnrollDriveText(item) {
+  return !item.driveText && !item.trashedAt && !transient.has(item.status) &&
+    idPattern.test(item.id) && !!item.meta && typeof item.transcript === 'string' && !!item.transcript.trim();
+}
+
 export async function makeDriveTextSync(token, hash, fetcher = fetch) {
-  const request = async (path, options = {}) => {
-    const response = await fetcher(base + path, {
-      ...options,
-      headers: { Authorization: 'Bearer ' + token, ...options.headers },
-      cache: 'no-store',
-      redirect: 'error',
-      signal: AbortSignal.timeout(60_000)
-    });
+  const request = async (step, path, options = {}) => {
+    let response;
+    try {
+      response = await fetcher(base + path, {
+        ...options,
+        headers: { Authorization: 'Bearer ' + token, ...options.headers },
+        cache: 'no-store',
+        redirect: 'error',
+        signal: AbortSignal.timeout(60_000)
+      });
+    } catch (error) {
+      throw new Error(`Google Drive ${step}失败（${error.name === 'TimeoutError' ? '请求超时' : '浏览器网络请求失败'}）`, { cause: error });
+    }
     if (!response.ok) {
       throw Object.assign(Error(response.status === 401 ? 'Google 登录已过期，请重新连接' :
-        `Google Drive 请求失败（${response.status}）`), { status: response.status });
+        `Google Drive ${step}失败（${response.status}）`), { status: response.status });
     }
     return response;
   };
-  const account = (await (await request('/drive/v3/about?fields=user(permissionId)')).json()).user?.permissionId;
+  const account = (await (await request('读取账号', '/drive/v3/about?fields=user(permissionId)')).json()).user?.permissionId;
   if (!fileIdPattern.test(account || '')) throw Error('无法识别 Google Drive 账号');
 
   async function list() {
@@ -59,7 +69,7 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch) {
       pageSize: '100'
     });
     do {
-      const page = await (await request('/drive/v3/files?' + params)).json();
+      const page = await (await request('读取同步列表', '/drive/v3/files?' + params)).json();
       if (page.incompleteSearch || (page.nextPageToken && page.nextPageToken === params.get('pageToken'))) {
         throw Error('Drive 文件列表不完整，请重试');
       }
@@ -80,13 +90,13 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch) {
       content,
       `\r\n--${boundary}--\r\n`
     ]);
-    const response = await request('/upload/drive/v3/files?uploadType=multipart&fields=id', {
+    const response = await request('上传转写', '/upload/drive/v3/files?uploadType=multipart&fields=id', {
       method: 'POST', body, headers: { 'Content-Type': 'multipart/related; boundary=' + boundary }
     });
     return (await response.json()).id;
   }
 
-  const downloadFile = id => request('/drive/v3/files/' + encodeURIComponent(id) + '?alt=media');
+  const downloadFile = id => request('下载转写', '/drive/v3/files/' + encodeURIComponent(id) + '?alt=media');
   async function sync(items) {
     const histories = new Map();
     for (const file of await list()) {
@@ -98,6 +108,8 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch) {
     const local = new Map(items.map(item => [item.id, item]));
     const result = new Map(local);
     let conflicts = 0;
+    let uploaded = 0;
+    let downloaded = 0;
     const eligible = items.filter(item => item.driveText?.account === account && idPattern.test(item.id));
     for (const id of new Set([...histories.keys(), ...eligible.map(item => item.id)])) {
       const item = local.get(id);
@@ -110,10 +122,13 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch) {
       let head = heads[0];
       let text = item && snapshot(item);
       if (item?.transcript && state && text !== state.baseline) {
-        if ((head?.version || '') !== state.version) { conflicts++; continue; }
         const version = await hash(new Blob([state.version, '\n', text]));
-        await upload(id, text, { version, ...(state.version && { parent: state.version }) });
-        head = { version };
+        if (head?.version !== version) {
+          if ((head?.version || '') !== state.version) { conflicts++; continue; }
+          await upload(id, text, { version, ...(state.version && { parent: state.version }) });
+          uploaded++;
+          head = { version };
+        }
       } else if (head && head.version !== state?.version) {
         const record = await (await downloadFile(head.id)).json();
         if (record.id !== id || typeof record.filename !== 'string' || typeof record.transcript !== 'string' ||
@@ -124,6 +139,7 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch) {
         if (await hash(new Blob([head.parent || '', '\n', remote])) !== head.version) throw Error('Drive 转写记录校验失败');
         if (item?.transcript && !state && text !== remote) { conflicts++; continue; }
         text = remote;
+        downloaded++;
       }
       if (!head || !text || head.version === state?.version) continue;
       const record = JSON.parse(text);
@@ -132,7 +148,7 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch) {
       for (const key of fields) if (!Object.hasOwn(record, key)) delete next[key];
       result.set(id, next);
     }
-    return { items: [...result.values()], conflicts };
+    return { items: [...result.values()], conflicts, uploaded, downloaded };
   }
 
   return { account, sync };

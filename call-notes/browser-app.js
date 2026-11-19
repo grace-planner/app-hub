@@ -1,4 +1,4 @@
-import {makeDriveTextSync,requestDriveToken} from './google-drive-text.js?v=1';
+import {canEnrollDriveText,makeDriveTextSync,requestDriveToken} from './google-drive-text.js?v=2';
 import {get,set,batch,openDB,storageError,hashFile,MAX_FILE,path} from './browser-platform.js?v=20261119-ui-parity1';
 import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,displayedGroupSuggestion,recordSnapshot,suggestedFollowUp,recencyGuard,validateDraft} from './core.js?v=20261119-ui-parity1';
 const $=id=>document.getElementById(id);
@@ -16,6 +16,7 @@ function connectDriveText(client){
   driveTextClient=client;
   $('drive-text-connect').disabled=!!client;
   $('drive-text-sync').disabled=!client;
+  $('drive-text-enroll').disabled=!client;
 }
 async function syncDriveText(){
   try{
@@ -26,7 +27,9 @@ async function syncDriveText(){
     }
     showDriveStatus(result.conflicts
       ? `${result.conflicts} 条记录有冲突，已保留各版本。`
-      : '转写原文和草稿已同步。');
+      : result.uploaded||result.downloaded
+        ? `文字同步完成。上传 ${result.uploaded} 条，下载 ${result.downloaded} 条。`
+        : '检查完成，没有新的转写或草稿需要同步。');
   }catch(error){
     if(error.status===401)connectDriveText(null);
     showDriveStatus(error.message);
@@ -51,6 +54,18 @@ if(driveOrigin){
     await syncDriveText();
   }).catch(error=>showDriveStatus(error.message));
   $('drive-text-sync').onclick=()=>withBusy('syncing',syncDriveText).catch(error=>showDriveStatus(error.message));
+  $('drive-text-enroll').onclick=()=>withBusy('syncing',async()=>{
+    const count=queue.items.filter(canEnrollDriveText).length;
+    if(!count){showDriveStatus('没有可补传的已有转写。');return;}
+    if(!confirm(`将此浏览器已有的 ${count} 条通话记录（含转写和草稿）同步到当前连接的 Google Drive？`))return;
+    const items=queue.items.map(item=>canEnrollDriveText(item)
+      ? {...item,driveText:{account:driveTextClient.account,version:'',baseline:''}}
+      : item);
+    await set('queue',items);
+    queue.items=items;
+    await syncDriveText();
+  }).catch(error=>showDriveStatus(error.message));
+
   setInterval(()=>{
     if(driveTextClient&&ready&&!busyOperation&&!queue.running&&!document.querySelector('dialog[open]')){
       withBusy('syncing',syncDriveText).catch(error=>showDriveStatus(error.message));

@@ -20,7 +20,7 @@
 <fieldset><legend>跟进总结</legend><label>API 基础地址<input name="textBase" required type="url"></label><label>模型名称<input name="textModel" required placeholder="填写账户可用且支持 JSON 输出的模型"></label><p class="hint">使用上方同一把百炼 Key。</p></fieldset></div>
 <fieldset id="drive-text-tools" hidden><legend>Google Drive 文字同步</legend>
 <p class="hint">连接后，新导入录音的转写原文和草稿会同步到你的 Google Drive。</p>
-<div><button type="button" id="drive-text-connect" disabled>连接 Google Drive</button> <button type="button" id="drive-text-sync" disabled>立即同步</button></div>
+<div><button type="button" id="drive-text-connect" disabled>连接 Google Drive</button> <button type="button" id="drive-text-sync" disabled>立即同步</button> <button type="button" id="drive-text-enroll" disabled>同步已有转写</button></div>
 <p id="drive-text-status" class="hint" role="status"></p>
 </fieldset>
 <fieldset id="storage-tools"><legend>本地数据与备份</legend>
@@ -40,4 +40,4 @@
 <details><summary>查看转写原文</summary><pre id="transcript"></pre></details><p class="hint">跟进日志只新增本次内容，不修改旧日志。D 是超过三个月的长线客户，价值高于 C。</p></section></div>
 <div class="dialog-actions"><button type="submit" class="primary" id="approve">确认这条草稿</button></div></form></dialog>
 <dialog id="link"><h2>关联飞书客户</h2><p>输入分配数据表中的姓名或号码，核对后选择对应客户。关联前不会写入飞书。</p><form id="link-form"><label>姓名或号码<input id="link-query" minlength="2" required autocomplete="off"></label><button type="submit">搜索客户</button></form><div id="link-results"></div><div class="dialog-actions"><button id="close-link">关闭</button></div></dialog>
-<script src="queue-view.js?v=20261119-ui-parity1"></script><script type="module" src="browser-app.js?v=20261119-ui-parity1"></script></body></html>
+<script src="queue-view.js?v=20261119-ui-parity1"></script><script type="module" src="browser-app.js?v=20261119-drive-history1"></script></body></html>
