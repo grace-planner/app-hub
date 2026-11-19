@@ -1,4 +1,4 @@
-import {canEnrollDriveText,makeDriveTextSync,requestDriveToken} from './google-drive-text.js?v=2';
+import {canEnrollDriveText,makeDriveTextSync,requestDriveToken} from './google-drive-text.js?v=3';
 import {get,set,batch,openDB,storageError,hashFile,MAX_FILE,path} from './browser-platform.js?v=20261119-ui-parity1';
 import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,displayedGroupSuggestion,recordSnapshot,suggestedFollowUp,recencyGuard,validateDraft} from './core.js?v=20261119-ui-parity1';
 const $=id=>document.getElementById(id);
@@ -25,11 +25,12 @@ async function syncDriveText(){
       await set('queue',result.items);
       queue.items=result.items;
     }
-    showDriveStatus(result.conflicts
+    const moved=result.moved?`已将 ${result.moved} 个文字文件移入同步文件夹。`:'';
+    showDriveStatus((result.conflicts
       ? `${result.conflicts} 条记录有冲突，已保留各版本。`
       : result.uploaded||result.downloaded
         ? `文字同步完成。上传 ${result.uploaded} 条，下载 ${result.downloaded} 条。`
-        : '检查完成，没有新的转写或草稿需要同步。');
+        : '检查完成，没有新的转写或草稿需要同步。')+moved);
   }catch(error){
     if(error.status===401)connectDriveText(null);
     showDriveStatus(error.message);
