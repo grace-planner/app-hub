@@ -16,13 +16,22 @@ document.addEventListener('click',event=>{
   }
 });
 const filterLabels={all:'全部待办',analysis:'待分析',ready:'待保存',attention:'待核对／异常'};
-function visibleItems(){if(page==='calendar')return[];return page==='inbox'?window.crmView.inbox(currentItems,filter):currentItems.filter(i=>page==='trash'?!!i.trashedAt:!i.trashedAt&&i.status==='done');}
+const archiveSearch=$('archive-phone-search');
+function visibleItems(){
+  if(page==='calendar')return [];
+  if(page==='inbox')return window.crmView.inbox(currentItems,filter);
+  if(page==='trash')return currentItems.filter(item=>item.trashedAt);
+  return window.crmView.archived(currentItems,archiveSearch.value);
+}
+archiveSearch.addEventListener('input',()=>render(currentItems));
 function eligible(i,p){return window.crmView.eligible(i,p);}
 function selectedIds(p){return visibleItems().filter(i=>i.selectedItem&&eligible(i,p)).map(i=>i.id);}
 function renderOperationStatus(){
   const status=$('operation-status');
   const message={
     syncing:'正在同步文字记录…',
+    'connecting-drive':'正在等待 Google Drive 授权…',
+    'clearing-trash':'正在清空回收站…',
     importing:'正在导入录音…',
     matching:'正在匹配客户…',
     analysis:'正在分析选中的录音…',
@@ -35,6 +44,7 @@ function renderOperationStatus(){
   $('notice').hidden=wasRunning;
 }
 function selectionInfo(){
+  archiveSearch.hidden=page!=='archive';
   const visible=visibleItems(),selected=visible.filter(i=>i.selectedItem),active=page==='inbox';
   for(const name of ['inbox','calendar','archive','trash'])$('nav-'+name).classList.toggle('active',page===name);
   $('queue-panel').hidden=page==='calendar';$('calendar-panel').hidden=page!=='calendar';
@@ -44,14 +54,17 @@ function selectionInfo(){
   $('stats').hidden=!active;
   for(const name of Object.keys(filterLabels)){$('filter-'+name).classList.toggle('selected',active&&filter===name);$('filter-'+name).setAttribute('aria-pressed',String(active&&filter===name));}
   $('mode').textContent={inbox:'统一勾选，选择分析、保存或移除',archive:'可清理录音引用，保留已归档文字结果',trash:'可恢复或永久清空；原始录音和飞书记录保持不变'}[page];
-  $('selection-help').textContent=wasRunning?'':`当前页面已选 ${selected.length} 项。`+(active?'分析处理可分析的录音；保存仅处理已核对并关联客户的草稿。':'移除和恢复仅影响本浏览器列表。');
+  $('selection-help').textContent=wasRunning?'':`当前页面已选 ${selected.length} 项。`+(active?'分析处理可分析的录音；保存仅处理已核对并关联客户的草稿。':page==='trash'?'清空会处理回收站里的全部记录。':'可移除选中的记录。');
   const analysis=selected.filter(i=>eligible(i,'analysis')).length,save=selected.filter(i=>eligible(i,'save')).length;
   const summaries=selected.filter(i=>eligible(i,'resummarize')).length;
   $('process').textContent=`分析选中录音（${analysis}条）`;$('commit').textContent=`保存选中草稿（${save}条）`;
   $('resummarize-selected').textContent=`重新总结选中（${summaries}条）`;
   $('resummarize-selected').disabled=wasRunning||!summaries;
   $('primary-actions').hidden=!active;
-  $('stop').hidden=!active;
+  const driveBusy=['connecting-drive','syncing','clearing-trash'].includes(operation);
+  $('stop').hidden=!active&&!driveBusy;
+  $('stop').textContent=driveBusy?'取消 Google Drive 操作':'本条结束后停止';
+  $('stop').title=driveBusy?'取消当前 Google Drive 操作':'处理完当前一条后停止';
   $('process').disabled=wasRunning||!analysis;$('commit').disabled=wasRunning||!save;$('stop').disabled=!wasRunning;
   $('import').hidden=!active;$('import').disabled=wasRunning;
   $('remove-items').hidden=page==='trash';$('restore-items').hidden=page!=='trash';
@@ -162,7 +175,9 @@ function render(items){
       inbox:filter==='all'
         ?['↗','暂无待处理录音','点击「批量导入录音」，可一次选择多个文件。','百炼模式支持长录音自动分段 · 单个文件最多 512 MB']
         :['✓','当前筛选没有录音','可切换筛选，或导入新的录音。'],
-      archive:['✓','暂无已归档项目','保存到飞书的录音会显示在这里。'],
+      archive:archiveSearch.value.trim()
+        ?['↗','没有匹配的归档记录','试试完整号码或尾号。']
+        :['✓','暂无已归档项目','保存到飞书的录音会显示在这里。'],
       trash:['✓','回收站为空','移除的录音可在这里恢复。']
     }[page];
     const empty=document.createElement('div');empty.className='empty';
@@ -381,7 +396,7 @@ $('resummarize-selected').onclick=action(async()=>{
     unprocessed&&`未处理 ${unprocessed} 条`
   ].filter(Boolean).join('；'));
 });
-$('stop').onclick=action(async()=>{await call('stop');stopRequested=wasRunning;renderOperationStatus();});$('commit').onclick=action(()=>call('commit',selectedIds('save')));
+$('stop').onclick=action(async()=>{await call('stop');stopRequested=wasRunning&&!['connecting-drive','syncing','clearing-trash'].includes(operation);renderOperationStatus();});$('commit').onclick=action(()=>call('commit',selectedIds('save')));
 $('test').onclick=async()=>{try{alert(await call('test'));}catch(e){alert(e.message);}};$('close-review').onclick=()=>$('review').close();$('close-link').onclick=()=>$('link').close();
 $('review-form').onsubmit=async e=>{
   e.preventDefault();

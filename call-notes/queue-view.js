@@ -32,7 +32,13 @@
     const base=dateValue(anchor),d=new Date(base),first=Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),1),weekday=(new Date(first).getUTCDay()+6)%7,start=first-weekday*86400000,month=d.getUTCMonth();
     return calendarRange(items,dateKey(start),42).map(day=>({...day,inMonth:new Date(dateValue(day.date)).getUTCMonth()===month}));
   }
-  const api={group,inbox,eligible,actionIds,displayName,calendarItems,calendarRange,calendarMonth};
+  function archived(items,query=''){
+    const number=query.normalize('NFKC').replace(/[\s()+-]/g,'');
+    const hasQuery=!!query.trim();
+    return items.filter(item=>!item.trashedAt&&item.status==='done'&&
+      (!hasQuery||(/^\d+$/.test(number)&&String(item.meta?.phone||'').replace(/\D/g,'').includes(number))));
+  }
+  const api={group,inbox,archived,eligible,actionIds,displayName,calendarItems,calendarRange,calendarMonth};
   if(typeof module==='object'&&module.exports)module.exports=api;
   else root.crmView=api;
 })(typeof window==='object'?window:globalThis);

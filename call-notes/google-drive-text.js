@@ -14,23 +14,41 @@ const idPattern = /^[a-f0-9]{64}$/;
 const fileIdPattern = /^[A-Za-z0-9_-]+$/;
 const snapshot = item => JSON.stringify(Object.fromEntries(fields.filter(key => Object.hasOwn(item, key)).map(key => [key, item[key]])));
 
-export function requestDriveToken() {
+export function requestDriveToken(signal = AbortSignal.timeout(45_000)) {
   return new Promise((resolve, reject) => {
     const oauth = globalThis.google?.accounts?.oauth2;
     if (!oauth) return reject(Error('Google 登录未加载，请检查网络后刷新页面'));
-    oauth.initTokenClient({
-      client_id: clientId,
-      scope,
-      include_granted_scopes: false,
-      callback: response => {
-        if (!response.access_token || !oauth.hasGrantedAllScopes(response, scope)) {
-          reject(Error('Google Drive 未授权'));
-        } else {
-          resolve(response.access_token);
-        }
-      },
-      error_callback: () => reject(Error('Google 登录窗口未完成，请重试'))
-    }).requestAccessToken({ prompt: 'select_account' });
+    signal.throwIfAborted();
+    let finished = false;
+    function finish(error, token) {
+      if (finished) return;
+      finished = true;
+      signal.removeEventListener('abort', abort);
+      if (error) reject(error);
+      else resolve(token);
+    }
+    function abort() { finish(signal.reason); }
+    signal.addEventListener('abort', abort, {once:true});
+    try {
+      oauth.initTokenClient({
+        client_id: clientId,
+        scope,
+        include_granted_scopes: false,
+        callback: response => {
+          if (finished) return;
+          if (!response.access_token || !oauth.hasGrantedAllScopes(response, scope)) {
+            finish(Error('Google Drive 未授权'));
+          } else {
+            finish(null, response.access_token);
+          }
+        },
+        error_callback: error => finish(Error(error.type === 'popup_closed'
+          ? 'Google 登录窗口已关闭，请重新连接'
+          : '无法打开 Google 登录窗口，请允许弹窗后重试'))
+      }).requestAccessToken({ prompt: 'select_account' });
+    } catch (error) {
+      finish(error);
+    }
   });
 }
 
@@ -39,8 +57,11 @@ export function canEnrollDriveText(item) {
     idPattern.test(item.id) && !!item.meta && typeof item.transcript === 'string' && !!item.transcript.trim();
 }
 
-export async function makeDriveTextSync(token, hash, fetcher = fetch) {
+export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSignal) {
+  let operationSignal = initialSignal;
   const request = async (step, path, options = {}) => {
+    operationSignal?.throwIfAborted();
+    const requestDeadline = AbortSignal.timeout(15_000);
     let response;
     try {
       response = await fetcher(base + path, {
@@ -48,10 +69,11 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch) {
         headers: { Authorization: 'Bearer ' + token, ...options.headers },
         cache: 'no-store',
         redirect: 'error',
-        signal: AbortSignal.timeout(60_000)
+        signal: operationSignal ? AbortSignal.any([operationSignal, requestDeadline]) : requestDeadline
       });
     } catch (error) {
-      throw new Error(`Google Drive ${step}失败（${error.name === 'TimeoutError' ? '请求超时' : '浏览器网络请求失败'}）`, { cause: error });
+      operationSignal?.throwIfAborted();
+      throw Object.assign(new Error(`Google Drive ${step}失败（${error.name === 'TimeoutError' ? '请求超时' : '浏览器网络请求失败'}）`, {cause:error}), {code:'DRIVE_NETWORK'});
     }
     if (!response.ok) {
       throw Object.assign(Error(response.status === 401 ? 'Google 登录已过期，请重新连接' :
@@ -61,6 +83,7 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch) {
   };
   const account = (await (await request('读取账号', '/drive/v3/about?fields=user(permissionId)')).json()).user?.permissionId;
   if (!fileIdPattern.test(account || '')) throw Error('无法识别 Google Drive 账号');
+  operationSignal = undefined;
 
   async function list(parentFilter = "") {
     const files = [];
@@ -134,12 +157,65 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch) {
     return (await response.json()).id;
   }
 
+  const recordFiles = files => files.filter(({ appProperties: props, mimeType }) =>
+    mimeType !== folderType && idPattern.test(props?.record || '') &&
+    idPattern.test(props.version || '') && (!props.parent || idPattern.test(props.parent)));
+  const deletionIds = files => new Set(files.filter(({ appProperties: props, mimeType }) =>
+    mimeType !== folderType && props?.kind === 'deleted' && idPattern.test(props.record || ''))
+    .map(file => file.appProperties.record));
+
+  async function trashVersions(records) {
+    for (const file of records) {
+      await request('清理转写副本', '/drive/v3/files/' + encodeURIComponent(file.id) + '?fields=id', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trashed: true })
+      });
+    }
+  }
+
+  async function clearTrash(items) {
+    const files = await list();
+    const deleted = deletionIds(files);
+    const records = recordFiles(files);
+    for (const item of items) {
+      if (!item.trashedAt || item.driveText?.account !== account || !idPattern.test(item.id)) {
+        throw Error('这条记录无法从当前 Google Drive 回收站清理。');
+      }
+      if (deleted.has(item.id)) continue;
+      const versions = records.filter(file => file.appProperties.record === item.id);
+      const parents = new Set(versions.map(file => file.appProperties.parent));
+      const heads = versions.filter(file => !parents.has(file.appProperties.version));
+      if (heads.some(file => file.appProperties.version !== item.driveText.version)) {
+        throw Error('其他设备有更新或冲突，请先同步并核对后再清空回收站。');
+      }
+    }
+    let folder;
+    for (const item of items) {
+      if (deleted.has(item.id)) continue;
+      folder ??= await resolveFolder(files);
+      await request('记录回收站清理', '/drive/v3/files?ignoreDefaultVisibility=true&fields=id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: '通话跟进-删除-' + item.id,
+          parents: [folder],
+          appProperties: { app: namespace, kind: 'deleted', record: item.id }
+        })
+      });
+      deleted.add(item.id);
+    }
+    const ids = new Set(items.map(item => item.id));
+    await trashVersions(records.filter(file => ids.has(file.appProperties.record)));
+  }
+
   const downloadFile = id => request('下载转写', '/drive/v3/files/' + encodeURIComponent(id) + '?alt=media');
   async function sync(items) {
     const available = await list();
-    const records = available.filter(({ appProperties: props, mimeType }) =>
-      mimeType !== folderType && idPattern.test(props?.record || '') &&
-      idPattern.test(props.version || '') && (!props.parent || idPattern.test(props.parent)));
+    const deleted = deletionIds(available);
+    const allRecords = recordFiles(available);
+    await trashVersions(allRecords.filter(file => deleted.has(file.appProperties.record)));
+    const records = allRecords.filter(file => !deleted.has(file.appProperties.record));
     let folder;
     if (records.length) folder = await resolveFolder(available);
     const moved = folder ? await moveRootFiles(records, folder) : 0;
@@ -150,12 +226,16 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch) {
       histories.get(record).set(version, { id: file.id, version, parent });
     }
     const local = new Map(items.map(item => [item.id, item]));
+    const removed = items.filter(item => item.driveText?.account === account &&
+      (item.driveText.version || item.trashedAt) && deleted.has(item.id));
     const result = new Map(local);
+    for (const item of removed) result.delete(item.id);
     let conflicts = 0;
     let uploaded = 0;
     let downloaded = 0;
     const eligible = items.filter(item => item.driveText?.account === account && idPattern.test(item.id));
     for (const id of new Set([...histories.keys(), ...eligible.map(item => item.id)])) {
+      if (deleted.has(id)) continue;
       const item = local.get(id);
       const state = item?.driveText;
       if (item && (transient.has(item.status) || (state && state.account !== account))) continue;
@@ -193,8 +273,26 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch) {
       for (const key of fields) if (!Object.hasOwn(record, key)) delete next[key];
       result.set(id, next);
     }
-    return { items: [...result.values()], conflicts, uploaded, downloaded, moved };
+    return { items: [...result.values()], conflicts, uploaded, downloaded, moved, removed };
   }
 
-  return { account, sync };
+  async function run(work, items, signal) {
+    operationSignal = signal;
+    try {
+      signal?.throwIfAborted();
+      const result = await work(items);
+      signal?.throwIfAborted();
+      return result;
+    } catch (error) {
+      signal?.throwIfAborted();
+      throw error;
+    } finally {
+      operationSignal = undefined;
+    }
+  }
+  return {
+    account,
+    sync: (items, signal) => run(sync, items, signal),
+    clearTrash: (items, signal) => run(clearTrash, items, signal)
+  };
 }

@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; frame-src https://accounts.google.com; style-src 'self'; img-src 'self' data:; connect-src https:; object-src 'none'; base-uri 'none'; form-action 'none'; media-src 'self' blob:">
-<title>通话跟进 · 网页版</title><link rel="stylesheet" href="style.css?v=20261119-calendar-switch-motion"></head>
+<title>通话跟进 · 网页版</title><link rel="stylesheet" href="style.css?v=20261119-archive-phone-search"></head>
 <body inert><aside><div class="brand"><img class="logo" src="cta-avatar.jpg" width="40" height="40" alt="Grace 的头像"><div>通话跟进<small>GRACE · CALL NOTES</small></div></div>
 <button class="nav active" id="nav-inbox">待处理</button><button class="nav" id="nav-calendar">日历</button><button class="nav" id="nav-archive">已归档</button><button class="nav" id="nav-trash">回收站</button><button class="nav" id="open-settings">连接与设置</button>
 <div class="aside-note"><span class="dot" aria-hidden="true"></span><span>整理飞书 CRM 通话</span><p>批量导入，集中处理。<br>把精力留给下一次沟通。</p></div></aside>
 <main><header><div class="eyebrow">你的沟通，自动归档</div><h1>一天的电话，一次整理。</h1><p>勾选要分析的录音，再选择要保存的草稿。</p></header>
 <section class="stats" id="stats" aria-label="筛选待办录音"><button id="filter-all" aria-pressed="true"><b id="count-all">0</b><span>全部待办</span></button><button id="filter-analysis" aria-pressed="false"><b id="count-analysis">0</b><span>待分析</span></button><button id="filter-ready" aria-pressed="false"><b id="count-ready">0</b><span>待保存</span></button><button id="filter-attention" aria-pressed="false"><b id="count-review">0</b><span>待核对／异常</span></button></section>
-<section class="panel" id="queue-panel"><div class="panel-head"><div><h2 id="page-title">待处理录音</h2><p id="mode">预览模式 · 生成草稿后整批保存</p></div><button id="import" class="primary">＋ 批量导入录音</button></div>
+<section class="panel" id="queue-panel"><div class="panel-head"><div><h2 id="page-title">待处理录音</h2><p id="mode">预览模式 · 生成草稿后整批保存</p></div><input id="archive-phone-search" type="search" inputmode="tel" autocomplete="off" maxlength="32" aria-label="按号码搜索已归档记录" placeholder="输入手机号或尾号" hidden><button id="import" class="primary">＋ 批量导入录音</button></div>
 <div class="actions actions-tools"><button id="select-all">全选当前页面</button><button id="select-none">取消全选</button><button id="remove-items">移除选中项目</button><button id="stop" disabled title="处理完当前一条后停止">本条结束后停止</button><button id="restore-items" hidden>恢复选中项目</button><button id="clean-archive" hidden>清理已归档录音</button><button id="empty-trash" hidden>清空回收站</button></div>
 <div class="actions actions-primary" id="primary-actions"><button id="process">分析选中录音（0条）</button><button id="resummarize-selected" disabled>重新总结选中（0条）</button><button id="commit">保存选中草稿（0条）</button></div><p id="selection-help" class="selection-help"></p>
 <div id="operation-status" role="status" hidden></div><div id="notice" role="status"></div><div id="queue"><div class="empty"><div class="empty-icon">↗</div><h3>把一天的录音放进来</h3><p>一次多选当天文件，无需逐通上传。</p><small>百炼模式支持长录音自动分段 · 单个文件最多 512 MB</small></div></div></section>
@@ -21,6 +21,7 @@
 <fieldset id="drive-text-tools" hidden><legend>Google Drive 文字同步</legend>
 <p class="hint">连接后，新导入录音的转写原文和草稿会同步到 Google Drive 的「通话跟进 · 文字同步」文件夹。</p>
 <div><button type="button" id="drive-text-connect" disabled>连接 Google Drive</button> <button type="button" id="drive-text-sync" disabled>立即同步</button> <button type="button" id="drive-text-enroll" disabled>同步已有转写</button></div>
+<button type="button" id="drive-text-cancel" hidden>取消 Google Drive 操作</button>
 <p id="drive-text-status" class="hint" role="status"></p>
 </fieldset>
 <fieldset id="storage-tools"><legend>本地数据与备份</legend>
@@ -40,4 +41,4 @@
 <details><summary>查看转写原文</summary><pre id="transcript"></pre></details><p class="hint">跟进日志只新增本次内容，不修改旧日志。D 是超过三个月的长线客户，价值高于 C。</p></section></div>
 <div class="dialog-actions"><button type="submit" class="primary" id="approve">确认这条草稿</button></div></form></dialog>
 <dialog id="link"><h2>关联飞书客户</h2><p>输入分配数据表中的姓名或号码，核对后选择对应客户。关联前不会写入飞书。</p><form id="link-form"><label>姓名或号码<input id="link-query" minlength="2" required autocomplete="off"></label><button type="submit">搜索客户</button></form><div id="link-results"></div><div class="dialog-actions"><button id="close-link">关闭</button></div></dialog>
-<script src="queue-view.js?v=20261119-ui-parity1"></script><script type="module" src="browser-app.js?v=20261119-drive-folder"></script></body></html>
+<script src="queue-view.js?v=20261119-archive-phone-search"></script><script type="module" src="browser-app.js?v=20261119-drive-retry"></script></body></html>
