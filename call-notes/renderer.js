@@ -62,23 +62,90 @@ function selectionInfo(){
 }
 function shiftDate(date,days){const d=new Date(date+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+days);return d.toISOString().slice(0,10);}
 function shiftMonth(date,months){const d=new Date(date+'T00:00:00Z'),day=d.getUTCDate();d.setUTCDate(1);d.setUTCMonth(d.getUTCMonth()+months);d.setUTCDate(Math.min(day,new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0)).getUTCDate()));return d.toISOString().slice(0,10);}
-function shortDate(date){return new Intl.DateTimeFormat('zh-CN',{timeZone:'UTC',month:'numeric',day:'numeric',weekday:'short'}).format(new Date(date+'T00:00:00Z'));}
+const shortDateFormat = new Intl.DateTimeFormat('zh-CN', {
+  timeZone: 'UTC', month: 'numeric', day: 'numeric', weekday: 'short'
+});
+function shortDate(date) {
+  return shortDateFormat.format(new Date(date + 'T00:00:00Z'));
+}
+function calendarTitleDate(date) {
+  const group = document.createElement('span');
+  group.className = 'calendar-title-date';
+  const number = document.createElement('span');
+  number.className = 'calendar-title-number';
+  const weekday = document.createElement('span');
+  weekday.className = 'calendar-title-weekday';
+  for (const part of shortDateFormat.formatToParts(new Date(date + 'T00:00:00Z'))) {
+    if (part.type === 'weekday') weekday.textContent = part.value;
+    else number.append(part.value);
+  }
+  group.append(number, weekday);
+  return group;
+}
 function scheduleCard(item){
   const node=document.createElement(item.draft?'button':'div');node.className='schedule-card '+item.status;
   const time=document.createElement('time');time.textContent=item.meta.stamp.slice(11);const name=document.createElement('b');name.textContent=window.crmView.displayName(item);const state=document.createElement('span');state.textContent=labels[item.status]||item.status;
   node.append(time,name,state);if(item.draft){node.type='button';node.onclick=action(()=>openDraft(item));node.title='查看通话详情';}return node;
 }
 function renderCalendar(){
-  const host=$('calendar-view');host.replaceChildren();$('calendar-date').value=calendarAnchor;
+  const host=$('calendar-view');
+  const previousRange=host.querySelector('.schedule-grid[data-anchor]');
+  const rangeScroll=previousRange?.dataset.anchor===calendarAnchor && previousRange.dataset.mode===calendarMode
+    ? previousRange.scrollLeft : null;
+  host.replaceChildren();$('calendar-date').value=calendarAnchor;
   for(const button of document.querySelectorAll('[data-calendar-mode]'))button.classList.toggle('selected',button.dataset.calendarMode===calendarMode);
   if(calendarMode==='month'){
     const days=window.crmView.calendarMonth(currentItems,calendarAnchor),month=calendarAnchor.slice(0,7),total=days.filter(d=>d.inMonth).reduce((n,d)=>n+d.count,0);
     $('calendar-title').textContent=calendarAnchor.slice(0,4)+'年'+Number(calendarAnchor.slice(5,7))+'月';$('calendar-total').textContent=`本月共 ${total} 条录音`;
     const grid=document.createElement('div');grid.className='month-grid';for(const w of ['一','二','三','四','五','六','日']){const h=document.createElement('div');h.className='weekday';h.textContent='周'+w;grid.append(h);}
-    for(const day of days){const cell=document.createElement('button');cell.type='button';cell.className='month-day'+(day.inMonth?'':' outside')+(day.date===calendarAnchor?' selected':'');const head=document.createElement('span');head.className='month-day-head';head.innerHTML=`<b>${Number(day.date.slice(8))}</b><em>${day.count?day.count+'条':''}</em>`;const names=document.createElement('span');names.className='month-names';names.textContent=day.items.slice(0,3).map(window.crmView.displayName).join('\n')+(day.count>3?`\n另 ${day.count-3} 条`:'' );cell.append(head,names);cell.onclick=()=>{calendarAnchor=day.date;calendarMode='1';renderCalendar();};grid.append(cell);}host.append(grid);return;
+    for(const day of days){const cell=document.createElement('button');cell.type='button';cell.setAttribute('aria-label',day.date+'，'+day.count+' 条录音');cell.className='month-day'+(day.inMonth?'':' outside')+(day.date===calendarAnchor?' selected':'');const head=document.createElement('span');head.className='month-day-head';head.innerHTML=`<b>${Number(day.date.slice(8))}</b><em>${day.count?day.count+'条':''}</em>`;const names=document.createElement('span');names.className='month-names';names.textContent=day.items.slice(0,3).map(window.crmView.displayName).join('\n')+(day.count>3?`\n另 ${day.count-3} 条`:'' );cell.append(head,names);cell.onclick=()=>{calendarAnchor=day.date;calendarMode='1';renderCalendar();};grid.append(cell);}host.append(grid);return;
   }
-  const count=Number(calendarMode),days=window.crmView.calendarRange(currentItems,calendarAnchor,count),total=days.reduce((n,d)=>n+d.count,0);$('calendar-title').textContent=count===1?shortDate(calendarAnchor):`${shortDate(days[0].date)} — ${shortDate(days.at(-1).date)}`;$('calendar-total').textContent=`当前范围共 ${total} 条录音`;
-  const grid=document.createElement('div');grid.className='schedule-grid columns-'+count;for(const day of days){const column=document.createElement('section');column.className='schedule-day';if(count>1){const head=document.createElement('header');head.innerHTML=`<b>${shortDate(day.date)}</b><span>${day.count} 条</span>`;column.append(head);}if(!day.items.length){const empty=document.createElement('p');empty.className='schedule-empty';empty.textContent='没有录音';column.append(empty);}for(const item of day.items)column.append(scheduleCard(item));grid.append(column);}host.append(grid);
+  const count=Number(calendarMode),days=window.crmView.calendarRange(currentItems,shiftDate(calendarAnchor,1-count),count),total=days.reduce((n,d)=>n+d.count,0);
+  const title = $('calendar-title');
+  title.replaceChildren(calendarTitleDate(days[0].date));
+  if (count > 1) {
+    const end = document.createElement('span');
+    end.className = 'calendar-title-end';
+    const separator = document.createElement('span');
+    separator.className = 'calendar-title-separator';
+    separator.textContent = ' — ';
+    end.append(separator, calendarTitleDate(days.at(-1).date));
+    title.append(end);
+  }
+  $('calendar-total').textContent=`当前范围共 ${total} 条录音`;
+  const grid=document.createElement('div');
+  grid.className='schedule-grid columns-'+count;
+  for(const day of days){
+    const column=document.createElement('section');
+    column.className='schedule-day';
+    if(count>1){
+      const date=shortDate(day.date);
+      const head=document.createElement('header');
+      const label=document.createElement('b');
+      label.textContent=date;
+      const total=document.createElement('span');
+      total.textContent=day.count+' 条';
+      head.append(label,total);
+      column.append(head);
+    }
+    if(!day.items.length){
+      const empty=document.createElement('p');
+      empty.className='schedule-empty';
+      empty.textContent='没有录音';
+      column.append(empty);
+    }
+    for(const item of day.items)column.append(scheduleCard(item));
+    grid.append(column);
+  }
+  host.append(grid);
+  if(count>1){
+    grid.tabIndex=0;
+    grid.setAttribute('role','region');
+    grid.setAttribute('aria-label',count+' 天通话记录，可横向滚动');
+    grid.dataset.anchor=calendarAnchor;
+    grid.dataset.mode=calendarMode;
+    grid.scrollLeft=rangeScroll ?? grid.scrollWidth;
+  }
 }
 function render(items){
   currentItems=items;selectionInfo();
@@ -160,7 +227,6 @@ function render(items){
       const menu=document.createElement('details');menu.className='row-more';
       const trigger=document.createElement('summary');trigger.textContent='更多';
       trigger.setAttribute('aria-label','更多操作：'+title.textContent);
-      trigger.title='更多操作';
       let openedByHover=false;
       trigger.addEventListener('pointerenter',event=>{
         if(event.pointerType!=='mouse'||menu.open||wasRunning)return;
