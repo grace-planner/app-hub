@@ -339,6 +339,7 @@ class Services {
       const d=await jsonRequest(request.url,request.options,this.fetcher);
       parts[chunk.index]=aliyunTranscript(d);
       await checkpoint.save?.({config,parts:[...parts]});
+      checkpoint.segmentProgress?.(Math.min(1,chunk.end*32000/pcm.length));
     }
     const result=mergeText(parts);
     if(!result)throw Error('录音未识别出文字');
@@ -469,12 +470,18 @@ class Queue {
   }
   async process(autoWrite=false,ids=null) {
     if(this.running)throw Error('正在处理');this.running=true;this.operation='analysis';this.stop=false;
+    const explicit=Array.isArray(ids);
+    const pending=this.items.filter(i=>!i.trashedAt&&(explicit
+      ?ids.includes(i.id)&&!['done','uncertain','invalid'].includes(i.status)
+      :['queued','error'].includes(i.status)));
+    let processed=0;
+    const progress=phase=>{
+      this.analysisProgress=pending.length?(processed+phase)/pending.length:0;
+    };
+    progress(0);
     try {
-      for(const i of this.items) {
+      for(const i of pending) {
         if(this.stop)break;
-        if(i.trashedAt)continue;
-        const explicit=Array.isArray(ids);
-        if(explicit?!ids.includes(i.id)||['done','uncertain','invalid'].includes(i.status):!['queued','error'].includes(i.status))continue;
         i.status='processing';i.message='匹配客户';await this.persist();
         try {
           if(await hashFile(i.file)!==i.id)throw Error('源录音在导入后发生变化，请重新导入');
@@ -482,8 +489,10 @@ class Queue {
           if(matches.length!==1&&!explicit){i.status=matches.length?'ambiguous':'skipped';i.message=matches.length?'号码对应多条记录，未分析录音':'未匹配客户，未分析录音';await this.persist();continue;}
           if(matches.length===1){i.recordId=matches[0].record_id;i.customer=fieldText(matches[0].fields?.['姓名']).trim();}
           else{i.recordId=null;i.customer='';i.matchCount=matches.length;}
+          progress(.15);
           i.message='转写录音';await this.persist();
-          i.transcript=i.transcript||await this.services.transcribe(i.file,{cache:i.audioCache,save:async cache=>{i.audioCache=cache;await this.persist();},progress:message=>{i.message=message;this.notify(this.publicItems());}});await this.persist();
+          i.transcript=i.transcript||await this.services.transcribe(i.file,{cache:i.audioCache,save:async cache=>{i.audioCache=cache;await this.persist();},progress:message=>{i.message=message;this.notify(this.publicItems());},segmentProgress:fraction=>{progress(.15+.6*fraction);this.notify(this.publicItems());}});await this.persist();
+          progress(.75);
           i.message='整理跟进';await this.persist();
           i.draft=i.draft||await this.services.summarize(i.transcript,i.meta);
           if(!i.customer&&!i.draft.name_checked&&this.services.extractName){const name=await this.services.extractName(i.transcript);Object.assign(i.draft,{suggested_name:name.suggested_name,name_evidence:name.name_evidence,name_checked:true});}
@@ -496,6 +505,7 @@ class Queue {
           await this.persist();
           if(autoWrite && i.status==='ready')await this.commitItem(i);
         }catch(e){if(!['uncertain','done'].includes(i.status)) {i.status='error';i.message=e.message;}await this.persist();}
+        finally{processed++;progress(0);}
       }
     }finally{this.running=false;this.notify(this.publicItems());}
   }

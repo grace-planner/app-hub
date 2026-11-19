@@ -1,11 +1,11 @@
 import {canEnrollDriveText,makeDriveTextSync,requestDriveToken} from './google-drive-text.js?v=6';
 import {get,set,batch,openDB,storageError,hashFile,MAX_FILE,path} from './browser-platform.js?v=20261119-ui-parity1';
-import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,displayedGroupSuggestion,recordSnapshot,suggestedFollowUp,recencyGuard,validateDraft} from './core.js?v=20261119-latest-diagnostic';
+import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,displayedGroupSuggestion,recordSnapshot,suggestedFollowUp,recencyGuard,validateDraft} from './core.js?v=20261120-parity';
 const $=id=>document.getElementById(id);
 const defaults={proxy:PROXY,audioProvider:'aliyun',audioBase:'https://dashscope.aliyuncs.com/api/v1',audioModel:'qwen-audio-3.1-asr-flash',textBase:'https://dashscope.aliyuncs.com/compatible-mode/v1',textModel:'qwen-plus',autoWrite:false};
 let settings,queue,keys={audio:'',text:''},busyOperation=null,ready=false,lastError='',backupAt=null;
 const listeners=[];
-function publish(items=queue?.publicItems()||[]){for(const fn of listeners)fn({items,running:!!busyOperation||!!queue?.running,operation:queue?.running?queue.operation:busyOperation});}
+function publish(items=queue?.publicItems()||[]){for(const fn of listeners)fn({items,running:!!busyOperation||!!queue?.running,operation:queue?.running?queue.operation:busyOperation,analysisProgress:!busyOperation&&queue?.operation==='analysis'?queue.analysisProgress:null});}
 function idle(){if(!ready)throw Error(lastError||'正在打开本地数据库，请稍后重试');if(storageError)throw storageError;if(!!busyOperation||queue.running)throw Error('请等待当前操作结束');
   backgroundSync?.controller.abort();
 }
@@ -261,5 +261,5 @@ function validateBackup(raw){
 }
 $('import-backup').onclick=async()=>{storageFeedback();try{idle();const [file]=await chooseFile('.json');if(!file)return;if(file.size>100*1024*1024)throw Error('备份文件过大');const incoming=validateBackup(JSON.parse(await file.text()));idle();const existingIds=new Set(queue.items.map(i=>i.id)),fresh=incoming.filter(i=>!existingIds.has(i.id));if(!confirm(`从备份合并 ${fresh.length} 条新记录？\n本地已有的同一录音记录保持原样。备份不含录音和密钥；需要分析时请重新导入原始录音。`))return;const items=[...queue.items,...fresh];await set('queue',items);queue.items=items;publish();await storageStatus();storageFeedback(`已恢复 ${fresh.length} 条记录。相同录音的本地记录未覆盖；分析前请重新导入原始录音。`);}catch(e){reportStorageError(e);}};
 $('persist-storage').onclick=async()=>{storageFeedback();try{idle();const ok=await navigator.storage?.persist?.();await storageStatus();storageFeedback(ok?'已开启本地存储保护。':'浏览器尚未授予存储保护。请定期导出备份。');}catch(e){reportStorageError(e);}};
-await import('./renderer.js?v=20261119-latest-diagnostic');
+await import('./renderer.js?v=20261120-parity');
 try{await initialized;document.body.inert=false;}catch{}
