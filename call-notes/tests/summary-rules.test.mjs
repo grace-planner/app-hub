@@ -75,3 +75,23 @@ test('only recent calls with a valid short outcome update the latest-call field'
   }
   assert.equal(planFields(record,{date:'2026-01-19',stamp:'2026/01/19 10:00'},{...draft,latest_summary:short}).fields['最新通话记录'],undefined);
 });
+
+test('latest outcome retains simple formatting corrections and identifies blank results',async()=>{
+  const summary='家长同意接收课表，收到后与孩子讨论。';
+  const cases=[
+    [{latest_summary:'家长同意接收课表。\n收到后与孩子讨论。'},'家长同意接收课表；收到后与孩子讨论。',undefined],
+    [{latest_summary:null},null,'no_progress'],
+    [{},null,'missing'],
+    [{latest_summary:'  '},null,'invalid'],
+    [{latest_summary:'字'.repeat(61)},null,'too_long']
+  ];
+  for(const [fields,expected,reason] of cases){
+    const draft={meaningful:true,needs_review:false,summary,...fields};
+    const fetcher=async()=>({ok:true,json:async()=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify(draft)}}]})});
+    const services=new Services({textBase:'https://dashscope.aliyuncs.com/compatible-mode/v1',textModel:'qwen-plus'},{text:'test-key'},fetcher);
+    const result=await services.summarize(summary,{date:'2026-11-18'});
+    assert.equal(result.latest_summary,expected);
+    assert.equal(result.latest_summary_reason,reason);
+    assert.equal(result.summary,summary);
+  }
+});

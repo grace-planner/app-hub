@@ -90,6 +90,16 @@ function validLatestSummary(value) {
   const text=value.trim();
   return text.length>0&&text.length<=60&&!/[。！？!?]/.test(text.replace(/[。！？!?]+$/,''));
 }
+function readLatestSummary(result) {
+  if(!Object.hasOwn(result,'latest_summary'))return {text:null,reason:'missing'};
+  const value=result.latest_summary;
+  if(value===null)return {text:null,reason:'no_progress'};
+  if(typeof value!=='string'||!value.trim())return {text:null,reason:'invalid'};
+  const text=value.trim().replace(/\s*\r?\n\s*/g,' ')
+    .replace(/。\s*(?=[^。！？!?；，、\s])/g,'；');
+  if(text.length>60)return {text:null,reason:'too_long'};
+  return validLatestSummary(text)?{text,reason:null}:{text:null,reason:'invalid'};
+}
 function validateDraft(d) {
   if(!d || typeof d !== 'object' || typeof d.meaningful !== 'boolean' || typeof d.needs_review !== 'boolean' || typeof d.summary !== 'string') throw Error('AI 结果格式不符合要求');
   if((d.meaningful && !d.summary.trim()) || d.summary.length>12000) throw Error('AI 摘要为空或过长');
@@ -117,7 +127,8 @@ function draftDisposition(draft) {
   // A matched CRM contact's negative outcome is still a follow-up worth recording.
   // meaningful is an ASR/model hint, never a veto on E/F/G or on manual saving.
   const certainNegative=['E','F','G'].includes(draft.intent)&&draft.summary.trim();
-  const needsReview=draft.needs_review||!draft.summary.trim()||(!draft.meaningful&&!certainNegative);
+  const latestNeedsReview=['missing','invalid','too_long'].includes(draft.latest_summary_reason);
+  const needsReview=latestNeedsReview||draft.needs_review||!draft.summary.trim()||(!draft.meaningful&&!certainNegative);
   return {status:needsReview?'review':'ready',message:needsReview?'请核对草稿':'草稿已生成，联系结果可保存'};
 }
 function saveOrder(items){
@@ -335,10 +346,14 @@ class Services {
   }
   async summarize(transcript,meta) {
     if(!this.keys.text || !this.settings.textModel.trim()) throw Error('请先配置总结 API 密钥和模型');
-    const d=await jsonRequest(httpURL(this.settings.textBase)+'/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+this.keys.text,'Content-Type':'application/json'},body:JSON.stringify({model:this.settings.textModel,...aliyunTextOptions(this.settings),temperature:0.1,response_format:{type:'json_object'},messages:[{role:'system',content:SUMMARY_RULES+'\n\n独立生成两项：summary 是本次详细跟进日志，按前述详细摘要规则写，保留通话中实际出现的关键背景、需求、课程和价格、顾虑与约定；信息丰富时写完整的多句段落，不受60字限制。latest_summary 是飞书最新通话记录，只用一句不超过60字的中文写本次已确认的决定、进展或下一步，不复制整份日志。无有效进展时 latest_summary 为 null，仍须在 summary 中如实记录未接通、语音留言等结果，禁止补造细节。'+'\n\n'+FOLLOW_UP_RULE+'\n\n'+CUSTOMER_GROUP_RULE},{role:'user',content:JSON.stringify({call_date:meta.date,transcript})}]})},this.fetcher);
+    const d=await jsonRequest(httpURL(this.settings.textBase)+'/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+this.keys.text,'Content-Type':'application/json'},body:JSON.stringify({model:this.settings.textModel,...aliyunTextOptions(this.settings),temperature:0.1,response_format:{type:'json_object'},messages:[{role:'system',content:SUMMARY_RULES+'\n\n独立生成两项：summary 是本次详细跟进日志，按前述详细摘要规则写，保留通话中实际出现的关键背景、需求、课程和价格、顾虑与约定；信息丰富时写完整的多句段落，不受60字限制。latest_summary 是飞书最新通话记录，用一行中文写本次已确认的决定、实质进展或安排；有多项时优先写最重要的一项，目标25至45字，最多60字，只在句末使用句号。客户明确作出的决定、双方确认的安排，即使没有约定具体日期，也应填写。只有确实没有有效进展时 latest_summary 才为 null，仍须在 summary 中如实记录未接通、语音留言等结果，禁止补造细节。'+'\n\n'+FOLLOW_UP_RULE+'\n\n'+CUSTOMER_GROUP_RULE},{role:'user',content:JSON.stringify({call_date:meta.date,transcript})}]})},this.fetcher);
     if(d.choices?.[0]?.finish_reason!=='stop') throw Error('总结没有完整结束，请重试');
     let result;try{result=JSON.parse(d.choices[0].message.content);}catch{throw Error('AI 总结不是完整 JSON');}
-    result.latest_summary=validLatestSummary(result.latest_summary)?result.latest_summary.trim():null;delete result.log_summary;
+    const latest=readLatestSummary(result);
+    result.latest_summary=latest.text;
+    if(latest.reason)result.latest_summary_reason=latest.reason;
+    else delete result.latest_summary_reason;
+    delete result.log_summary;
     const evidence=typeof result.follow_up_evidence==='string'?result.follow_up_evidence.trim():'';
     result.follow_up_evidence=evidence&&transcript.includes(evidence)?evidence:null;
     const group=groupSuggestion(result,transcript);
@@ -519,6 +534,8 @@ class Queue {
     const summary=generated.summary.trim();
     if(!summary) throw Error('新摘要为空，已保留原草稿');
     const draft=validateDraft({...(item.draft??generated),summary,latest_summary:generated.latest_summary??null,follow_up_evidence:generated.follow_up_evidence??null});
+    delete draft.latest_summary_reason;
+    if(generated.latest_summary_reason)draft.latest_summary_reason=generated.latest_summary_reason;
     if(Object.hasOwn(generated,'suggested_group')){
       draft.suggested_group=generated.suggested_group;
       draft.group_evidence=generated.group_evidence;
@@ -561,6 +578,7 @@ class Queue {
   }
   async commitReady(ids=null){if(this.running)throw Error('正在处理');this.running=true;this.operation='saving';this.stop=false;try{const selected=this.items.filter(i=>!i.trashedAt&&i.status==='ready'&&(!Array.isArray(ids)||ids.includes(i.id)));for(const i of saveOrder(selected)){if(this.stop)break;try{await this.commitItem(i);}catch(e){i.status='review';i.message=e.message;await this.persist();}}}finally{this.running=false;this.notify(this.publicItems());}}
   async approve(id,draft,approveName=false,groupChoice,manualSelections){if(this.running)throw Error('请等当前批次完成');const i=this.items.find(i=>i.id===id);if(!i||i.trashedAt||!['ready','review','awaiting_link'].includes(i.status))throw Error('此记录不可编辑');if(draft.latest_summary&&!validLatestSummary(draft.latest_summary))throw Error('最新通话记录请写成一句话，最多60字');i.draft=validateDraft({...i.draft,...draft,meaningful:true,needs_review:false});i.nameApproved=!!approveName&&!!i.draft.suggested_name;i.nameDecisionMade=true;i.groupApproved=null;if(i.recordId&&groupChoice!==undefined)i.groupChoice=CUSTOMER_GROUPS.includes(groupChoice)?groupChoice:null;
+    if(i.draft.latest_summary)delete i.draft.latest_summary_reason;
     i.manualSelections={};
     if(i.recordId){
       for(const [key,{options}] of Object.entries(MANUAL_SELECT_FIELDS)){

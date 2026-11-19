@@ -365,9 +365,16 @@ async function openDraft(item){
   const latestField=f.elements.latest_summary;
   latestField.value=r.draft.latest_summary||'';
   latestField.disabled=!editable||historical;
-  $('latest-summary-hint').textContent=historical
-    ?'这通录音仅补入跟进日志，飞书最新通话记录保留原值。'
+  const blankReasons={
+    no_progress:'AI 未提炼出有效进展。',
+    missing:'AI 漏填了这一项，可通过「重新总结」再生成。',
+    too_long:'AI 返回的一句话超过60字，可手动补写或重新总结。',
+    invalid:'AI 返回的一句话格式不符，可手动补写或重新总结。'
+  };
+  const latestHint=historical?'这通录音仅补入跟进日志，飞书最新通话记录保留原值。'
     :'只写有效进展或下一步，最多60字。留空保留飞书原值。';
+  const blankReason=latestField.value?'':blankReasons[r.draft.latest_summary_reason]||'这份草稿未记录一句话的生成原因。';
+  $('latest-summary-hint').textContent=[latestHint,blankReason].filter(Boolean).join(' ');
   currentPreserved={};f.elements.summary.value=r.draft.summary||'';
   for(const k of ['intent','next_date','next_purpose','reminder_date','reminder_note']){const proposed=r.draft[k],fallback=original[k]||'';f.elements[k].value=proposed??fallback;f.elements[k].disabled=!editable;if(proposed==null&&fallback)currentPreserved[k]=fallback;}
   f.elements.summary.disabled=!editable;
