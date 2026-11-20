@@ -263,6 +263,7 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
   .span-month .calendar-day:not(.month-expanded) .month-extra{display:none}
   .month-more{display:block;border:0;background:transparent;color:var(--accent);font-size:11px;line-height:1.3;padding:4px 2px;cursor:pointer}
   .month-more:hover{text-decoration:underline}
+  .month-more[aria-expanded="true"]{display:none}
   .span-month .appointment{min-height:24px;padding-block:2px}
   .span-month .appointments{gap:3px}
   .span-month .day-label{margin-bottom:4px}
