@@ -117,10 +117,15 @@ function renderCalendar() {
         const idx=openItems.push(item)-1;
         const name=item.name||'未命名';
         const ledgerReminder=followup && item.source==='students';
+        const owned=item.source==='leads' && ['是','自有'].includes(item.record.owner);
+        const nameLabel=owned
+          ? '<span class="appointment-owned-label"><span class="appointment-owned-name">'+escape(name)+
+            '</span><span class="appointment-owned-dot" aria-label="自有" role="img"></span></span>'
+          : escape(name);
         return '<button class="appointment'+(ledgerReminder?' ledger-reminder':'')+(item.kind==='特殊提醒'?' special':'')+
           (month && itemIndex>=monthPreviewCount?' month-extra':'')+'" data-event="'+idx+
           '" draggable="'+(followup && span!=='1')+'" data-intent="'+escape(item.record.intent)+
-          '" data-contract="'+escape(contracts||ledgerReminder?item.record.contract:'')+'" title="'+escape(name)+'">'+escape(name)+'</button>';
+          '" data-contract="'+escape(contracts||ledgerReminder?item.record.contract:'')+'" title="'+escape(name+(owned?'（自有）':''))+'">'+nameLabel+'</button>';
       }).join('')+'</div>'+(extra ?
         '<button type="button" class="month-more" aria-expanded="'+expanded+'" aria-controls="appointments-'+date+
           '" data-month-extra="'+extra+'">'+(expanded?'收起':'还有 '+extra+' 条')+'</button>' : '')+'</div>';

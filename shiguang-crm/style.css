@@ -298,3 +298,7 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
 
 .calendar-grid .appointment.ledger-reminder{padding-left:15px}
 .calendar-grid .appointment.ledger-reminder::before{content:"";position:absolute;left:5px;top:50%;bottom:auto;width:5px;height:5px;box-sizing:border-box;border:0;border-radius:50%;transform:translateY(-50%);background:color-mix(in srgb,var(--option-bg,#a693b6) 42%,#a697a8)}
+
+.appointment-owned-label{display:inline-flex;align-items:center;gap:5px;max-width:100%;vertical-align:middle}
+.appointment-owned-name{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.appointment-owned-dot{flex:none;width:5px;height:5px;border-radius:50%;background:color-mix(in srgb,#059669 55%,#92a59a)}
