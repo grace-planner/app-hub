@@ -37,9 +37,14 @@ function phoneKey(value) {
 }
 
 function calendarEvents() {
-  if (calendarMode==='contracts') return (calendarState.students?.records ?? [])
-    .filter(record=>record.signed)
-    .map(record=>({date:record.signed,kind:'签约',source:'students',record,name:record.name}));
+  if (calendarMode!=='followup') {
+    const contracts=calendarMode==='contracts';
+    const source=contracts?'students':'leads';
+    const field=contracts?'signed':'assigned';
+    return (calendarState[source]?.records ?? [])
+      .filter(record=>record[field])
+      .map(record=>({date:record[field],kind:contracts?'签约':'分配',source,record,name:record.name}));
+  }
   const names=new Map();
   for (const source of ['students','leads']) {
     for (const record of calendarState[source]?.records ?? []) {
@@ -70,10 +75,11 @@ function calendarEvents() {
 }
 
 function renderCalendar() {
+  const followup=calendarMode==='followup';
   const contracts=calendarMode==='contracts';
   document.querySelectorAll('[data-calendar-mode]').forEach(button=>
     button.setAttribute('aria-pressed',String(button.dataset.calendarMode===calendarMode)));
-  $('source').closest('.calendar-filters').hidden=contracts;
+  $('source').closest('.calendar-filters').hidden=!followup;
   document.querySelectorAll('[data-span]').forEach(button=>
     button.setAttribute('aria-pressed',String(button.dataset.span===span)));
   const month=span==='month';
@@ -89,8 +95,8 @@ function renderCalendar() {
   $('period').textContent=month ? first.slice(0,7).replace('-',' 年 ')+' 月'
     : start+(length>1?' 至 '+end:'');
   const events=calendarEvents();
-  const source=contracts?'':$('source').value;
-  const kind=contracts?'':$('kind').value;
+  const source=followup?$('source').value:'';
+  const kind=followup?$('kind').value:'';
   const byDate=new Map();
   openItems=[];
   for (const item of events) {
@@ -112,18 +118,18 @@ function renderCalendar() {
         const name=item.name||'未命名';
         return '<button class="appointment'+(item.kind==='特殊提醒'?' special':'')+
           (month && itemIndex>=monthPreviewCount?' month-extra':'')+'" data-event="'+idx+
-          '" draggable="'+(!contracts && span!=='1')+'" data-intent="'+escape(item.record.intent)+
+          '" draggable="'+(followup && span!=='1')+'" data-intent="'+escape(item.record.intent)+
           '" data-contract="'+escape(contracts?item.record.contract:'')+'" title="'+escape(name)+'">'+escape(name)+'</button>';
       }).join('')+'</div>'+(extra ?
         '<button type="button" class="month-more" aria-expanded="'+expanded+'" aria-controls="appointments-'+date+
           '" data-month-extra="'+extra+'">'+(expanded?'收起':'还有 '+extra+' 条')+'</button>' : '')+'</div>';
   }).join('');
-  const relevantSources=contracts?['students']:Object.keys(sourceNames);
+  const relevantSources=followup?Object.keys(sourceNames):[contracts?'students':'leads'];
   const pending=relevantSources.some(id=>!calendarState[id]);
   const failed=relevantSources.filter(id=>calendarState[id]?.error);
   const banner=failed.length ? '<div class="calendar-status">'+failed.map(id=>sourceNames[id]).join('、')+
     '读取失败 <button class="action" id="retry-calendar">重试</button></div>' : '';
-  $('calendar-body').innerHTML=banner+(pending && !events.length ? loadingPanel(contracts?'正在读取签约日历':'正在读取双表日历') :
+  $('calendar-body').innerHTML=banner+(pending && !events.length ? loadingPanel(followup?'正在读取双表日历':contracts?'正在读取签约日历':'正在读取分配日历') :
     (pending?'<p class="calendar-status">正在读取其余事项…</p>':'')+
     '<div class="calendar-grid span-'+span+'">'+days+'</div>');
 }
@@ -317,7 +323,7 @@ const calendarBody=$('calendar-body');
 calendarBody.addEventListener('dragstart',event=>{
   const button=event.target.closest('.appointment');
   if (!button) return;
-  if (saving || $('refresh-calendar').disabled || calendarMode==='contracts' || span==='1') { event.preventDefault(); return; }
+  if (saving || $('refresh-calendar').disabled || calendarMode!=='followup' || span==='1') { event.preventDefault(); return; }
   draggedItem=openItems[Number(button.dataset.event)];
   if (!draggedItem) { event.preventDefault(); return; }
   event.dataTransfer.effectAllowed='move';

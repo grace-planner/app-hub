@@ -217,12 +217,14 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
 .clearable-field:has(.field-clear:not([hidden])) textarea{padding-right:32px}
 .clearable-field:has(textarea) .field-clear{top:24px;bottom:auto}
 
-.calendar-mode{grid-template-columns:repeat(2,minmax(0,1fr));align-self:start}
-.calendar-mode::before{width:calc((100% - 6px)/2)}
+.calendar-mode{grid-template-columns:repeat(3,minmax(0,1fr));align-self:start}
+.calendar-mode::before{width:calc((100% - 6px)/3)}
 .calendar-mode:has([data-calendar-mode="contracts"][aria-pressed=true]){--switch-position:1}
+.calendar-mode:has([data-calendar-mode="assignments"][aria-pressed=true]){--switch-position:2}
 @media(hover:hover) and (pointer:fine){
   .calendar-mode:has([data-calendar-mode="followup"]:hover){--switch-position:0}
   .calendar-mode:has([data-calendar-mode="contracts"]:hover){--switch-position:1}
+  .calendar-mode:has([data-calendar-mode="assignments"]:hover){--switch-position:2}
 }
 .appointment[data-contract="一对一"]{--option-bg:#2563eb}
 .appointment[data-contract="班课"]{--option-bg:#d99838}
@@ -277,3 +279,5 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
 #caller:-webkit-autofill{-webkit-box-shadow:inset 0 0 0 100px #fff;-webkit-text-fill-color:#322a40;caret-color:#322a40}
 
 .brand-avatar{flex:none;width:28px;height:28px;border-radius:50%;object-fit:cover}
+
+@media(max-width:760px){.calendar-head{flex-wrap:wrap}}
