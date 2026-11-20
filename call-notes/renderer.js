@@ -26,38 +26,31 @@ function visibleItems(){
 archiveSearch.addEventListener('input',()=>render(currentItems));
 function eligible(i,p){return window.crmView.eligible(i,p);}
 function selectedIds(p){return visibleItems().filter(i=>i.selectedItem&&eligible(i,p)).map(i=>i.id);}
-let analysisProgress=null,analysisCompletionTimer=0;
-function renderAnalysisButton(){
-  const stop=$('stop');
-  const active=page==='inbox'&&(wasRunning?operation==='analysis':!!analysisCompletionTimer);
-  stop.classList.toggle('analysis-progress',active);
-  if(active){
-    const value=analysisProgress??0;
-    stop.style.setProperty('--analysis-progress',String(value));
-    stop.textContent=wasRunning?(stopRequested?'本条结束后将停止':'本条结束后停止'):'分析结束';
-    stop.setAttribute('aria-label',stop.textContent);
-  }else{
-    stop.style.removeProperty('--analysis-progress');
-    stop.removeAttribute('aria-label');
-  }
-  return active;
-}
+let analysisProgress=null,analysisCompletionTimer=0,stopMode=null;
 function renderOperationStatus(){
-  const status=$('operation-status');
+  const status=$('operation-status'),label=$('operation-label'),stop=$('stop');
+  const showing=wasRunning||!!analysisCompletionTimer;
   const message={
-    syncing:'正在同步文字记录…',
-    'connecting-drive':'正在等待 Google Drive 授权…',
+    syncing:'正在同步记录…',
+    'connecting-drive':'正在等待 Google 授权…',
+    'applying-drive-sync':'正在应用同步结果…',
     'clearing-trash':'正在清空回收站…',
     importing:'正在导入录音…',
     matching:'正在匹配客户…',
-    analysis:'正在分析选中的录音…',
-    resummarizing:'正在用已有转写重新总结…',
-    saving:'正在保存选中的草稿到飞书…'
+    analysis:'正在分析录音…',
+    resummarizing:'正在重新总结…',
+    saving:'正在保存草稿…'
   }[operation]||'正在处理…';
-  const analysisInButton=renderAnalysisButton();
-  status.hidden=!wasRunning||analysisInButton;
-  const text=wasRunning?(stopRequested?'将在当前一条处理完后停止':message):'';
-  if(status.textContent!==text)status.textContent=text;
+  status.hidden=!showing;
+  const text=!showing?'':!wasRunning?'分析结束':stopRequested?'本条结束后将停止':message;
+  if(label.textContent!==text)label.textContent=text;
+  const measured=showing&&Number.isFinite(analysisProgress);
+  status.classList.toggle('operation-measured',measured);
+  if(measured)status.style.setProperty('--operation-progress',String(analysisProgress));
+  else status.style.removeProperty('--operation-progress');
+  stop.hidden=!wasRunning||!stopMode||stopRequested;
+  stop.textContent=stopMode==='drive'?'取消':'本条结束后停止';
+  stop.setAttribute('aria-label',stopMode==='drive'?'取消 Google Drive 操作':'本条结束后停止');
   $('notice').hidden=wasRunning;
 }
 function selectionInfo(){
@@ -81,11 +74,7 @@ function selectionInfo(){
   }
   $('resummarize-selected').disabled=wasRunning||!summaries;
   $('primary-actions').hidden=!active;
-  const driveBusy=['connecting-drive','syncing','clearing-trash'].includes(operation);
-  $('stop').hidden=!active&&!driveBusy;
-  if(!$('stop').classList.contains('analysis-progress'))$('stop').textContent=driveBusy?'取消 Google Drive 操作':'本条结束后停止';
-  $('stop').title=driveBusy?'取消当前 Google Drive 操作':'处理完当前一条后停止';
-  $('process').disabled=wasRunning||!analysis;$('commit').disabled=wasRunning||!save;$('stop').disabled=!wasRunning;
+  $('process').disabled=wasRunning||!analysis;$('commit').disabled=wasRunning||!save;
   $('import').hidden=!active;$('import').disabled=wasRunning;
   $('remove-items').hidden=page==='trash';$('restore-items').hidden=page!=='trash';
   $('clean-archive').hidden=page!=='archive';$('empty-trash').hidden=page!=='trash';
@@ -192,7 +181,7 @@ function render(items){
   const container=$('queue');container.replaceChildren();
   const visible=visibleItems();
   if(!visible.length){
-    const [symbol,heading,description,detail]={
+    const [symbol,heading,description]={
       inbox:filter==='all'
         ?['↗','暂无待处理录音','可批量导入录音，单个文件最多 512 MB']
         :['✓','当前筛选没有录音'],
@@ -207,7 +196,6 @@ function render(items){
     const hint=document.createElement('p');hint.textContent=description;
     empty.append(icon,title);
     if(description)empty.append(hint);
-    if(detail){const small=document.createElement('small');small.textContent=detail;empty.append(small);}
     container.append(empty);
   }
   for(const i of [...visible].reverse()){
@@ -241,24 +229,19 @@ function render(items){
     const status=document.createElement('span');status.className='badge '+i.status;status.textContent=labels[i.status]||i.status;
     const heading=document.createElement('span');heading.className='item-heading';
     heading.append(title,status);
-    const content=document.createElement(i.draft?'button':'div');content.className='row-content';
-    if(i.draft){
-      content.type='button';
-      content.disabled=wasRunning;
-      content.setAttribute('aria-label','查看 '+title.textContent);
-      content.onclick=action(()=>openDraft(i));
-    }
+    const content=document.createElement('button');content.className='row-content';
+    content.type='button';
+    content.disabled=wasRunning;
+    content.setAttribute('aria-label','查看 '+title.textContent);
+    content.onclick=action(()=>openRecordingDetails(i));
     const buttons=document.createElement('div');buttons.className='row-actions';
     const secondary=document.createElement('div');secondary.className='row-more-options';
-    if(i.hasTranscript&&(page!=='inbox'||!i.draft)){
+    if(i.hasTranscript&&i.draft&&page!=='inbox'){
       const b=document.createElement('button');
       b.textContent='查看转写原文';
       b.disabled=wasRunning;
-      b.onclick=action(async()=>{
-        $('transcript-view-text').textContent=await call('transcript',i.id);
-        $('transcript-view').showModal();
-      });
-      (page==='inbox'?secondary:buttons).append(b);
+      b.onclick=action(()=>openTranscript(i));
+      buttons.append(b);
     }
     if(eligible(i,'resummarize')){
       const button=document.createElement('button');
@@ -404,6 +387,25 @@ function showOriginalDetails(show){
 }
 $('review-original-toggle').onclick=()=>showOriginalDetails($('review-original-extra').hidden);
 narrowReview.addEventListener('change',()=>{if($('review').open)layoutReview();});
+function showRecordingText(title,text){
+  $('transcript-view-title').textContent=title;
+  $('transcript-view-text').textContent=text;
+  $('transcript-view').showModal();
+}
+async function openTranscript(item){
+  showRecordingText('转写原文',await call('transcript',item.id));
+}
+function openRecordingDetails(item){
+  if(item.draft)return openDraft(item);
+  if(item.hasTranscript)return openTranscript(item);
+  const status=labels[item.status]||item.status;
+  showRecordingText('录音详情',[
+    item.filename,
+    item.meta?.stamp,
+    status,
+    item.message
+  ].filter(Boolean).join('\n'));
+}
 async function openDraft(item){
   const r=await call('draft',item.id);currentDraftId=item.id;const f=$('review-form'),editable=!item.trashedAt&&['review','ready','awaiting_link'].includes(r.status),historical=r.protection?.newestCall===false;
   const original=r.original||{};
@@ -437,9 +439,9 @@ async function openDraft(item){
     :'只写有效进展或下一步，最多60字。留空保留飞书原值。';
   const blankReason=latestField.value?'':blankReasons[r.draft.latest_summary_reason]||'这份草稿未记录一句话的生成原因。';
   $('latest-summary-hint').textContent=[latestHint,blankReason].filter(Boolean).join(' ');
-  currentPreserved={};f.elements.summary.value=r.draft.summary||'';
+  $('review-detailed-log').textContent=r.draft.summary||'暂无跟进日志';
+  currentPreserved={};
   for(const k of ['intent','next_date','next_purpose','reminder_date','reminder_note']){const proposed=r.draft[k],fallback=original[k]||'';f.elements[k].value=proposed??fallback;f.elements[k].disabled=!editable;if(proposed==null&&fallback)currentPreserved[k]=fallback;}
-  f.elements.summary.disabled=!editable;
   const suggestedNextDate=editable?(r.suggestedNextDate||''):'';
   defaultNextDate=suggestedNextDate||(r.draft.default_follow_up?r.draft.next_date:'');
   if(suggestedNextDate)f.elements.next_date.value=suggestedNextDate;
@@ -468,7 +470,16 @@ $('open-settings').onclick=action(async()=>{await fillSettings();$('settings').s
 $('diagnose-aliyun').onclick=async()=>{const f=$('settings-form'),box=$('aliyun-diagnostic');if(!confirm('将向百炼发送阿里云官方测试语音和一个最短文本，真实检查两个模型。可能产生极少量费用，继续吗？'))return;try{box.hidden=false;box.textContent='正在进行真实最小模型检查…';await call('settings',{...Object.fromEntries(new FormData(f).entries()),autoWrite:false});const r=await call('diagnose-aliyun'),line=(name,v)=>`${name}：${v.message}${v.status?`（HTTP ${v.status}）`:''}\n地址：${v.url}`;box.textContent=line('录音转写',r.audio)+'\n\n'+line('跟进总结',r.text);await fillSettings();}catch(e){box.hidden=false;box.textContent=e.message;}};
 $('close-settings').onclick=()=>{$('settings').close();$('settings-form').elements.aliyunKey.value='';};
 $('settings-form').onsubmit=async e=>{e.preventDefault();try{await call('settings',{...Object.fromEntries(new FormData(e.target).entries()),autoWrite:false});$('settings').close();await fillSettings();notice('设置已保存');}catch(err){alert(err.message);}};
-$('import').onclick=action(async()=>{page='inbox';filter='all';render(await call('import'));notice('导入完成。已匹配默认勾选；可补选未匹配录音。');});
+const recordingFiles=$('recording-files');
+$('import').onclick=()=>recordingFiles.click();
+recordingFiles.onchange=action(async()=>{
+  const files=[...recordingFiles.files];
+  recordingFiles.value='';
+  if(!files.length)return;
+  page='inbox';filter='all';
+  render(await call('import',files));
+  notice('导入完成。已匹配默认勾选；可补选未匹配录音。');
+});
 $('process').onclick=action(()=>call('process',selectedIds('analysis')));
 $('resummarize-selected').onclick=action(async()=>{
   const ids=selectedIds('resummarize');
@@ -481,8 +492,14 @@ $('resummarize-selected').onclick=action(async()=>{
     unprocessed&&`未处理 ${unprocessed} 条`
   ].filter(Boolean).join('；'));
 });
-$('stop').onclick=action(async()=>{await call('stop');stopRequested=wasRunning&&!['connecting-drive','syncing','clearing-trash'].includes(operation);renderOperationStatus();});$('commit').onclick=action(()=>call('commit',selectedIds('save')));
+$('stop').onclick=action(async()=>{
+  const mode=stopMode;
+  await call('stop');
+  stopRequested=mode==='batch'&&wasRunning;
+  renderOperationStatus();
+});$('commit').onclick=action(()=>call('commit',selectedIds('save')));
 $('test').onclick=async()=>{try{alert(await call('test'));}catch(e){alert(e.message);}};$('close-review').onclick=()=>$('review').close();$('close-link').onclick=()=>$('link').close();
+$('close-transcript-view').onclick=()=>$('transcript-view').close();
 $('review-form').onsubmit=async e=>{
   e.preventDefault();
   try{
@@ -510,7 +527,7 @@ $('link-form').onsubmit=async e=>{e.preventDefault();try{
 window.crm.onQueue(payload=>{
   const items=Array.isArray(payload)?payload:payload.items;
   const finishing=wasRunning&&operation==='analysis'&&!payload.running&&payload.analysisProgress===1;
-  wasRunning=!!payload.running;operation=payload.operation;
+  wasRunning=!!payload.running;operation=payload.operation;stopMode=payload.stopMode||null;
   if(wasRunning){
     clearTimeout(analysisCompletionTimer);
     analysisCompletionTimer=0;

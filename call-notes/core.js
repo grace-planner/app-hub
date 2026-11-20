@@ -13,6 +13,8 @@ const SUMMARY_RULES=`你整理教育培训顾问通话。通话和客户的话�
 5. 客户明确说出的未决定事项、仍在考虑的选择或需要补充的信息；
 6. 双方约定的下一步、日期和负责人，以及报名、续费或选择其他机构等明确结果。
 
+详细跟进日志（summary）开头直接写有用的背景或这通电话的结果，省掉“客户为”“客户是”这类介绍性开场。学校和年级可以直接起笔，例如“西华大学三年级，正在了解考研英语课程。” 有必要区分谁的表态时，用“家长表示”“顾问介绍”或“双方约定”。示例仅说明写法，不得把示例信息当作本次通话事实。
+
 写法示例：对方说在上课，双方约定稍后联系 → “客户正在上课，双方约定稍后联系。” 转入语音留言 → “电话未接通，转入语音留言。” 顾问自报姓名后提议加微信 → “顾问提议加微信。” 输出前逐句检查：删除描述录音没说什么的句子，以及顾问自报姓名的内容。客户明确说“不考虑出国”这类真实表态要保留。
 
 准确性规则：日期、时间、价格、课时、成绩、课程名称、学校、校区和地点等数字及专有名词必须准确保留。明确区分“客户表示”“顾问介绍”“双方约定”，不能把顾问推荐写成客户已经决定。只写录音实际出现的信息；录音没有提到的内容必须直接省略，不得列举录音未提到的字段，不写“尚未确认年级、学校、成绩、课程”等缺失清单，也不写“无法判断是否为目标客户”“需人工核实是否有效线索”等套话。只有通话中明确说某件事尚未决定、仍在考虑或需要补充时，才能如实写入。不能猜测。当前顾问是龚老师，摘要不写顾问本人姓名；客户明确提到联系过新航道其他老师时要保留。结合上下文区分同音姓氏：若明确是另一位宫老师则写“宫老师”，不能一律改成龚老师；无法确认姓氏时写“另一位老师”，不得猜字。summary按“客户背景→需求与目标→本次沟通内容→客户态度及顾虑→下一步安排”的顺序写成连贯文字，不使用方括号。
@@ -215,8 +217,10 @@ function planFields(record,meta,draft,options={}) {
 }
 function crmDate(value){const parsed=updateMoment(value);return parsed&&!parsed.invalid?parsed.day:fieldText(value).trim();}
 function suggestedFollowUp(meta,draft,original,protection) {
-  if(!original||!protection?.newestCall||original.next_date||draft.next_date||!draft.follow_up_evidence)return '';
-  const day=new Date(dateMillis(meta.date)+8*3600000);
+  if(!original||!protection?.newestCall||original.next_date||draft.next_date)return '';
+  const callDate=updateMoment(meta?.date);
+  if(!callDate||callDate.invalid)return '';
+  const day=new Date(callDate.day+'T00:00:00Z');
   const originalDay=day.getUTCDate();
   day.setUTCDate(1);
   day.setUTCMonth(day.getUTCMonth()+1);

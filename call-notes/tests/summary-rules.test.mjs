@@ -2,12 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SUMMARY_RULES,Services,suggestedFollowUp,planFields} from '../core.js';
 
-test('substantive contact can receive a default date even with a negative intent',()=>{
+test('an unspecified next date defaults to one calendar month after the call',()=>{
   const meta={date:'2026-01-31',stamp:'2026/01/31 10:00'};
   const draft={summary:'客户介绍了自己的情况，暂不需要。',meaningful:true,needs_review:false,intent:'E',follow_up_evidence:'我现在是大二'};
   const newest={newestCall:true};
   assert.equal(suggestedFollowUp(meta,draft,{},newest),'2026-02-28');
-  assert.equal(suggestedFollowUp(meta,{...draft,follow_up_evidence:null},{},newest),'');
+  assert.equal(suggestedFollowUp(meta,{...draft,follow_up_evidence:null},{},newest),'2026-02-28');
+  assert.equal(suggestedFollowUp(meta,{...draft,next_date:'2026-02-08'},{},newest),'');
+  assert.equal(suggestedFollowUp({...meta,date:'2026-12-15'},draft,{},newest),'2027-01-15');
+  assert.equal(suggestedFollowUp({},draft,{},newest),'');
   assert.equal(suggestedFollowUp(meta,draft,{next_date:'2026-02-16'},newest),'');
   assert.equal(suggestedFollowUp(meta,draft,{},{newestCall:false}),'');
   const record={fields:{'下次跟进日期':1771171200000}};
@@ -27,6 +30,8 @@ test('summary rules retain actionable CRM details when present',()=>{
   assert.match(SUMMARY_RULES,/明确说某件事尚未决定、仍在考虑或需要补充时/);
   assert.match(SUMMARY_RULES,/不得列举录音未提到的字段/);
   assert.match(SUMMARY_RULES,/信息很少或无效的通话只写一句/);
+  assert.match(SUMMARY_RULES,/省掉“客户为”“客户是”这类介绍性开场/);
+  assert.match(SUMMARY_RULES,/西华大学三年级，正在了解/);
   assert.match(SUMMARY_RULES,/当前顾问是龚老师/);
   assert.match(SUMMARY_RULES,/其他老师/);
   assert.match(SUMMARY_RULES,/宫老师/);
