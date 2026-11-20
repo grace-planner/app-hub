@@ -281,3 +281,9 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
 .brand-avatar{flex:none;width:28px;height:28px;border-radius:50%;object-fit:cover}
 
 @media(max-width:760px){.calendar-head{flex-wrap:wrap}}
+
+#toggle-month-days{display:none}
+@media(min-width:761px){
+  .calendar-nav #toggle-month-days:not([hidden]){display:block;border-color:transparent;background:transparent;color:var(--accent)}
+  .calendar-nav #toggle-month-days:hover{background:var(--tint)}
+}

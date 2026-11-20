@@ -132,6 +132,26 @@ function renderCalendar() {
   $('calendar-body').innerHTML=banner+(pending && !events.length ? loadingPanel(followup?'正在读取双表日历':contracts?'正在读取签约日历':'正在读取分配日历') :
     (pending?'<p class="calendar-status">正在读取其余事项…</p>':'')+
     '<div class="calendar-grid span-'+span+'">'+days+'</div>');
+  syncMonthToggle();
+}
+
+function syncMonthToggle() {
+  const buttons=[...$('calendar-body').querySelectorAll('.month-more')];
+  const toggle=$('toggle-month-days');
+  toggle.hidden=!buttons.length;
+  const allExpanded=buttons.length>0 && buttons.every(button=>button.getAttribute('aria-expanded')==='true');
+  toggle.textContent=allExpanded?'全部收起':'全部展开';
+  return {buttons,allExpanded};
+}
+
+function setMonthDayExpanded(button, expanded) {
+  const cell=button.closest('.calendar-day');
+  const key=calendarMode+':'+cell.dataset.day;
+  cell.classList.toggle('month-expanded',expanded);
+  if (expanded) expandedMonthDays.add(key);
+  else expandedMonthDays.delete(key);
+  button.setAttribute('aria-expanded',String(expanded));
+  button.textContent=expanded?'收起':'还有 '+button.dataset.monthExtra+' 条';
 }
 
 async function loadCalendar(refresh=false) {
@@ -241,15 +261,14 @@ document.addEventListener('click',event=>{
   if (!button) return;
   if (button.id==='home-link') showHome();
   if (button.id==='close-record' && !saving) $('record-dialog').close();
+  if (button.id==='toggle-month-days') {
+    const {buttons,allExpanded}=syncMonthToggle();
+    buttons.forEach(item=>setMonthDayExpanded(item,!allExpanded));
+    syncMonthToggle();
+  }
   if (button.dataset.monthExtra) {
-    const cell=button.closest('.calendar-day');
-    const expanded=cell.classList.toggle('month-expanded');
-    const key=calendarMode+':'+cell.dataset.day;
-    if (expanded) expandedMonthDays.add(key);
-    else expandedMonthDays.delete(key);
-    button.setAttribute('aria-expanded',String(expanded));
-    button.textContent=expanded?'收起':'还有 '+button.dataset.monthExtra+' 条';
-    if (expanded) cell.querySelector('.month-extra')?.focus({preventScroll:true});
+    setMonthDayExpanded(button,button.getAttribute('aria-expanded')!=='true');
+    syncMonthToggle();
   }
   if (button.dataset.event!==undefined) openHomeRecord(openItems[Number(button.dataset.event)]);
   if (button.dataset.result!==undefined) openHomeRecord(results[Number(button.dataset.result)]);
