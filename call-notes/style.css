@@ -810,6 +810,16 @@ main > header h1 {
 #review .compare-boxes:has(> .original-box[hidden]) {
   grid-template-columns: minmax(0, 1fr);
 }
-#review .edit-box:has([data-review-archive]:not([hidden])) > .review-detailed-log:not(.archive-follow-up) {
+#review .edit-box:has([data-review-archive]:not([hidden])) > .review-detailed-log:not(#archive-log-slot) {
   margin-block-end: 8px;
+}
+
+#review #archive-log-slot details { margin: 0; }
+#review #archive-log-slot summary { color: #674a88; cursor: pointer; font-weight: 600; }
+#review #archive-log-slot #original-logs {
+  display: block;
+  margin-block-start: 8px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.65;
 }

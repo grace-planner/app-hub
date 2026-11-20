@@ -424,7 +424,11 @@ async function openDraft(item){
     select.options[0].textContent=group?'':current||'';
     select.options[0].setAttribute('aria-label',select.options[0].textContent||'留空');
   }
-  $('original-log-details').open=false;
+  const logDetails=$('original-log-details');
+  logDetails.open=false;
+  logDetails.querySelector('summary').textContent=archived?'飞书跟进日志（最新 3 条）':'跟进日志（最新3条）';
+  $('archive-log-slot').hidden=!archived;
+  $(archived?'archive-log-slot':'original-log-slot').append(logDetails);
   const latestField=f.elements.latest_summary;
   latestField.value=r.draft.latest_summary??(!r.nameDecisionMade&&editable?callOutcome(r.draft.summary):'');
   latestField.disabled=!editable||historical;
