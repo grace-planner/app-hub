@@ -242,7 +242,7 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
 .month-more,.search-glyph{display:none}
 @media(min-width:761px){
   main{padding-top:22px}
-  #home .hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,390px);align-items:center;column-gap:24px;row-gap:3px;padding:13px 19px;margin-bottom:12px;background:#fff}
+  #home .hero{position:sticky;top:12px;z-index:4;display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,390px);align-items:center;column-gap:24px;row-gap:3px;padding:13px 19px;margin-bottom:12px;background:#fff}
   #home .hero h1{grid-column:1;grid-row:1;font-size:32px;line-height:1.2}
   #home .quote{grid-column:1/-1;grid-row:2;margin:3px 0 0;min-height:23px}
   #home .global-search{position:relative;grid-column:2;grid-row:1;align-self:center;justify-self:end;width:min(100%,238px)}
