@@ -198,7 +198,8 @@ function render(items){
     if(description)empty.append(hint);
     container.append(empty);
   }
-  for(const i of [...visible].reverse()){
+  const displayItems=page==='archive'?visible:[...visible].reverse();
+  for(const i of displayItems){
     const row=document.createElement('div');row.className=page==='inbox'?'item inbox-row':'item';
     const check=document.createElement('input');check.type='checkbox';check.className='row-check';check.checked=!!i.selectedItem;check.disabled=wasRunning;check.setAttribute('aria-label','选择 '+(i.customer||i.filename));
     check.onchange=action(()=>call('select',[i.id],'items',check.checked));
