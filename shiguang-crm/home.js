@@ -148,6 +148,8 @@ function showHome() {
   if (saving) return;
   $('home').hidden=false;
   $('module-page').hidden=true;
+  $('home-link').setAttribute('aria-current','page');
+  document.querySelectorAll('[data-module]').forEach(button=>button.setAttribute('aria-pressed','false'));
   document.body.dataset.page='home';
   document.body.dataset.view='list';
 }

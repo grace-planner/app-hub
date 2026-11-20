@@ -568,6 +568,9 @@ function switchModule(id) {
   document.body.dataset.page='module';
   $('home').hidden=true;
   $('module-page').hidden=false;
+  $('home-link').removeAttribute('aria-current');
+  document.querySelectorAll('[data-module]').forEach(button=>
+    button.setAttribute('aria-pressed',button.dataset.module===id));
   if (moduleId===id && ready) {
     const cached=recordCache.get(studentMode());
     if (cached && records!==cached) {
@@ -586,8 +589,6 @@ function switchModule(id) {
   filter='all';
   views=studentMode()?studentViews:leadViews;
   document.body.dataset.view='list';
-  document.querySelectorAll('[data-module]').forEach(button=>
-    button.setAttribute('aria-pressed',button.dataset.module===id));
   $('title').textContent=studentMode()?'学员台账':'分配数据';
   $('views').innerHTML=Object.entries(views).map(([id,label])=>
     '<button data-filter="'+id+'" aria-pressed="'+(id==='all')+'">'+label+'</button>').join('');
