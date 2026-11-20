@@ -118,14 +118,21 @@ function renderCalendar() {
         const name=item.name||'未命名';
         const ledgerReminder=followup && item.source==='students';
         const owned=item.source==='leads' && ['是','自有'].includes(item.record.owner);
-        const nameLabel=owned
-          ? '<span class="appointment-owned-label"><span class="appointment-owned-name">'+escape(name)+
-            '</span><span class="appointment-owned-dot" aria-label="自有" role="img"></span></span>'
+        const audience=item.source==='leads' && ['初中生','高中生'].includes(item.record.audience)
+          ? item.record.audience : '';
+        const markers=(owned?'<span class="appointment-owned-dot" aria-label="自有" role="img"></span>':'')+
+          (audience?'<span class="appointment-audience" data-audience="'+audience+
+            '" role="img" aria-label="'+audience+'"></span>':'');
+        const nameLabel=markers
+          ? '<span class="appointment-marked-label"><span class="appointment-marked-name">'+escape(name)+
+            '</span>'+markers+'</span>'
           : escape(name);
+        const labels=[owned?'自有':'',audience].filter(Boolean);
+        const title=labels.length?name+'（'+labels.join('、')+'）':name;
         return '<button class="appointment'+(ledgerReminder?' ledger-reminder':'')+(item.kind==='特殊提醒'?' special':'')+
           (month && itemIndex>=monthPreviewCount?' month-extra':'')+'" data-event="'+idx+
           '" draggable="'+(followup && span!=='1')+'" data-intent="'+escape(item.record.intent)+
-          '" data-contract="'+escape(contracts||ledgerReminder?item.record.contract:'')+'" title="'+escape(name+(owned?'（自有）':''))+'">'+nameLabel+'</button>';
+          '" data-contract="'+escape(contracts||ledgerReminder?item.record.contract:'')+'" title="'+escape(title)+'">'+nameLabel+'</button>';
       }).join('')+'</div>'+(extra ?
         '<button type="button" class="month-more" aria-expanded="'+expanded+'" aria-controls="appointments-'+date+
           '" data-month-extra="'+extra+'">'+(expanded?'收起':'还有 '+extra+' 条')+'</button>' : '')+'</div>';
