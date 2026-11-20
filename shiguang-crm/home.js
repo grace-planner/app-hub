@@ -116,10 +116,11 @@ function renderCalendar() {
       slots.map((item,itemIndex)=>{
         const idx=openItems.push(item)-1;
         const name=item.name||'未命名';
-        return '<button class="appointment'+(item.kind==='特殊提醒'?' special':'')+
+        const ledgerReminder=followup && item.source==='students';
+        return '<button class="appointment'+(ledgerReminder?' ledger-reminder':'')+(item.kind==='特殊提醒'?' special':'')+
           (month && itemIndex>=monthPreviewCount?' month-extra':'')+'" data-event="'+idx+
           '" draggable="'+(followup && span!=='1')+'" data-intent="'+escape(item.record.intent)+
-          '" data-contract="'+escape(contracts?item.record.contract:'')+'" title="'+escape(name)+'">'+escape(name)+'</button>';
+          '" data-contract="'+escape(contracts||ledgerReminder?item.record.contract:'')+'" title="'+escape(name)+'">'+escape(name)+'</button>';
       }).join('')+'</div>'+(extra ?
         '<button type="button" class="month-more" aria-expanded="'+expanded+'" aria-controls="appointments-'+date+
           '" data-month-extra="'+extra+'">'+(expanded?'收起':'还有 '+extra+' 条')+'</button>' : '')+'</div>';
