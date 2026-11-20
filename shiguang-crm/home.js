@@ -292,6 +292,12 @@ document.addEventListener('crm-record-saved',event=>{
   results=results.map(item=>item.source===source && item.record.id===record.id ? {...item,record} : item);
   renderCalendar();
 });
+const homeHero=$('home').querySelector('.hero');
+new ResizeObserver(([entry])=>{
+  const height=entry.borderBoxSize[0].blockSize;
+  $('home').style.setProperty('--home-hero-height',height+'px');
+}).observe(homeHero,{box:'border-box'});
+
 loadQuote();
 loadCalendar();
 
