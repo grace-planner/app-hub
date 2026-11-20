@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://feishu-le-proxy-wyyuhgxhep.cn-hangzhou.fcapp.run https://v1.hitokoto.cn; style-src 'self'; script-src 'self'">
+<title>拾光 · 山海</title>
+<link rel="stylesheet" href="style.css?v=2bb3acc20a">
+<script src="app.js?v=5becfdb696" defer></script>
+<script src="home.js?v=d1765cb064" defer></script>
+</head>
+<body data-page="home">
+<aside class="rail">
+  <div class="brand">拾光 · 山海</div>
+  <button class="home-link" id="home-link">首页</button>
+  <div class="modules" aria-label="业务模块"><button data-module="leads" aria-pressed="true">寻迹 <small>分配数据</small></button><button data-module="students" aria-pressed="false">织网 <small>学员台账</small></button></div>
+  <nav aria-label="跟进视图" id="views">
+    <button data-filter="all"><span aria-hidden="true">▤</span> 全部线索</button>
+    <button data-filter="today"><span aria-hidden="true">◷</span> 今日待联系</button>
+    <button data-filter="week"><span aria-hidden="true">▦</span> 本周待联系</button>
+    <button data-filter="enrolled"><span aria-hidden="true">✓</span> 已报名</button>
+  </nav>
+  <div class="rail-foot"><span></span> 飞书 CRM</div>
+</aside>
+<main>
+  <section id="home">
+    <header class="hero">
+      <span class="watermark" aria-hidden="true">Grace</span>
+      <h1>拾光 · 山海</h1>
+      <div class="quote"><button type="button" id="quote-refresh" aria-label="换一句名言" aria-describedby="quote" title="换一句名言"><span id="quote">心之所向，素履以往</span></button></div>
+      <form id="global-search" class="global-search">
+        <input id="caller" type="search" placeholder="输入来电号码或姓名" aria-label="输入来电号码或姓名" required>
+        <button class="primary" type="submit" aria-label="搜索"><span class="search-button-label">搜索</span><span class="search-glyph" aria-hidden="true"></span></button>
+      </form>
+      <div id="search-results" hidden aria-live="polite"></div>
+    </header>
+    <section class="calendar" aria-label="首页日历">
+      <div class="calendar-head"><div><div class="calendar-views calendar-mode" aria-label="选择日历">
+        <button type="button" data-calendar-mode="followup" aria-pressed="true">跟进日历</button>
+        <button type="button" data-calendar-mode="contracts" aria-pressed="false">签约日历</button>
+      </div><p id="period"></p></div>
+        <div class="calendar-views" aria-label="时间范围">
+          <button data-span="1">1 天</button><button data-span="3">3 天</button><button data-span="7">7 天</button><button data-span="month">月历</button>
+        </div>
+      </div>
+      <div class="calendar-controls">
+        <div class="calendar-nav"><button id="previous" aria-label="上一个时间段">‹</button><button id="cal-today">今天</button><button id="next" aria-label="下一个时间段">›</button><button type="button" id="refresh-calendar" title="从飞书重新读取日历数据">更新日历</button></div>
+        <div class="calendar-filters"><select id="source" aria-label="筛选表来源"><option value="">全部来源</option><option value="leads">分配数据</option><option value="students">学员台账</option></select>
+        <select id="kind" aria-label="筛选提醒类型"><option value="">全部事项</option><option value="待联系">待联系</option><option value="特殊提醒">特殊提醒</option><option value="台账提醒">台账提醒</option></select></div>
+      </div>
+      <div id="calendar-body" aria-live="polite"></div>
+    </section>
+  </section>
+  <div id="module-page" hidden>
+  <header class="page-head"><div><p class="date" id="date"></p><h1 id="title">分配数据</h1></div><div class="toolbar"><span class="mode" id="connection" role="status">正在连接飞书…</span><button type="button" class="action" id="refresh-module" aria-label="刷新飞书记录" title="刷新飞书记录">↻</button></div></header>
+  <section class="stats" aria-label="待办概览" id="stats"></section>
+  <div class="workspace">
+    <section class="queue" aria-labelledby="queue-title">
+      <div class="panel-head"><h2 id="queue-title">全部线索</h2><div class="toolbar"><span id="result-count"></span><button type="button" class="scope-reset" id="reset-list-scope" data-filter="all" hidden>查看全部</button></div></div>
+      <div class="filters"><input id="search" type="search" aria-label="搜索客户" placeholder="搜索姓名、号码或备注"><select id="intent-filter" aria-label="按意向筛选"></select></div>
+      <details id="lead-filters" class="lead-filters" hidden>
+        <summary>更多筛选 <span id="active-filters" hidden></span></summary>
+        <div class="lead-filter-fields">
+          <label>留学报备<select id="filter-studyReport"></select></label>
+          <label>是否自有<select id="filter-owner"></select></label>
+          <label>客群<select id="filter-audience"></select></label>
+          <div class="lead-filter-dates">
+            <div class="filter-date"><label for="lastFollowUp-from">最后跟进时间从</label><div class="filter-date-input"><input id="lastFollowUp-from" type="date"><button type="button" class="date-clear" data-clear-date="lastFollowUp-from" aria-label="清除最后跟进时间从" hidden>×</button></div></div>
+            <div class="filter-date"><label for="lastFollowUp-to">最后跟进时间至</label><div class="filter-date-input"><input id="lastFollowUp-to" type="date"><button type="button" class="date-clear" data-clear-date="lastFollowUp-to" aria-label="清除最后跟进时间至" hidden>×</button></div></div>
+          </div>
+          <div class="lead-filter-dates">
+            <div class="filter-date"><label for="assigned-from">分配日期从</label><div class="filter-date-input"><input id="assigned-from" type="date"><button type="button" class="date-clear" data-clear-date="assigned-from" aria-label="清除分配日期从" hidden>×</button></div></div>
+            <div class="filter-date"><label for="assigned-to">分配日期至</label><div class="filter-date-input"><input id="assigned-to" type="date"><button type="button" class="date-clear" data-clear-date="assigned-to" aria-label="清除分配日期至" hidden>×</button></div></div>
+          </div>
+          <div class="lead-filter-dates">
+            <div class="filter-date"><label for="due-from">下次跟进从</label><div class="filter-date-input"><input id="due-from" type="date"><button type="button" class="date-clear" data-clear-date="due-from" aria-label="清除下次跟进从" hidden>×</button></div></div>
+            <div class="filter-date"><label for="due-to">下次跟进至</label><div class="filter-date-input"><input id="due-to" type="date"><button type="button" class="date-clear" data-clear-date="due-to" aria-label="清除下次跟进至" hidden>×</button></div></div>
+          </div>
+          <div class="lead-filter-dates">
+            <div class="filter-date"><label for="reminder-from">特殊提醒从</label><div class="filter-date-input"><input id="reminder-from" type="date"><button type="button" class="date-clear" data-clear-date="reminder-from" aria-label="清除特殊提醒从" hidden>×</button></div></div>
+            <div class="filter-date"><label for="reminder-to">特殊提醒至</label><div class="filter-date-input"><input id="reminder-to" type="date"><button type="button" class="date-clear" data-clear-date="reminder-to" aria-label="清除特殊提醒至" hidden>×</button></div></div>
+          </div>
+          <p id="filter-date-error" class="quiet" role="status" hidden>结束日期需晚于或等于开始日期</p>
+          <button type="button" class="action" id="reset-filters">清空筛选</button>
+        </div>
+      </details>
+      <div id="list"><p class="empty">正在读取飞书线索…</p></div>
+    </section>
+    <section id="detail" class="detail" aria-label="客户详情"></section>
+  </div>
+  </div>
+  <dialog id="record-dialog" aria-label="客户详情">
+    <button type="button" id="close-record" aria-label="关闭详情" title="关闭详情">×</button>
+    <div id="dialog-record"></div>
+    <p id="dialog-notice" class="notice" role="status" hidden></p>
+  </dialog>
+  <p id="notice" class="notice" role="status" hidden></p>
+</main>
+</body>
+</html>
