@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; frame-src https://accounts.google.com; style-src 'self'; img-src 'self' data:; connect-src https:; object-src 'none'; base-uri 'none'; form-action 'none'; media-src 'self' blob:">
-<title>通话跟进 · 网页版</title><link rel="stylesheet" href="style.css?v=20261120-archive-spacing"></head>
+<title>通话跟进 · 网页版</title><link rel="stylesheet" href="style.css?v=20261120-archive-detail"></head>
 <body inert><aside><div class="brand"><img class="logo" src="cta-avatar.jpg" width="40" height="40" alt="Grace 的头像"><div>通话跟进<small>GRACE · CALL NOTES</small></div></div>
 <button class="nav active" id="nav-inbox">待处理</button><button class="nav" id="nav-calendar">日历</button><button class="nav" id="nav-archive">已归档</button><button class="nav" id="nav-trash">回收站</button><button class="nav" id="open-settings">设置</button>
 <div class="aside-note"><span class="dot" aria-hidden="true"></span><span>整理飞书 CRM 通话</span><p>批量导入，集中处理。<br>把精力留给下一次沟通。</p></div></aside>
@@ -59,4 +59,4 @@
 <details><summary>查看转写原文</summary><pre id="transcript"></pre></details></section></div></div>
 <div class="dialog-actions review-actions"><button type="submit" class="primary" id="approve">确认草稿</button></div></form></dialog>
 <dialog id="link" aria-labelledby="link-title"><button type="button" id="close-link" class="dialog-close" aria-label="关闭关联客户窗口" title="关闭"></button><h2 id="link-title">关联飞书客户</h2><p>输入分配数据表中的姓名或号码，核对后选择对应客户。关联前不会写入飞书。</p><form id="link-form"><label>姓名或号码<input id="link-query" minlength="2" required autocomplete="off"></label><button type="submit">搜索客户</button></form><div id="link-results"></div></dialog>
-<script src="queue-view.js?v=20261120-archive-time-desc"></script><script type="module" src="browser-app.js?v=20261120-archive-reading"></script></body></html>
+<script src="queue-view.js?v=20261120-archive-time-desc"></script><script type="module" src="browser-app.js?v=20261120-archive-detail"></script></body></html>

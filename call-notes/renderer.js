@@ -406,6 +406,7 @@ function openRecordingDetails(item){
 async function openDraft(item){
   const r=await call('draft',item.id);currentDraftId=item.id;const f=$('review-form'),editable=!item.trashedAt&&['review','ready','awaiting_link'].includes(r.status),historical=r.protection?.newestCall===false;
   const archived=r.status==='done';
+  $('review-original').hidden=archived;
   const original=r.original||{};
   $('original-intent').textContent=original.intent||'';$('original-latest').textContent=original.latest_summary||'';$('original-logs').textContent=original.recent_logs?.length?original.recent_logs.map(v=>`[${v.stamp}] ${v.text}`).join('\n\n'):(original.hasUnformattedLog?'暂无标准时间格式的跟进日志':'');$('original-next-date').textContent=original.next_date||'';$('original-next-purpose').textContent=original.next_purpose||'';$('original-reminder-date').textContent=original.reminder_date||'';$('original-reminder-note').textContent=original.reminder_note||'';
   $('original-group').textContent=r.original?(original.group||(original.groupEmpty?'':'已填写')):'未读取到飞书客群';

@@ -807,41 +807,9 @@ main > header h1 {
   overflow-wrap: anywhere;
 }
 
-/* Archived records display the original CRM values as a compact reading panel. */
-#review:has([data-review-archive]:not([hidden])) .original-box .original-grid > div {
-  min-height: 0;
-  border-radius: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
+#review .compare-boxes:has(> .original-box[hidden]) {
+  grid-template-columns: minmax(0, 1fr);
 }
-#review:has([data-review-archive]:not([hidden])) .original-box .original-grid > .wide {
-  padding-block-start: 8px;
-  border-block-start: 1px solid #e7dfef;
-}
-#review:has([data-review-archive]:not([hidden])) .original-box b { margin-block-end: 3px; }
-#review:has([data-review-archive]:not([hidden])) .original-box
-:is(.review-short-field, .original-follow-up-field) > span:empty::after {
-  content: "—";
-  color: #887995;
-}
-#review:has([data-review-archive]:not([hidden])) .original-box .review-follow-up-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin: 0;
-}
-#review:has([data-review-archive]:not([hidden])) .original-box .review-follow-up {
-  gap: 8px;
-  padding: 0;
-  border: 0;
-}
-#review:has([data-review-archive]:not([hidden])) .original-follow-up-field > span {
-  min-height: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
-
 #review .edit-box:has([data-review-archive]:not([hidden])) > .review-detailed-log:not(.archive-follow-up) {
   margin-block-end: 8px;
 }
