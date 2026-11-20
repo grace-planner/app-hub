@@ -69,5 +69,5 @@ function validateBackup(raw){
 }
 $('import-backup').onclick=async()=>{try{idle();const [file]=await chooseFile('.json');if(!file)return;if(file.size>100*1024*1024)throw Error('备份文件过大');const incoming=validateBackup(JSON.parse(await file.text()));idle();const existingIds=new Set(queue.items.map(i=>i.id)),fresh=incoming.filter(i=>!existingIds.has(i.id));if(!confirm(`从备份合并 ${fresh.length} 条新记录？\n本地已有的同一录音记录保持原样。备份不含录音和密钥；需要分析时请重新导入原始录音。`))return;const items=[...queue.items,...fresh];await set('queue',items);queue.items=items;publish();await storageStatus();$('notice').textContent=`已恢复 ${fresh.length} 条记录。相同录音的本地记录未覆盖；分析前请重新导入原始录音。`;}catch(e){showError(e);}};
 $('persist-storage').onclick=async()=>{try{idle();const ok=await navigator.storage?.persist?.();await storageStatus();if(!ok)alert('浏览器尚未授予持久存储保护。可正常使用，请定期导出备份；手动清除网站数据仍会删除记录。');}catch(e){showError(e);}};
-await import('./renderer.js?v=20261118-regen');
+await import('./renderer.js?v=20261120-expired-purpose');
 try{await initialized;document.body.inert=false;}catch{}

@@ -93,7 +93,16 @@ async function openDraft(item){
   const original=r.original||{},empty='当前未填写';
   $('original-intent').textContent=original.intent||empty;$('original-latest').textContent=original.latest_summary||empty;$('original-logs').textContent=original.recent_logs?.length?original.recent_logs.map(v=>`[${v.stamp}] ${v.text}`).join('\n\n'):'暂无标准时间格式的跟进日志';$('original-next-date').textContent=original.next_date||empty;$('original-next-purpose').textContent=original.next_purpose||empty;$('original-reminder-date').textContent=original.reminder_date||empty;$('original-reminder-note').textContent=original.reminder_note||empty;
   currentPreserved={};f.elements.summary.value=r.draft.summary||'';
-  for(const k of ['intent','next_date','next_purpose','reminder_date','reminder_note']){const proposed=r.draft[k],fallback=original[k]||'';f.elements[k].value=proposed??fallback;f.elements[k].disabled=!editable;if(proposed==null&&fallback)currentPreserved[k]=fallback;}
+  const callDate=item.meta?.date;
+  const previousDate=original.next_date;
+  const purposeExpired=Boolean(callDate&&/^\d{4}-\d{2}-\d{2}$/.test(previousDate||'')&&callDate>previousDate);
+  for(const key of ['intent','next_date','next_purpose','reminder_date','reminder_note']){
+    const proposed=r.draft[key];
+    const fallback=key==='next_purpose'&&purposeExpired?'':original[key]||'';
+    f.elements[key].value=proposed??fallback;
+    f.elements[key].disabled=!editable;
+    if(proposed==null&&fallback)currentPreserved[key]=fallback;
+  }
   f.elements.summary.disabled=!editable;
   const offer=!!r.draft.suggested_name&&!String(r.customer||'').trim();$('name-offer').hidden=!offer;f.elements.suggested_name.value=r.draft.suggested_name||'';f.elements.suggested_name.disabled=!editable||!offer;
   f.elements.approveName.checked=r.nameDecisionMade?!!r.nameApproved:true;f.elements.approveName.disabled=!editable||!offer;

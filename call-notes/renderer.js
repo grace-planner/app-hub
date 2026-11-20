@@ -437,7 +437,16 @@ async function openDraft(item){
   $('latest-summary-hint').textContent=[latestHint,blankReason].filter(Boolean).join(' ');
   $('review-detailed-log').textContent=r.draft.summary||'暂无跟进日志';
   currentPreserved={};
-  for(const k of ['intent','next_date','next_purpose','reminder_date','reminder_note']){const proposed=r.draft[k],fallback=original[k]||'';f.elements[k].value=proposed??fallback;f.elements[k].disabled=!editable;if(proposed==null&&fallback)currentPreserved[k]=fallback;}
+  const callDate=item.meta?.date;
+  const previousDate=original.next_date;
+  const purposeExpired=Boolean(callDate&&/^\d{4}-\d{2}-\d{2}$/.test(previousDate||'')&&callDate>previousDate);
+  for(const key of ['intent','next_date','next_purpose','reminder_date','reminder_note']){
+    const proposed=r.draft[key];
+    const fallback=key==='next_purpose'&&purposeExpired?'':original[key]||'';
+    f.elements[key].value=proposed??fallback;
+    f.elements[key].disabled=!editable;
+    if(proposed==null&&fallback)currentPreserved[key]=fallback;
+  }
   const suggestedNextDate=editable?(r.suggestedNextDate||''):'';
   defaultNextDate=suggestedNextDate||(r.draft.default_follow_up?r.draft.next_date:'');
   if(suggestedNextDate)f.elements.next_date.value=suggestedNextDate;
