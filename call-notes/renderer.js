@@ -405,6 +405,7 @@ function openRecordingDetails(item){
 }
 async function openDraft(item){
   const r=await call('draft',item.id);currentDraftId=item.id;const f=$('review-form'),editable=!item.trashedAt&&['review','ready','awaiting_link'].includes(r.status),historical=r.protection?.newestCall===false;
+  const archived=r.status==='done';
   const original=r.original||{};
   $('original-intent').textContent=original.intent||'';$('original-latest').textContent=original.latest_summary||'';$('original-logs').textContent=original.recent_logs?.length?original.recent_logs.map(v=>`[${v.stamp}] ${v.text}`).join('\n\n'):(original.hasUnformattedLog?'暂无标准时间格式的跟进日志':'');$('original-next-date').textContent=original.next_date||'';$('original-next-purpose').textContent=original.next_purpose||'';$('original-reminder-date').textContent=original.reminder_date||'';$('original-reminder-note').textContent=original.reminder_note||'';
   $('original-group').textContent=r.original?(original.group||(original.groupEmpty?'':'已填写')):'未读取到飞书客群';
@@ -460,11 +461,22 @@ async function openDraft(item){
   defaultNextDate=suggestedNextDate||(r.draft.default_follow_up?r.draft.next_date:'');
   if(suggestedNextDate)f.elements.next_date.value=suggestedNextDate;
   clearControls.forEach(update=>update());
-  const offer=!!r.draft.suggested_name&&!String(r.customer||'').trim();$('name-offer').hidden=!offer;f.elements.suggested_name.value=r.draft.suggested_name||'';f.elements.suggested_name.disabled=!editable||!offer;
+  const offer=!archived&&!!r.draft.suggested_name&&!String(r.customer||'').trim();$('name-offer').hidden=!offer;f.elements.suggested_name.value=r.draft.suggested_name||'';f.elements.suggested_name.disabled=!editable||!offer;
   f.elements.approveName.checked=r.nameDecisionMade?!!r.nameApproved:true;f.elements.approveName.disabled=!editable||!offer;
   $('name-evidence').textContent='录音依据：'+(r.draft.name_evidence||'');
   $('review-history').hidden=!historical;
-  $('write-scope').textContent=!r.recordId?'尚未关联客户：可核对草稿，关联后才允许保存到飞书。':historical?r.protection.reason+'。姓名可补空值，客群、留学报备和是否自有按确认的选项保存。':'保存前会重新核对飞书原值。';
+  $('write-scope').textContent=archived?'已归档':!r.recordId?'尚未关联客户：可核对草稿，关联后才允许保存到飞书。':historical?r.protection.reason+'。姓名可补空值，客群、留学报备和是否自有按确认的选项保存。':'保存前会重新核对飞书原值。';
+  for(const section of f.querySelectorAll('[data-review-editor]'))section.hidden=archived;
+  for(const section of f.querySelectorAll('[data-review-archive]'))section.hidden=!archived;
+  if(archived){
+    for(const output of f.querySelectorAll('[data-archive-value]')){
+      const key=output.dataset.archiveValue;
+      const control=f.elements[key];
+      const savedChoice=r.manualSelections?.[key]?.value;
+      const value=savedChoice||(control.selectedOptions?.[0]?.textContent??control.value);
+      output.textContent=value.trim()||'—';
+    }
+  }
   $('approve').hidden=!editable;$('transcript').textContent=r.transcript;reviewCustomer=r.customer||item.customer||'通话';reviewStamp=item.meta?.stamp||'';layoutReview();$('review').showModal();$('review-title').focus({preventScroll:true});$('review').querySelector('.review-body').scrollTop=0;$('review').scrollTop=0;clearControls.forEach(update=>update());
 }
 for(const name of ['inbox','calendar','archive','trash'])$('nav-'+name).onclick=()=>{page=name;if(name==='inbox')filter='all';notice('');render(currentItems);};
