@@ -320,9 +320,6 @@ async function fillSettings(){
   return state;
 }
 let defaultNextDate='';
-const followUpHint=document.createElement('small');
-followUpHint.textContent='默认建议：通话后一个月，可修改或清空。';
-followUpHint.hidden=true;
 const clearableFields={
   next_date:'下次跟进日期',
   next_purpose:'下次跟进目的',
@@ -366,7 +363,6 @@ const clearControls=Object.entries(clearableFields).map(([name,label])=>{
   field.addEventListener('change',update);
   wrapper.append(field,button);
   group.append(fieldLabel,wrapper);
-  if(name==='next_date')group.append(followUpHint);
   update();
   return update;
 });
@@ -445,7 +441,6 @@ async function openDraft(item){
   const suggestedNextDate=editable?(r.suggestedNextDate||''):'';
   defaultNextDate=suggestedNextDate||(r.draft.default_follow_up?r.draft.next_date:'');
   if(suggestedNextDate)f.elements.next_date.value=suggestedNextDate;
-  followUpHint.hidden=!editable||!defaultNextDate;
   clearControls.forEach(update=>update());
   const offer=!!r.draft.suggested_name&&!String(r.customer||'').trim();$('name-offer').hidden=!offer;f.elements.suggested_name.value=r.draft.suggested_name||'';f.elements.suggested_name.disabled=!editable||!offer;
   f.elements.approveName.checked=r.nameDecisionMade?!!r.nameApproved:true;f.elements.approveName.disabled=!editable||!offer;
