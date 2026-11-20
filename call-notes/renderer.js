@@ -1,4 +1,4 @@
-import {MANUAL_SELECT_FIELDS,callOutcome} from './core.js?v=20261120-call-outcome';
+import {MANUAL_SELECT_FIELDS,callOutcome} from './core.js?v=20261120-followup-review';
 const $=id=>document.getElementById(id);
 let currentItems=[],currentDraftId=null,currentLinkId=null,currentPreserved={},page='inbox',filter='all',wasRunning=false,calendarMode='1',calendarAnchor=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai'}).format(new Date());
 let currentManualValues=null,operation=null,stopRequested=false;
@@ -442,9 +442,16 @@ async function openDraft(item){
   const callDate=item.meta?.date;
   const previousDate=original.next_date;
   const purposeExpired=Boolean(callDate&&/^\d{4}-\d{2}-\d{2}$/.test(previousDate||'')&&callDate>previousDate);
+  const visit=/(?:到店|到校|到访|面谈|线下咨询)/;
+  const cancelledVisit=editable&&!historical&&visit.test(original.next_purpose||'')&&
+    /(?:取消(?:了)?原定[^。；]{0,28}(?:到店|到校|到访|面谈|线下咨询)|明确取消(?:本次|原定的)?(?:到店|到校|到访|面谈|线下咨询))/.test(r.draft.summary||'');
+  const scheduleHint=$('follow-up-review-hint');
+  scheduleHint.hidden=!cancelledVisit;
+  scheduleHint.textContent=cancelledVisit?'本次通话取消了原定到访。请核对原跟进日期和目的，再填写新的安排。':'';
   for(const key of ['intent','next_date','next_purpose','reminder_date','reminder_note']){
     const proposed=r.draft[key];
-    const fallback=key==='next_purpose'&&purposeExpired?'':original[key]||'';
+    const skipOriginal=(key==='next_purpose'&&(purposeExpired||cancelledVisit))||(key==='next_date'&&cancelledVisit);
+    const fallback=skipOriginal?'':original[key]||'';
     f.elements[key].value=proposed??fallback;
     f.elements[key].disabled=!editable;
     if(proposed==null&&fallback)currentPreserved[key]=fallback;

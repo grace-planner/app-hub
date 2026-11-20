@@ -40,7 +40,8 @@
 <section class="review-detailed-log" aria-labelledby="review-detailed-log-title"><h4 id="review-detailed-log-title">本次详细跟进日志</h4><p id="review-detailed-log"></p></section>
 <fieldset id="name-offer" hidden><legend>空姓名补充建议</legend><label>建议姓名 / 称呼<input name="suggested_name" maxlength="40"></label><p id="name-evidence"></p><label class="check"><input type="checkbox" name="approveName">确认补充到姓名（保存时仍为空才填写）</label></fieldset>
 <div class="review-follow-up-grid"><div class="grid review-follow-up"><label>下次跟进日期<input name="next_date" type="date"></label><label>下次跟进目的<textarea name="next_purpose" class="review-notes" rows="3"></textarea></label></div><div class="grid review-follow-up"><label>特殊提醒日期<input name="reminder_date" type="date"></label><label>特殊提醒事项<textarea name="reminder_note" class="review-notes" rows="3"></textarea></label></div></div>
+<p id="follow-up-review-hint" class="hint" role="status" hidden></p>
 <details><summary>查看转写原文</summary><pre id="transcript"></pre></details></section></div></div>
 <div class="dialog-actions review-actions"><button type="submit" class="primary" id="approve">确认草稿</button></div></form></dialog>
 <dialog id="link" aria-labelledby="link-title"><button type="button" id="close-link" class="dialog-close" aria-label="关闭关联客户窗口" title="关闭"></button><h2 id="link-title">关联飞书客户</h2><p>输入分配数据表中的姓名或号码，核对后选择对应客户。关联前不会写入飞书。</p><form id="link-form"><label>姓名或号码<input id="link-query" minlength="2" required autocomplete="off"></label><button type="submit">搜索客户</button></form><div id="link-results"></div></dialog>
-<script src="queue-view.js?v=20261120-archive-time-desc"></script><script type="module" src="browser-app.js?v=20261120-call-outcome"></script></body></html>
+<script src="queue-view.js?v=20261120-archive-time-desc"></script><script type="module" src="browser-app.js?v=20261120-followup-review"></script></body></html>
