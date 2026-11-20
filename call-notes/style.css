@@ -680,14 +680,23 @@ main > header h1 {
   border: 0;
   background: transparent;
 }
-#review .original-follow-up .review-follow-up-grid { margin: 8px 0 0; }
+#review .original-follow-up .review-follow-up-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 8px 0 0;
+}
+#review .original-follow-up .review-follow-up {
+  gap: 8px;
+}
+#review .original-follow-up .review-follow-up + .review-follow-up {
+  padding-inline: 12px 0;
+  border-block-start: 0;
+  border-inline-start: 1px solid #e7dfef;
+}
 #review .original-follow-up-field { min-width: 0; }
-#review .original-follow-up-field > span {
-  min-height: 42px;
-  padding: 9px 10px;
-  border: 1px solid #e8e1ee;
-  border-radius: 8px;
-  background: #fff;
+#review .original-follow-up-field > b { margin-block-end: 3px; }
+#review .original-follow-up-field > span:empty::after {
+  content: "—";
+  color: #887995;
 }
 #queue .inbox-row .info {
   position: relative;
