@@ -35,8 +35,9 @@
   function archived(items,query=''){
     const number=query.normalize('NFKC').replace(/[\s()+-]/g,'');
     const hasQuery=!!query.trim();
+    const callTime=item=>Number.isFinite(item.meta?.epoch)?item.meta.epoch:-Infinity;
     return items.filter(item=>!item.trashedAt&&item.status==='done'&&
-      (!hasQuery||(/^\d+$/.test(number)&&String(item.meta?.phone||'').replace(/\D/g,'').includes(number))));
+      (!hasQuery||(/^\d+$/.test(number)&&String(item.meta?.phone||'').replace(/\D/g,'').includes(number)))).sort((a,b)=>callTime(b)-callTime(a));
   }
   const api={group,inbox,archived,eligible,actionIds,displayName,calendarItems,calendarRange,calendarMonth};
   if(typeof module==='object'&&module.exports)module.exports=api;
