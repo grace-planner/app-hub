@@ -269,5 +269,5 @@ function validateBackup(raw){
 }
 $('import-backup').onclick=async()=>{storageFeedback();try{idle();const [file]=await chooseFile('.json');if(!file)return;if(file.size>100*1024*1024)throw Error('备份文件过大');const incoming=validateBackup(JSON.parse(await file.text()));idle();const existingIds=new Set(queue.items.map(i=>i.id)),fresh=incoming.filter(i=>!existingIds.has(i.id));if(!confirm(`从备份合并 ${fresh.length} 条新记录？\n本地已有的同一录音记录保持原样。备份不含录音和密钥；需要分析时请重新导入原始录音。`))return;const items=[...queue.items,...fresh];await set('queue',items);queue.items=items;publish();await storageStatus();storageFeedback(`已恢复 ${fresh.length} 条记录。相同录音的本地记录未覆盖；分析前请重新导入原始录音。`);}catch(e){reportStorageError(e);}};
 $('persist-storage').onclick=async()=>{storageFeedback();try{idle();const ok=await navigator.storage?.persist?.();await storageStatus();storageFeedback(ok?'已开启本地存储保护。':'浏览器尚未授予存储保护。请定期导出备份。');}catch(e){reportStorageError(e);}};
-await import('./renderer.js?v=20261120-archive-history');
+await import('./renderer.js?v=20261120-drag-import-2');
 try{await initialized;document.body.inert=false;}catch{}

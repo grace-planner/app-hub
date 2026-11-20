@@ -183,7 +183,7 @@ function render(items){
   if(!visible.length){
     const [symbol,heading,description]={
       inbox:filter==='all'
-        ?['↗','暂无待处理录音','可批量导入录音，单个文件最多 512 MB']
+        ?['↗','暂无待处理录音','拖入录音文件，或点击「批量导入录音」。单个文件最多 512 MB。']
         :['✓','当前筛选没有录音'],
       archive:archiveSearch.value.trim()
         ?['↗','没有匹配的归档记录','试试完整号码或尾号。']
@@ -501,14 +501,42 @@ $('diagnose-aliyun').onclick=async()=>{const f=$('settings-form'),box=$('aliyun-
 $('close-settings').onclick=()=>{$('settings').close();$('settings-form').elements.aliyunKey.value='';};
 $('settings-form').onsubmit=async e=>{e.preventDefault();try{await call('settings',{...Object.fromEntries(new FormData(e.target).entries()),autoWrite:false});$('settings').close();await fillSettings();notice('设置已保存');}catch(err){alert(err.message);}};
 const recordingFiles=$('recording-files');
+async function importFiles(files){
+  if(!files.length)return;
+  await action(async()=>{
+    page='inbox';filter='all';
+    render(await call('import',files));
+    notice('导入完成。已匹配默认勾选；可补选未匹配录音。');
+  })();
+}
 $('import').onclick=()=>recordingFiles.click();
-recordingFiles.onchange=action(async()=>{
+recordingFiles.onchange=()=>{
   const files=[...recordingFiles.files];
   recordingFiles.value='';
-  if(!files.length)return;
-  page='inbox';filter='all';
-  render(await call('import',files));
-  notice('导入完成。已匹配默认勾选；可补选未匹配录音。');
+  void importFiles(files);
+};
+
+const dropPanel=$('queue-panel');
+const draggingFiles=event=>Array.from(event.dataTransfer?.types||[]).includes('Files');
+const acceptsDrop=event=>page==='inbox'&&!$('import').disabled&&
+  !document.querySelector('dialog[open]')&&dropPanel.contains(event.target);
+const clearDropHighlight=()=>dropPanel.classList.remove('drop-ready');
+window.addEventListener('dragover',event=>{
+  if(!draggingFiles(event))return;
+  event.preventDefault();
+  const accepted=acceptsDrop(event);
+  event.dataTransfer.dropEffect=accepted?'copy':'none';
+  dropPanel.classList.toggle('drop-ready',accepted);
+});
+dropPanel.addEventListener('dragleave',event=>{
+  if(!dropPanel.contains(event.relatedTarget))clearDropHighlight();
+});
+window.addEventListener('dragend',clearDropHighlight);
+window.addEventListener('drop',event=>{
+  clearDropHighlight();
+  if(!draggingFiles(event))return;
+  event.preventDefault();
+  if(acceptsDrop(event))void importFiles([...event.dataTransfer.files]);
 });
 $('process').onclick=action(()=>call('process',selectedIds('analysis')));
 $('resummarize-selected').onclick=action(async()=>{

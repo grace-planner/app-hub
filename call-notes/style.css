@@ -832,3 +832,9 @@ main > header h1 {
   overflow-wrap: anywhere;
   line-height: 1.65;
 }
+
+#queue-panel.drop-ready {
+  outline: 2px dashed #9369c8;
+  outline-offset: -3px;
+  background-color: #f7f2fc;
+}
