@@ -30,5 +30,6 @@ test('summary request uses low temperature and keeps JSON output',async()=>{
   await services.summarize('客户住武侯区，正在比较课程。',{date:'2026-11-18'});
   assert.equal(request.body.temperature,0.1);
   assert.deepEqual(request.body.response_format,{type:'json_object'});
-  assert.equal(request.body.messages[0].content,SUMMARY_RULES);
+  assert.ok(request.body.messages[0].content.startsWith(SUMMARY_RULES));
+  assert.match(request.body.messages[0].content,/未接/);
 });

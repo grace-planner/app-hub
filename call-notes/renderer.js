@@ -1,4 +1,4 @@
-import {MANUAL_SELECT_FIELDS} from './core.js?v=20261119-ui-parity1';
+import {MANUAL_SELECT_FIELDS,callOutcome} from './core.js?v=20261120-call-outcome';
 const $=id=>document.getElementById(id);
 let currentItems=[],currentDraftId=null,currentLinkId=null,currentPreserved={},page='inbox',filter='all',wasRunning=false,calendarMode='1',calendarAnchor=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai'}).format(new Date());
 let currentManualValues=null,operation=null,stopRequested=false;
@@ -424,8 +424,9 @@ async function openDraft(item){
   }
   $('original-log-details').open=false;
   const latestField=f.elements.latest_summary;
-  latestField.value=r.draft.latest_summary||'';
+  latestField.value=r.draft.latest_summary??(!r.nameDecisionMade&&editable?callOutcome(r.draft.summary):'');
   latestField.disabled=!editable||historical;
+  latestField.placeholder=historical?'仅补历史日志':'';
   const blankReasons={
     no_progress:'AI 未提炼出有效进展。',
     missing:'AI 漏填了这一项，可通过「重新总结」再生成。',
@@ -433,8 +434,8 @@ async function openDraft(item){
     invalid:'AI 返回的一句话格式不符，可手动补写或重新总结。'
   };
   const latestHint=historical?'这通录音仅补入跟进日志，飞书最新通话记录保留原值。'
-    :'只写有效进展或下一步，最多60字。留空保留飞书原值。';
-  const blankReason=latestField.value?'':blankReasons[r.draft.latest_summary_reason]||'这份草稿未记录一句话的生成原因。';
+    :'写本次通话结果或下一步，最多60字。留空保留飞书原值。';
+  const blankReason=historical||latestField.value?'':blankReasons[r.draft.latest_summary_reason]||'这份草稿未记录一句话的生成原因。';
   $('latest-summary-hint').textContent=[latestHint,blankReason].filter(Boolean).join(' ');
   $('review-detailed-log').textContent=r.draft.summary||'暂无跟进日志';
   currentPreserved={};

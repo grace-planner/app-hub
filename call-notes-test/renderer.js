@@ -1,5 +1,7 @@
+import {callOutcome} from './core.js?v=20261120-call-outcome';
 'use strict';
 const $=id=>document.getElementById(id);
+let defaultNextDate='';
 let currentItems=[],currentDraftId=null,currentLinkId=null,currentPreserved={},page='inbox',filter='all',wasRunning=false,calendarMode='1',calendarAnchor=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai'}).format(new Date());
 const labels={queued:'待分析',processing:'处理中',ready:'待保存',review:'需核对',writing:'保存中',done:'已归档',skipped:'未分析',ambiguous:'匹配有歧义',awaiting_link:'待关联客户',error:'失败',invalid:'文件不支持',uncertain:'需确认结果'};
 async function call(c,...args){const r=await window.crm.call(c,...args);if(!r.ok)throw Error(r.error);return r.data;}
@@ -103,11 +105,19 @@ async function openDraft(item){
     f.elements[key].disabled=!editable;
     if(proposed==null&&fallback)currentPreserved[key]=fallback;
   }
+  const latestField=f.elements.latest_summary;
+  latestField.value=r.draft.latest_summary??(!r.nameDecisionMade&&editable?callOutcome(r.draft.summary):'');
+  latestField.disabled=!editable||historical;
+  latestField.placeholder=historical?'仅补历史日志':'';
+  $('latest-summary-hint').textContent=historical?'这通录音仅补入跟进日志，飞书最新通话记录保留原值。':'最多60字。留空保留飞书原值。';
+  const suggestedNextDate=editable?r.suggestedNextDate||'':'';
+  defaultNextDate=suggestedNextDate||(r.draft.default_follow_up?r.draft.next_date:'');
+  if(suggestedNextDate)f.elements.next_date.value=suggestedNextDate;
   f.elements.summary.disabled=!editable;
   const offer=!!r.draft.suggested_name&&!String(r.customer||'').trim();$('name-offer').hidden=!offer;f.elements.suggested_name.value=r.draft.suggested_name||'';f.elements.suggested_name.disabled=!editable||!offer;
   f.elements.approveName.checked=r.nameDecisionMade?!!r.nameApproved:true;f.elements.approveName.disabled=!editable||!offer;
   $('name-evidence').textContent='录音依据：'+(r.draft.name_evidence||'');
-  $('write-scope').textContent=!r.recordId?'尚未关联客户：可核对草稿，关联后才允许保存到飞书。':historical?r.protection.reason+'。所有草稿字段都可修改，但保存时只使用通话摘要追加历史日志；意向、跟进安排和提醒不会覆盖飞书中的较新内容。已确认的姓名建议只在姓名仍为空时补充。':'保存前会重新比较更新时间；已有姓名保持不变。';
+  $('write-scope').textContent=!r.recordId?'尚未关联客户：可核对草稿，关联后才允许保存到飞书。':historical?r.protection.reason+'。保存时只使用通话摘要追加历史日志；意向、跟进安排和提醒不会覆盖飞书中的较新内容。已确认的姓名建议只在姓名仍为空时补充。':'保存前会重新比较更新时间；已有姓名保持不变。';
   $('approve').hidden=!editable;$('transcript').textContent=r.transcript;$('review-title').textContent=(r.customer||'通话')+' · '+item.meta.stamp;$('review').showModal();
 }
 for(const name of ['inbox','calendar','archive','trash'])$('nav-'+name).onclick=()=>{page=name;if(name==='inbox')filter='all';notice('');render(currentItems);};
@@ -130,7 +140,7 @@ $('import').onclick=action(async()=>{page='inbox';filter='all';notice('正在导
 $('process').onclick=action(async()=>{await call('process',selectedIds('analysis'));notice('正在分析选中的录音；不会自动写入飞书。');});
 $('stop').onclick=action(async()=>{await call('stop');notice('将在当前一条处理完后停止');});$('commit').onclick=action(()=>call('commit',selectedIds('save')));
 $('test').onclick=async()=>{try{alert(await call('test'));}catch(e){alert(e.message);}};$('close-review').onclick=()=>$('review').close();$('close-link').onclick=()=>$('link').close();
-$('review-form').onsubmit=async e=>{e.preventDefault();try{const f=e.target,v=Object.fromEntries(new FormData(f).entries()),approveName=!$('name-offer').hidden&&f.elements.approveName.checked;delete v.approveName;for(const [k,original]of Object.entries(currentPreserved))if(v[k]===original)v[k]=null;for(const k of Object.keys(v))if(!v[k])v[k]=null;await call('approve',currentDraftId,v,approveName);$('review').close();render(currentItems);}catch(err){alert(err.message);}};
+$('review-form').onsubmit=async e=>{e.preventDefault();try{const f=e.target,v=Object.fromEntries(new FormData(f).entries()),approveName=!$('name-offer').hidden&&f.elements.approveName.checked;delete v.approveName;for(const [k,original]of Object.entries(currentPreserved))if(v[k]===original)v[k]=null;for(const k of Object.keys(v))if(!v[k])v[k]=null;v.default_follow_up=!!defaultNextDate&&v.next_date===defaultNextDate;await call('approve',currentDraftId,v,approveName);$('review').close();render(currentItems);}catch(err){alert(err.message);}};
 function renderCandidates(records){const container=$('link-results');container.replaceChildren();if(!records.length){container.textContent='没有找到，请换用完整姓名或号码查询。';return;}for(const r of records){const row=document.createElement('div');row.className='candidate';const label=document.createElement('span');label.textContent=[r.name,r.phone&&('号码/微信：'+r.phone),r.details&&('具体信息：'+r.details),r.intent&&('意向：'+r.intent),r.latest&&('最新通话：'+r.latest)].filter(Boolean).join('\n');const b=document.createElement('button');b.textContent='关联此客户';b.onclick=async()=>{try{await call('bind',currentLinkId,r.id);$('link').close();notice('已关联。请查看草稿、确认后勾选保存。');}catch(err){alert(err.message);}};row.append(label,b);container.append(row);}}
 $('link-form').onsubmit=async e=>{e.preventDefault();try{
   renderCandidates(await call('candidates',currentLinkId,$('link-query').value));

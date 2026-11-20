@@ -82,7 +82,7 @@ test('only recent calls with a valid short outcome update the latest-call field'
 });
 
 test('latest outcome retains simple formatting corrections and identifies blank results',async()=>{
-  const summary='家长同意接收课表，收到后与孩子讨论。';
+  const summary='家长同意接收课表，收到后与孩子讨论。顾问会再确认周末到校时间。';
   const cases=[
     [{latest_summary:'家长同意接收课表。\n收到后与孩子讨论。'},'家长同意接收课表；收到后与孩子讨论。',undefined],
     [{latest_summary:null},null,'no_progress'],

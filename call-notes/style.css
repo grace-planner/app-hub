@@ -771,3 +771,10 @@ main > header h1 {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+#review textarea[name="latest_summary"]:disabled {
+  background: #efebf5;
+  color: #675477;
+  cursor: default;
+}
+#review textarea[name="latest_summary"]::placeholder { color: #675477; }

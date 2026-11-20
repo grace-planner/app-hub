@@ -1,5 +1,5 @@
 import {get,set,batch,openDB,storageError,hashFile,MAX_FILE,path} from './browser-platform.js';
-import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,recordSnapshot,recencyGuard,validateDraft} from './core.js?v=20261118-regen';
+import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,recordSnapshot,suggestedFollowUp,recencyGuard,validateDraft} from './core.js?v=20261120-call-outcome';
 const $=id=>document.getElementById(id);
 const defaults={proxy:PROXY,audioProvider:'aliyun',audioBase:'https://dashscope.aliyuncs.com/api/v1',audioModel:'qwen-audio-3.1-asr-flash',textBase:'https://dashscope.aliyuncs.com/compatible-mode/v1',textModel:'qwen-plus',autoWrite:false};
 let settings,queue,keys={audio:'',text:''},busy=false,ready=false,lastError='',backupAt=null;
@@ -35,7 +35,7 @@ const handlers={
   process:async selected=>{idle();if(!keys.audio||!keys.text)throw Error('请先在连接与设置中输入本次会话的转写和总结密钥');const ids=window.crmView.actionIds(queue.items,selected,'analysis');if(!ids.length)throw Error('请勾选要分析的录音；从备份恢复后请先重新导入原始录音');queue.process(false,ids).catch(showError);publish();return true;},
   stop:()=>{queue.stop=true;return true;},
   commit:async selected=>{idle();const ids=window.crmView.actionIds(queue.items,selected,'save');if(!ids.length)throw Error('请先核对并勾选可保存的草稿');if(!confirm(`将 ${ids.length} 条草稿保存到飞书？\n请勿同时在其他 App 编辑相同客户。写入前会重读日志，但无法消除跨应用同时写入的冲突。`))return false;queue.commitReady(ids).catch(showError);publish();return true;},
-  draft:async id=>{idle();const i=queue.items.find(i=>i.id===id);if(!i?.draft)throw Error('草稿不存在');let original=null;if(i.recordId){const records=await queue.resolve(i);if(records.length===1){i.customer=fieldText(records[0].fields?.['姓名']).trim();i.protection=recencyGuard(records[0],i.meta);original=recordSnapshot(records[0]);}}return {draft:i.draft,original,transcript:i.transcript||'',status:i.status,protection:i.protection,customer:i.customer,recordId:i.recordId,nameApproved:i.nameApproved,nameDecisionMade:i.nameDecisionMade};},
+  draft:async id=>{idle();const i=queue.items.find(i=>i.id===id);if(!i?.draft)throw Error('草稿不存在');let original=null;if(i.recordId){const records=await queue.resolve(i);if(records.length===1){i.customer=fieldText(records[0].fields?.['姓名']).trim();i.protection=recencyGuard(records[0],i.meta);original=recordSnapshot(records[0]);}}return {draft:i.draft,original,suggestedNextDate:i.nameDecisionMade?'':suggestedFollowUp(i.meta,i.draft,original,i.protection),transcript:i.transcript||'',status:i.status,protection:i.protection,customer:i.customer,recordId:i.recordId,nameApproved:i.nameApproved,nameDecisionMade:i.nameDecisionMade};},
   approve:(...args)=>queue.approve(...args),retry:id=>queue.recover(id),select:(...args)=>queue.select(...args),candidates:(...args)=>queue.findCandidates(...args),matches:id=>queue.matchedCandidates(id),bind:(...args)=>queue.bind(...args),'move-items':(...args)=>queue.moveItems(...args),
   'clean-archive-files':async()=>{idle();const n=queue.items.filter(i=>!i.trashedAt&&i.status==='done'&&i.file).length;if(!n||!confirm(`删除浏览器中 ${n} 条已归档录音的副本？\n保留转写、草稿和飞书记录，不会删除原文件夹里的录音。`))return 0;return queue.cleanArchivedFiles();},
   'clear-trash':async()=>{idle();const n=queue.items.filter(i=>i.trashedAt).length;if(!n||!confirm(`永久清空回收站中的 ${n} 项及浏览器录音副本？\n此操作不可撤销，请先导出备份。不会删除原文件夹或飞书中的内容。`))return 0;return queue.clearTrash();},
@@ -69,5 +69,5 @@ function validateBackup(raw){
 }
 $('import-backup').onclick=async()=>{try{idle();const [file]=await chooseFile('.json');if(!file)return;if(file.size>100*1024*1024)throw Error('备份文件过大');const incoming=validateBackup(JSON.parse(await file.text()));idle();const existingIds=new Set(queue.items.map(i=>i.id)),fresh=incoming.filter(i=>!existingIds.has(i.id));if(!confirm(`从备份合并 ${fresh.length} 条新记录？\n本地已有的同一录音记录保持原样。备份不含录音和密钥；需要分析时请重新导入原始录音。`))return;const items=[...queue.items,...fresh];await set('queue',items);queue.items=items;publish();await storageStatus();$('notice').textContent=`已恢复 ${fresh.length} 条记录。相同录音的本地记录未覆盖；分析前请重新导入原始录音。`;}catch(e){showError(e);}};
 $('persist-storage').onclick=async()=>{try{idle();const ok=await navigator.storage?.persist?.();await storageStatus();if(!ok)alert('浏览器尚未授予持久存储保护。可正常使用，请定期导出备份；手动清除网站数据仍会删除记录。');}catch(e){showError(e);}};
-await import('./renderer.js?v=20261120-expired-purpose');
+await import('./renderer.js?v=20261120-call-outcome');
 try{await initialized;document.body.inert=false;}catch{}

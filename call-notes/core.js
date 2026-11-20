@@ -102,6 +102,23 @@ function readLatestSummary(result) {
   if(text.length>60)return {text:null,reason:'too_long'};
   return validLatestSummary(text)?{text,reason:null}:{text:null,reason:'invalid'};
 }
+function callOutcome(summary) {
+  const text=typeof summary==='string'?summary.trim():'';
+  if(/^(?:(?:本次)?(?:拨打)?(?:电话|通话)?(?:未接通|未接听|无人接听|未联系上|未能联系上|占线)|(?:对方|客户|您拨打的用户)(?:占线|正在通话中|未接听)|(?:电话)?转入语音留言)(?:(?:[，、；,]\s*)?(?:对方|客户)?(?:未接通|占线|正在通话中|转入语音留言|进入语音信箱|未留言))*[。.!！]?$/.test(text))return '未接';
+  if(validLatestSummary(text))return text;
+  if(/^(?:电话|通话)(?:已)?接通/.test(text)&&/(?:未作回应|未回应|没有回应|无实质沟通|未取得有效沟通)/.test(text))return '电话已接通，未取得有效沟通';
+  return '';
+}
+function suggestedSummerDate(callDate) {
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(callDate||''))return null;
+  const [year,month]=callDate.split('-').map(Number);
+  const moved=new Date(callDate+'T00:00:00Z');
+  moved.setUTCDate(moved.getUTCDate()+1);
+  if(month===7||month===8)return moved.getUTCMonth()<=7?moved.toISOString().slice(0,10):null;
+  return String(year+(month>8?1:0))+'-07-01';
+}
+const CALL_OUTCOME_RULE='另输出 latest_summary，写本次已经确认的进展、安排或实际通话结果，最多60字、只写一句。未接通、占线或进入语音留言统一填“未接”；确认接通但没有对方回应可写“电话已接通，未取得有效沟通”。详细日志本身为一句且不超过60字时可直接使用。';
+const FOLLOW_UP_PERIOD_RULE='若双方约定或客户明确表示暑期联系，且无具体日期，输出 next_period 为 summer，并将 next_date 设为 null；只咨询暑期课程、未说明暑期会联系时不得填 summer。具体约定优先按真实日期填写。';
 function validateDraft(d) {
   if(!d || typeof d !== 'object' || typeof d.meaningful !== 'boolean' || typeof d.needs_review !== 'boolean' || typeof d.summary !== 'string') throw Error('AI 结果格式不符合要求');
   if((d.meaningful && !d.summary.trim()) || d.summary.length>12000) throw Error('AI 摘要为空或过长');
@@ -191,8 +208,10 @@ function planFields(record,meta,draft,options={}) {
   if(newestCall&&!existing) {
     if(latestSummary)fields['最新通话记录']=latestSummary;
     if(draft.intent) fields['意向']=draft.intent;
-    if(draft.next_date&&(!draft.default_follow_up||!fieldText(record.fields?.['下次跟进日期']).trim())) {
-      fields['下次跟进日期']=dateMillis(draft.next_date);
+    const originalDate=crmDate(record.fields?.['下次跟进日期']);
+    const nextDate=draft.next_date||suggestedFollowUp(meta,draft,{next_date:originalDate},{newestCall});
+    if(nextDate&&(!draft.default_follow_up||!keepsFollowUpDate(originalDate,meta.date))) {
+      fields['下次跟进日期']=dateMillis(nextDate);
     }
     if(draft.next_purpose) fields['下次跟进目的']=draft.next_purpose;
     if(draft.reminder_date) fields['特殊提醒时间']=dateMillis(draft.reminder_date);
@@ -216,8 +235,11 @@ function planFields(record,meta,draft,options={}) {
   return {fields,duplicate:existing&&!Object.keys(fields).length,newestCall:!existing&&newestCall,reason,nameFilled:!!fields['姓名']};
 }
 function crmDate(value){const parsed=updateMoment(value);return parsed&&!parsed.invalid?parsed.day:fieldText(value).trim();}
+function keepsFollowUpDate(existing, callDate) {
+  return Boolean(existing && (!/^\d{4}-\d{2}-\d{2}$/.test(existing)||!callDate||existing>=callDate));
+}
 function suggestedFollowUp(meta,draft,original,protection) {
-  if(!original||!protection?.newestCall||original.next_date||draft.next_date)return '';
+  if(!original||!protection?.newestCall||draft.next_date||draft.default_follow_up===false||keepsFollowUpDate(original.next_date,meta?.date))return '';
   const callDate=updateMoment(meta?.date);
   if(!callDate||callDate.invalid)return '';
   const day=new Date(callDate.day+'T00:00:00Z');
@@ -351,12 +373,15 @@ class Services {
   }
   async summarize(transcript,meta) {
     if(!this.keys.text || !this.settings.textModel.trim()) throw Error('请先配置总结 API 密钥和模型');
-    const d=await jsonRequest(httpURL(this.settings.textBase)+'/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+this.keys.text,'Content-Type':'application/json'},body:JSON.stringify({model:this.settings.textModel,...aliyunTextOptions(this.settings),temperature:0.1,response_format:{type:'json_object'},messages:[{role:'system',content:SUMMARY_RULES+'\n\n独立生成两项：summary 是本次详细跟进日志，按前述详细摘要规则写，保留通话中实际出现的关键背景、需求、课程和价格、顾虑与约定；信息丰富时写完整的多句段落，不受60字限制。latest_summary 是飞书最新通话记录，用一行中文写本次已确认的决定、实质进展或安排；有多项时优先写最重要的一项，目标25至45字，最多60字，只在句末使用句号。客户明确作出的决定、双方确认的安排，即使没有约定具体日期，也应填写。只有确实没有有效进展时 latest_summary 才为 null，仍须在 summary 中如实记录未接通、语音留言等结果，禁止补造细节。'+'\n\n'+FOLLOW_UP_RULE+'\n\n'+CUSTOMER_GROUP_RULE},{role:'user',content:JSON.stringify({call_date:meta.date,transcript})}]})},this.fetcher);
+    const d=await jsonRequest(httpURL(this.settings.textBase)+'/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+this.keys.text,'Content-Type':'application/json'},body:JSON.stringify({model:this.settings.textModel,...aliyunTextOptions(this.settings),temperature:0.1,response_format:{type:'json_object'},messages:[{role:'system',content:SUMMARY_RULES+'\n\n独立生成两项：summary 是本次详细跟进日志，按前述详细摘要规则写，保留通话中实际出现的关键背景、需求、课程和价格、顾虑与约定；信息丰富时写完整的多句段落，不受60字限制。latest_summary 是飞书最新通话记录，用一行中文写本次已确认的决定、实质进展或安排；有多项时优先写最重要的一项，目标25至45字，最多60字，只在句末使用句号。客户明确作出的决定、双方确认的安排，即使没有约定具体日期，也应填写。禁止补造细节。'+'\n\n'+CALL_OUTCOME_RULE+'\n\n'+FOLLOW_UP_PERIOD_RULE+'\n\n'+FOLLOW_UP_RULE+'\n\n'+CUSTOMER_GROUP_RULE},{role:'user',content:JSON.stringify({call_date:meta.date,transcript})}]})},this.fetcher);
     if(d.choices?.[0]?.finish_reason!=='stop') throw Error('总结没有完整结束，请重试');
     let result;try{result=JSON.parse(d.choices[0].message.content);}catch{throw Error('AI 总结不是完整 JSON');}
+    const outcome=callOutcome(result.summary);
     const latest=readLatestSummary(result);
-    result.latest_summary=latest.text;
-    if(latest.reason)result.latest_summary_reason=latest.reason;
+    result.latest_summary=outcome==='未接'?outcome:latest.text||outcome||null;
+    if(!result.next_date&&result.next_period==='summer')result.next_date=suggestedSummerDate(meta.date);
+    delete result.next_period;
+    if(!result.latest_summary&&latest.reason)result.latest_summary_reason=latest.reason;
     else delete result.latest_summary_reason;
     delete result.log_summary;
     const evidence=typeof result.follow_up_evidence==='string'?result.follow_up_evidence.trim():'';
@@ -606,4 +631,4 @@ class Queue {
   async recover(id){if(this.running)throw Error('请等当前批次完成');const i=this.items.find(i=>i.id===id);if(!i||i.trashedAt||!['uncertain','skipped','ambiguous','error'].includes(i.status)||!i.file)throw Error('此记录不能重试');i.status='queued';i.selectedItem=true;i.message='已选中，点击上方分析选中录音即可重试';await this.persist();}
 }
 function toBase64(bytes){let s='';for(let i=0;i<bytes.length;i+=32768)s+=String.fromCharCode(...bytes.subarray(i,i+32768));return btoa(s);}
-export {PROXY,INTENTS,MANUAL_SELECT_FIELDS,SUMMARY_RULES,fieldText,phones,parseName,logEntries,dateMillis,updateMoment,recencyGuard,planFields,recordSnapshot,suggestedFollowUp,normalizeAIDraft,validateDraft,draftDisposition,saveOrder,nameSuggestion,groupSuggestion,displayedGroupSuggestion,httpURL,aliyunAudioBase,aliyunASRRequest,aliyunTranscript,modelProbe,jsonRequest,Services,Queue};
+export {PROXY,INTENTS,MANUAL_SELECT_FIELDS,SUMMARY_RULES,fieldText,phones,parseName,logEntries,dateMillis,updateMoment,recencyGuard,planFields,recordSnapshot,suggestedFollowUp,callOutcome,normalizeAIDraft,validateDraft,draftDisposition,saveOrder,nameSuggestion,groupSuggestion,displayedGroupSuggestion,httpURL,aliyunAudioBase,aliyunASRRequest,aliyunTranscript,modelProbe,jsonRequest,Services,Queue};
