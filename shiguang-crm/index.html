@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://feishu-le-proxy-wyyuhgxhep.cn-hangzhou.fcapp.run https://v1.hitokoto.cn; style-src 'self'; script-src 'self'">
 <title>拾光 · 山海</title>
-<link rel="stylesheet" href="style.css?v=ca72ce0116">
+<link rel="stylesheet" href="style.css?v=b85f64ca0d">
 <script src="app.js?v=11fe099259" defer></script>
-<script src="home.js?v=5cb466b516" defer></script>
+<script src="home.js?v=ca587e5b4e" defer></script>
 </head>
 <body data-page="home">
 <aside class="rail">
@@ -24,6 +24,7 @@
 </aside>
 <main>
   <section id="home">
+    <div class="home-sticky">
     <header class="hero">
       <span class="watermark" aria-hidden="true">Grace</span>
       <h1>拾光 · 山海</h1>
@@ -34,7 +35,6 @@
       </form>
       <div id="search-results" hidden aria-live="polite"></div>
     </header>
-    <section class="calendar" aria-label="首页日历">
       <div class="calendar-toolbar">
         <div class="calendar-head"><div><div class="calendar-views calendar-mode" aria-label="选择日历">
           <button type="button" data-calendar-mode="followup" aria-pressed="true">跟进日历</button>
@@ -51,6 +51,8 @@
           <select id="kind" aria-label="筛选提醒类型"><option value="">全部事项</option><option value="待联系">待联系</option><option value="特殊提醒">特殊提醒</option><option value="台账提醒">台账提醒</option></select></div>
         </div>
       </div>
+    </div>
+    <section class="calendar" aria-label="首页日历">
       <div id="calendar-body" aria-live="polite"></div>
     </section>
   </section>

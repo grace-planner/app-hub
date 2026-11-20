@@ -244,7 +244,7 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
 .month-more,.search-glyph{display:none}
 @media(min-width:761px){
   main{padding-top:22px}
-  #home .hero{position:sticky;top:var(--home-sticky-top);z-index:4;display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,390px);align-items:center;column-gap:24px;row-gap:3px;padding:13px 19px;margin-bottom:12px;background:#fff}
+  #home .hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,390px);align-items:center;column-gap:24px;row-gap:3px;padding:13px 19px;margin-bottom:12px;background:#fff}
   #home .hero h1{grid-column:1;grid-row:1;font-size:32px;line-height:1.2}
   #home .quote{grid-column:1/-1;grid-row:2;margin:3px 0 0;min-height:23px}
   #home .global-search{position:relative;grid-column:2;grid-row:1;align-self:center;justify-self:end;width:min(100%,238px)}
@@ -288,14 +288,12 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
   .calendar-nav #toggle-month-days:hover{background:var(--tint)}
 }
 
+.calendar-toolbar{background:#fff;border:1px solid var(--line);border-radius:16px 16px 0 0}
+#home .calendar{border-top:0;border-radius:0 0 16px 16px}
+#home .calendar-grid{border-top:0}
+
 @media(min-width:761px){
-  #home{--home-sticky-top:12px}
-  #home .calendar{overflow:clip}
-  #home .calendar-toolbar{
-    position:sticky;top:calc(var(--home-sticky-top) + var(--home-hero-height,85px));
-    z-index:3;background:#fff;border-bottom:1px solid var(--line)
-  }
-  #home .calendar-grid{border-top:0}
+  #home .home-sticky{position:sticky;top:0;z-index:4;background:#f6f5fa;padding-top:12px;margin-top:-12px}
 }
 
 .calendar-grid .appointment.ledger-reminder{padding-left:15px}
