@@ -11,6 +11,8 @@ let openItems=[];
 let results=[];
 const monthPreviewCount=3;
 const expandedMonthDays=new Set();
+const compactCalendar=matchMedia('(max-width:760px)');
+let renderedCalendarRange;
 
 
 function shiftDate(date, delta) {
@@ -74,7 +76,7 @@ function calendarEvents() {
   return events;
 }
 
-function renderCalendar() {
+function renderCalendar(recenter=false) {
   const followup=calendarMode==='followup';
   const contracts=calendarMode==='contracts';
   document.querySelectorAll('[data-calendar-mode]').forEach(button=>
@@ -131,7 +133,7 @@ function renderCalendar() {
         const title=labels.length?name+'（'+labels.join('、')+'）':name;
         return '<button class="appointment'+(ledgerReminder?' ledger-reminder':'')+(item.kind==='特殊提醒'?' special':'')+
           (month && itemIndex>=monthPreviewCount?' month-extra':'')+'" data-event="'+idx+
-          '" draggable="'+(followup && span!=='1')+'" data-intent="'+escape(item.record.intent)+
+          '" draggable="'+(followup && span!=='1' && !compactCalendar.matches)+'" data-intent="'+escape(item.record.intent)+
           '" data-contract="'+escape(contracts||ledgerReminder?item.record.contract:'')+'" title="'+escape(title)+'">'+nameLabel+'</button>';
       }).join('')+'</div>'+(extra ?
         '<button type="button" class="month-more" aria-expanded="'+expanded+'" aria-controls="appointments-'+date+
@@ -142,9 +144,22 @@ function renderCalendar() {
   const failed=relevantSources.filter(id=>calendarState[id]?.error);
   const banner=failed.length ? '<div class="calendar-status">'+failed.map(id=>sourceNames[id]).join('、')+
     '读取失败 <button class="action" id="retry-calendar">重试</button></div>' : '';
-  $('calendar-body').innerHTML=banner+(pending && !events.length ? loadingPanel(followup?'正在读取双表日历':contracts?'正在读取签约日历':'正在读取分配日历') :
+  const body=$('calendar-body');
+  const scrollLeft=body.scrollLeft;
+  body.innerHTML=banner+(pending && !events.length ? loadingPanel(followup?'正在读取双表日历':contracts?'正在读取签约日历':'正在读取分配日历') :
     (pending?'<p class="calendar-status">正在读取其余事项…</p>':'')+
     '<div class="calendar-grid span-'+span+'">'+days+'</div>');
+  const focusCell=body.querySelector('[data-day="'+focusDate+'"]');
+  if (compactCalendar.matches && focusCell) {
+    const range=span+':'+start;
+    if (recenter || renderedCalendarRange!==range) {
+      const cell=focusCell.getBoundingClientRect();
+      body.scrollLeft+=cell.left-body.getBoundingClientRect().left-(body.clientWidth-cell.width)/2;
+    } else {
+      body.scrollLeft=scrollLeft;
+    }
+    renderedCalendarRange=range;
+  }
   syncMonthToggle();
 }
 
@@ -289,15 +304,16 @@ document.addEventListener('click',event=>{
   if (button.id==='retry-calendar' || button.id==='refresh-calendar') loadCalendar(true);
   if (button.dataset.calendarMode) { calendarMode=button.dataset.calendarMode; renderCalendar(); }
   if (button.dataset.span) { span=button.dataset.span; renderCalendar(); }
-  if (button.id==='cal-today') { focusDate=today; renderCalendar(); }
+  if (button.id==='cal-today') { focusDate=today; renderCalendar(true); }
   if (button.id==='previous' || button.id==='next') {
     const delta=button.id==='previous'?-1:1;
     focusDate=span==='month'?monthShift(focusDate,delta):shiftDate(focusDate,delta*Number(span));
     renderCalendar();
   }
 });
-$('source').addEventListener('change',renderCalendar);
-$('kind').addEventListener('change',renderCalendar);
+$('source').addEventListener('change',()=>renderCalendar());
+$('kind').addEventListener('change',()=>renderCalendar());
+compactCalendar.addEventListener('change',()=>renderCalendar(true));
 document.addEventListener('crm-record-saved',event=>{
   const {source,record}=event.detail;
   const cached=recordCache.get(source==='students');

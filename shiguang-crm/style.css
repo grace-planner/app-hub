@@ -313,6 +313,22 @@ input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;wi
 .appointment-audience[data-audience="高中生"]{background:color-mix(in srgb,#78350F 45%,#FDE68A)}
 
 .rail .rail-toggle{display:none}
+@media(max-width:760px){
+  #calendar-body{overflow-x:auto;overscroll-behavior-x:contain}
+  #calendar-body .calendar-status{position:sticky;left:0}
+  .calendar-grid:is(.span-7,.span-month){min-width:790px}
+  .calendar-grid.span-3{min-width:338px}
+  .calendar-day{padding:6px}
+  .day-label{gap:4px}
+  .day-label span{display:inline}
+  .appointment{min-height:32px;font-size:13px}
+  .span-month .appointments{max-height:none;overflow:visible}
+  .span-month .calendar-day:not(.month-expanded) .month-extra{display:none}
+  .month-more:not([aria-expanded=true]){
+    display:block;min-height:28px;padding:3px 4px;border:0;background:none;color:var(--accent);font-size:12px
+  }
+  .calendar-controls{flex-wrap:wrap}
+}
 @media(min-width:761px){
   body[data-rail-collapsed]{--rail-width:62px}
   .rail .rail-toggle{
