@@ -210,6 +210,23 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSig
   }
 
   const downloadFile = id => request('下载转写', '/drive/v3/files/' + encodeURIComponent(id) + '?alt=media');
+  async function readVersion(id, head) {
+    const record = await (await downloadFile(head.id)).json();
+    if (record.id !== id || typeof record.filename !== 'string' || typeof record.transcript !== 'string' ||
+        !record.transcript || !record.meta || typeof record.status !== 'string' || transient.has(record.status)) {
+      throw Error('Drive 转写记录内容无效');
+    }
+    const remote = snapshot(record);
+    if (await hash(new Blob([head.parent || '', '\n', remote])) !== head.version) throw Error('Drive 转写记录校验失败');
+    return remote;
+  }
+
+  async function inspectConflict({id, heads}) {
+    const versions = [];
+    for (const head of heads) versions.push(JSON.parse(await readVersion(id, head)));
+    return versions;
+  }
+
   async function sync(items) {
     const available = await list();
     const deleted = deletionIds(available);
@@ -230,7 +247,7 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSig
       (item.driveText.version || item.trashedAt) && deleted.has(item.id));
     const result = new Map(local);
     for (const item of removed) result.delete(item.id);
-    let conflicts = 0;
+    const conflictDetails = [];
     let uploaded = 0;
     let downloaded = 0;
     const eligible = items.filter(item => item.driveText?.account === account && idPattern.test(item.id));
@@ -242,27 +259,21 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSig
       const versions = [...(histories.get(id)?.values() || [])];
       const ancestors = new Set(versions.map(row => row.parent));
       const heads = versions.filter(row => !ancestors.has(row.version));
-      if (heads.length > 1) { conflicts++; continue; }
+      if (heads.length > 1) { conflictDetails.push({id, item, heads}); continue; }
       let head = heads[0];
       let text = item && snapshot(item);
       if (item?.transcript && state && text !== state.baseline) {
         const version = await hash(new Blob([state.version, '\n', text]));
         if (head?.version !== version) {
-          if ((head?.version || '') !== state.version) { conflicts++; continue; }
+          if ((head?.version || '') !== state.version) { conflictDetails.push({id, item, heads}); continue; }
           folder ??= await resolveFolder(available);
           await upload(folder, id, text, { version, ...(state.version && { parent: state.version }) });
           uploaded++;
           head = { version };
         }
       } else if (head && head.version !== state?.version) {
-        const record = await (await downloadFile(head.id)).json();
-        if (record.id !== id || typeof record.filename !== 'string' || typeof record.transcript !== 'string' ||
-            !record.transcript || !record.meta || typeof record.status !== 'string' || transient.has(record.status)) {
-          throw Error('Drive 转写记录内容无效');
-        }
-        const remote = snapshot(record);
-        if (await hash(new Blob([head.parent || '', '\n', remote])) !== head.version) throw Error('Drive 转写记录校验失败');
-        if (item?.transcript && !state && text !== remote) { conflicts++; continue; }
+        const remote = await readVersion(id, head);
+        if (item?.transcript && !state && text !== remote) { conflictDetails.push({id, item, heads}); continue; }
         text = remote;
         downloaded++;
       }
@@ -273,7 +284,7 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSig
       for (const key of fields) if (!Object.hasOwn(record, key)) delete next[key];
       result.set(id, next);
     }
-    return { items: [...result.values()], conflicts, uploaded, downloaded, moved, removed };
+    return { items: [...result.values()], conflicts: conflictDetails.length, conflictDetails, uploaded, downloaded, moved, removed };
   }
 
   async function run(work, items, signal) {
@@ -293,6 +304,7 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSig
   return {
     account,
     sync: (items, signal) => run(sync, items, signal),
+    inspectConflict: (conflict, signal) => run(inspectConflict, conflict, signal),
     clearTrash: (items, signal) => run(clearTrash, items, signal)
   };
 }

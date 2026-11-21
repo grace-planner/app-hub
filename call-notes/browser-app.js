@@ -1,4 +1,4 @@
-import {canEnrollDriveText,makeDriveTextSync,requestDriveToken} from './google-drive-text.js?v=6';
+import {canEnrollDriveText,makeDriveTextSync,requestDriveToken} from './google-drive-text.js?v=7-preview';
 import {get,set,batch,openDB,storageError,hashFile,MAX_FILE,path} from './browser-platform.js?v=20261119-ui-parity1';
 import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,displayedGroupSuggestion,recordSnapshot,suggestedFollowUp,recencyGuard,validateDraft} from './core.js?v=20261120-followup-review';
 const $=id=>document.getElementById(id);
@@ -9,7 +9,7 @@ function publish(items=queue?.publicItems()||[]){
   const running=!!busyOperation||!!queue?.running;
   const operation=queue?.running?queue.operation:busyOperation;
   const stopMode=queue?.running&&['analysis','resummarizing','saving'].includes(operation)
-    ?'batch' :['connecting-drive','syncing','clearing-trash'].includes(busyOperation)?'drive':null;
+    ?'batch' :['connecting-drive','syncing','clearing-trash','inspecting-drive-conflict'].includes(busyOperation)?'drive':null;
   const analysisProgress=!busyOperation&&queue?.operation==='analysis'?queue.analysisProgress:null;
   for(const fn of listeners)fn({items,running,operation,stopMode,analysisProgress});
 }
@@ -64,8 +64,83 @@ function syncWithDrive(){
   return runDriveOperation('syncing',45_000,syncDriveText);
 }
 function showDriveStatus(message){$('drive-text-status').textContent=message;}
+function conflictVersion(label, item) {
+  const section=document.createElement('section');
+  const title=document.createElement('h4');
+  title.textContent=label;
+  section.append(title);
+  const fields=[
+    ['状态',item.trashedAt?'回收站':({done:'已归档',ready:'待保存',review:'需核对',queued:'待分析',error:'失败',ambiguous:'匹配有歧义',awaiting_link:'待关联客户',uncertain:'需确认结果'})[item.status]||item.status],
+    ['客户',item.customer],
+    ['录音',item.filename],
+    ['一句话',item.draft?.latest_summary],
+    ['详细跟进日志',item.draft?.summary],
+    ['下次跟进日期',item.draft?.next_date],
+    ['下次跟进目的',item.draft?.next_purpose],
+    ['特殊提醒日期',item.draft?.reminder_date],
+    ['特殊提醒事项',item.draft?.reminder_note]
+  ];
+  for(const [label,value] of fields){
+    if(!value)continue;
+    const line=document.createElement('p');
+    line.textContent=`${label} · ${value}`;
+    section.append(line);
+  }
+  if(item.transcript){
+    const details=document.createElement('details');
+    const summary=document.createElement('summary');
+    const transcript=document.createElement('pre');
+    summary.textContent='查看转写原文';
+    transcript.textContent=item.transcript;
+    details.append(summary,transcript);
+    section.append(details);
+  }
+  return section;
+}
+function showDriveConflicts(conflicts){
+  const panel=$('drive-text-conflicts');
+  const list=$('drive-text-conflict-list');
+  panel.hidden=!conflicts.length;
+  if(panel.hidden)panel.open=false;
+  list.replaceChildren();
+  for(const [index,conflict] of conflicts.entries()){
+    const {item,heads}=conflict;
+    const row=document.createElement('details');
+    const summary=document.createElement('summary');
+    const feedback=document.createElement('p');
+    const versions=document.createElement('div');
+    summary.textContent=[item?.customer||item?.filename||`冲突记录 ${index+1}`,item?.meta?.date,item?.trashedAt?'回收站':''].filter(Boolean).join(' · ');
+    feedback.className='hint';
+    feedback.setAttribute('role','status');
+    row.append(summary,feedback,versions);
+    if(item)versions.append(conflictVersion('本机版本',item));
+    list.append(row);
+    if(!heads.length){
+      feedback.textContent='上次检查未找到云端版本。';
+      continue;
+    }
+    const button=document.createElement('button');
+    button.type='button';
+    button.textContent=`查看云端版本（${heads.length}）`;
+    row.append(button);
+    button.onclick=async()=>{
+      button.disabled=true;
+      feedback.textContent='正在读取云端版本…';
+      try{
+        const cloud=await runDriveOperation('inspecting-drive-conflict',45_000,signal=>driveTextClient.inspectConflict(conflict,signal));
+        for(const [i,version] of cloud.entries())versions.append(conflictVersion(`云端版本 ${i+1}`,version));
+        button.remove();
+        feedback.textContent='';
+      }catch(error){
+        button.disabled=false;
+        feedback.textContent=error.message;
+      }
+    };
+  }
+}
 function connectDriveText(client){
   driveTextClient=client;
+  showDriveConflicts([]);
   $('drive-text-connect').disabled=!!client;
   $('drive-text-sync').disabled=!client;
   $('drive-text-enroll').disabled=!client;
@@ -89,6 +164,7 @@ async function syncDriveText(signal, background=false){
       finally{busyOperation=null;}
     }else await saveDriveItems(result.items,result.removed);
   }
+  showDriveConflicts(result.conflictDetails);
   const moved=result.moved?`已将 ${result.moved} 个文字文件移入同步文件夹。`:'';
   const removed=result.removed.length?`已同步清除 ${result.removed.length} 条记录。`:'';
   showDriveStatus((result.conflicts

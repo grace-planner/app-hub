@@ -932,3 +932,10 @@ main > header h1 {
     white-space: nowrap;
   }
 }
+
+#drive-text-conflicts { margin-top: 12px; }
+#drive-text-conflicts summary { cursor: pointer; overflow-wrap: anywhere; }
+#drive-text-conflict-list > details { padding: 12px 0; border-top: 1px solid #e4dcef; }
+#drive-text-conflict-list section { margin: 12px 0; padding: 12px; background: #f5f1f9; border-radius: 8px; }
+#drive-text-conflict-list section h4 { margin: 0 0 8px; }
+#drive-text-conflict-list section p { margin: 6px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
