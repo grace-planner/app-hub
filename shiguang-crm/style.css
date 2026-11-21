@@ -136,7 +136,7 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
 }
 
 @media(max-width:760px){
-  .rail:has(.home-link){padding:7px 10px;flex-wrap:nowrap;gap:5px}
+  .rail:has(.home-link){position:sticky;top:0;z-index:5;padding:7px 10px;flex-wrap:nowrap;gap:5px}
   .rail .brand{display:flex;flex:none;padding:0 10px 0 2px;margin:0 2px 0 0;border:0;border-right:1px solid #ffffff20}
   .rail .brand > span{display:none}
   .rail .home-link,.rail .modules button{padding:7px 9px;min-height:36px}
