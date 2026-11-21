@@ -19,6 +19,22 @@ document.addEventListener('click',event=>{
   }
 });
 const filterLabels={all:'全部待办',analysis:'待分析',ready:'待保存',attention:'待核对／异常'};
+const sidebar=$('sidebar');
+const sidebarToggle=$('sidebar-toggle');
+const sidebarPreference='grace-call-notes-sidebar-collapsed';
+function setSidebarCollapsed(collapsed){
+  sidebar.classList.toggle('sidebar-collapsed',collapsed);
+  sidebarToggle.setAttribute('aria-expanded',String(!collapsed));
+  const label=collapsed?'展开侧边栏':'收起侧边栏';
+  sidebarToggle.setAttribute('aria-label',label);
+  sidebarToggle.title=label;
+}
+try{setSidebarCollapsed(localStorage.getItem(sidebarPreference)==='1');}catch{}
+sidebarToggle.onclick=()=>{
+  const collapsed=!sidebar.classList.contains('sidebar-collapsed');
+  setSidebarCollapsed(collapsed);
+  try{localStorage.setItem(sidebarPreference,collapsed?'1':'0');}catch{}
+};
 const archiveSearch=$('archive-phone-search');
 function visibleItems(){
   if(page==='calendar')return [];
