@@ -130,6 +130,20 @@ async function fetchRecords(readStudent = studentMode()) {
   }
   return data.items.map(item=>fromFeishu(item,readStudent));
 }
+async function readLatestLeadLog(record) {
+  const query=[record.phone,record.name].map(value=>value?.trim()||'')
+    .find(value=>value && !containsReplacement(value));
+  if (!query) return (await fetchRecords(false)).find(item=>item.id===record.id)?.rawLog;
+  const data=await request('search',{q:query});
+  const item=data?.items?.find(item=>item.record_id===record.id);
+  if (!item?.fields) return (await fetchRecords(false)).find(item=>item.id===record.id)?.rawLog;
+  const log=textValue(item.fields['跟进日志']);
+  if (!containsReplacement(log)) return log;
+  const retry=await request('search',{q:query});
+  const fresh=retry?.items?.find(item=>item.record_id===record.id);
+  return fresh?.fields ? textValue(fresh.fields['跟进日志']) : log;
+}
+
 const recordCache=new Map();
 const recordReads=new Map();
 
@@ -365,7 +379,7 @@ function showList() {
 }
 document.addEventListener('click',async event=>{
   const button=event.target.closest('button');
-  if (!button || saving) return;
+  if (!button || (saving && !button.dataset.clearField)) return;
   if (button.dataset.module) switchModule(button.dataset.module);
   if (button.dataset.filter) {
     if (!studentMode()) {
@@ -444,17 +458,19 @@ document.addEventListener('submit',async event=>{
       : (fields[name] ? (name==='amount' ? Number(fields[name]) : fields[name]) : null),
   ]));
   saving=true;
-  const controls=[...event.target.elements];
+  const form=event.target;
+  const controls=[...form.elements].filter(control=>!control.disabled && (!sendOnly||control.type==='submit'));
   controls.forEach(control=>control.disabled=true);
+  if (sendOnly) notify('正在发送跟进记录…');
   try {
     if (!isStudent && note.trim()) {
-      const latest=(await fetchRecords(false)).find(record=>record.id===id);
-      if (!latest) throw new Error('飞书中找不到这条线索');
-      if (containsReplacement(latest.rawLog)) throw new Error('历史日志读取不完整，请稍后重试');
+      const rawLog=await readLatestLeadLog(current);
+      if (rawLog===undefined) throw new Error('飞书中找不到这条线索');
+      if (containsReplacement(rawLog)) throw new Error('历史日志读取不完整，请稍后重试');
       const now=new Date();
       const time=new Intl.DateTimeFormat('en-GB',{timeZone:zone,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(now);
       const logLine='['+dateKey(now).replaceAll('-','/')+' '+time+'] '+note.trim();
-      patch['跟进日志']=logLine+(latest.rawLog?'\n'+latest.rawLog:'');
+      patch['跟进日志']=logLine+(rawLog?'\n'+rawLog:'');
     }
     await request(isStudent?'student_update':'update',{recordId:id,fields:patch});
     const newLog=patch['跟进日志'];
@@ -465,10 +481,12 @@ document.addEventListener('submit',async event=>{
       updated.lastFollowUp=lastLoggedDate(updated.logs)||current.lastFollowUp;
     }
     const draftKey=source+':'+id;
+    const savedDraft=drafts.get(draftKey);
     drafts.delete(draftKey);
     if (sendOnly) {
-      const pending=Object.fromEntries(Object.entries(fields).filter(([name,value])=>
-        Object.hasOwn(writableFields,name) && value!==current[name]));
+      const liveFields=form.isConnected ? Object.fromEntries(new FormData(form)) : (savedDraft??{...fields,note});
+      const pending=Object.fromEntries(Object.entries(liveFields).filter(([name,value])=>
+        name==='note' ? Boolean(value && value!==note) : Object.hasOwn(writableFields,name) && value!==current[name]));
       if (Object.keys(pending).length) drafts.set(draftKey,pending);
     }
     cacheUpdatedRecord(isStudent,updated);
