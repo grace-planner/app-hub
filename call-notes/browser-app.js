@@ -101,7 +101,7 @@ function conflictDifference(local, remote, label){
   }
   if(local.transcript!==remote.transcript){
     const line=document.createElement('p');
-    line.textContent='转写原文不同，请展开两份版本核对。';
+    line.textContent='转写原文不同，可分别展开原文核对。';
     section.append(line);
   }
   if(section.childElementCount===1){
@@ -131,11 +131,7 @@ function conflictVersion(label, item) {
     details.append(summary,transcript);
     section.append(details);
   }
-  const full=document.createElement('details');
-  const summary=document.createElement('summary');
-  summary.textContent=`查看${label}详情`;
-  full.append(summary,section);
-  return full;
+  return section;
 }
 function conflictChoice(conflict, choice, label, item, feedback){
   const button=document.createElement('button');
@@ -171,6 +167,7 @@ function showDriveConflicts(conflicts){
   panel.hidden=!conflicts.length;
   if(panel.hidden)panel.open=false;
   list.replaceChildren();
+  let pendingRead=Promise.resolve();
   for(const [index,conflict] of conflicts.entries()){
     const {item,heads}=conflict;
     const row=document.createElement('details');
@@ -188,13 +185,14 @@ function showDriveConflicts(conflicts){
       if(item?.transcript?.trim())row.append(conflictChoice(conflict,'local','保留本机',item,feedback));
       continue;
     }
-    const button=document.createElement('button');
-    button.type='button';
-    button.textContent=`查看云端版本（${heads.length}）`;
-    row.append(button);
-    button.onclick=async()=>{
-      button.disabled=true;
-      feedback.textContent='正在读取云端版本…';
+    let loading=false, loaded=false;
+    const retry=document.createElement('button');
+    retry.type='button';
+    retry.textContent='重试读取云端版本';
+    retry.hidden=true;
+    row.append(retry);
+    async function inspect(){
+      if(!row.isConnected || !row.open)return;
       try{
         const cloud=await runDriveOperation('inspecting-drive-conflict',45_000,signal=>driveTextClient.inspectConflict(conflict,signal));
         const differences=document.createElement('div');
@@ -207,15 +205,23 @@ function showDriveConflicts(conflicts){
           versions.append(conflictVersion(label,version));
           actions.append(conflictChoice(conflict,heads[i].version,cloud.length===1?'保留云端':`保留${label}`,version,feedback));
         }
-        versions.before(differences);
-        row.append(actions);
-        button.remove();
+        versions.before(differences,actions);
+        loaded=true;
         feedback.textContent='';
       }catch(error){
-        button.disabled=false;
         feedback.textContent=error.message;
+        retry.hidden=false;
       }
-    };
+    }
+    function load(){
+      if(!row.open || loading || loaded)return;
+      loading=true;
+      retry.hidden=true;
+      feedback.textContent='正在读取云端版本…';
+      pendingRead=pendingRead.then(inspect).finally(()=>{loading=false;});
+    }
+    retry.onclick=load;
+    row.addEventListener('toggle',load);
   }
 }
 function connectDriveText(client){
