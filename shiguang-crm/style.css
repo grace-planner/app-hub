@@ -60,6 +60,7 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
 .lead-log summary small{margin-left:5px}.recent-logs{list-style:none;margin:0 0 9px;padding:0}
 .recent-logs li{padding:6px 0;border-bottom:1px solid var(--line)}.recent-logs time{color:var(--muted);font-size:11px}
 .recent-logs p{margin:3px 0;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.log-history[open]+.latest-log-preview{display:none}
 .lead-form .choice-options input:checked+span{background:var(--option-bg,#eae1f5);border-color:var(--option-border,var(--option-bg,#a587c7));color:var(--option-text,#51307e)}
 .choice-intent .choice-options span{--option-text:#fff}
 .choice-intent input[value="A"]+span,.lead-list-badge.intent[data-value="A"],.appointment[data-intent="A"]{--option-bg:#EF4444}

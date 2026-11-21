@@ -167,6 +167,7 @@ let saving = false;
 let filter = 'all';
 let selected;
 let drafts = new Map();
+const justLogged=new Set();
 let timer;
 const escape = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]);
@@ -324,8 +325,10 @@ function fillDetail(target=$('detail'), record=records.find(item=>item.id===sele
   const edit={...record,...drafts.get(source+':'+record.id)};
   if (source==='students') { fillStudent(target,record,edit); return; }
   const logs=record.rawLog ? parseLogs(record.rawLog,'') : [];
-  const recentLogs=logs.slice(0,3).map(({date,text})=>
-    '<li>'+(date?'<time>'+escape(date)+'</time>':'')+'<p>'+escape(text)+'</p></li>').join('');
+  const logItems=logs.slice(0,3).map(({date,text})=>
+    '<li>'+(date?'<time>'+escape(date)+'</time>':'')+'<p>'+escape(text)+'</p></li>');
+  const latestLogPreview=justLogged.has(record.id) && logItems.length
+    ? '<ol class="recent-logs latest-log-preview">'+logItems[0]+'</ol>' : '';
   target.innerHTML='<form class="edit detail-form lead-form">'+
     detailHeader(edit)+'<div class="detail-body"><div class="lead-column">'+
     '<section class="edit-section lead-facts">'+
@@ -336,9 +339,9 @@ function fillDetail(target=$('detail'), record=records.find(item=>item.id===sele
       leadChoice(label,name,values,edit[name])).join('')+'</section></div>'+
     '<div class="lead-column"><section class="edit-section lead-latest"><div class="record-readonly">'+
     '<span>最新通话记录</span><p>'+escape(record.latest||'暂无通话记录')+'</p></div></section>'+
-    '<section class="edit-section lead-log"><details class="log-history"><summary>跟进日志 <small>'+Math.min(logs.length,3)+' 条</small></summary>'+
-    (recentLogs?'<ol class="recent-logs">'+recentLogs+'</ol>':'<p class="quiet">暂无跟进日志</p>')+
-    '</details>'+
+    '<section class="edit-section lead-log"><details class="log-history"><summary>跟进日志 <small>'+logItems.length+' 条</small></summary>'+
+    (logItems.length?'<ol class="recent-logs">'+logItems.join('')+'</ol>':'<p class="quiet">暂无跟进日志</p>')+
+    '</details>'+latestLogPreview+
     '<span class="quiet">本次跟进记录</span><div class="log-composer">'+
     '<textarea name="note" aria-label="本次跟进记录" rows="3" placeholder="记录跟进内容…">'+escape(edit.note)+'</textarea>'+
     '<button type="submit" value="send-log" aria-label="发送跟进记录" title="发送跟进记录">'+
@@ -476,6 +479,7 @@ document.addEventListener('submit',async event=>{
     const newLog=patch['跟进日志'];
     const updated={...current,...Object.fromEntries(changes.map(name=>[name,fields[name]]))};
     if (Object.hasOwn(patch,'跟进日志')) {
+      justLogged.add(id);
       updated.rawLog=newLog||'';
       updated.logs=parseLogs(updated.rawLog,current.latest);
       updated.lastFollowUp=lastLoggedDate(updated.logs)||current.lastFollowUp;
