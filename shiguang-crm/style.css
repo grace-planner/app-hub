@@ -200,7 +200,11 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
 
 .clearable-field{position:relative;min-width:0}
 .clearable-field:has(.field-clear:not([hidden])) input{padding-right:32px}
+input[type=date]{position:relative}
+input[type=date]:enabled{cursor:pointer}
+input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:auto;height:auto;margin:0;padding:0;opacity:0;cursor:pointer}
 .field-clear{position:absolute;bottom:8px;right:6px;display:grid;place-items:center;width:23px;height:23px;padding:0;border:0;border-radius:5px;background:transparent;color:var(--muted);font-size:18px;line-height:1}
+.clearable-field:has(input[type=date]) .field-clear{z-index:1}
 .field-clear:hover{color:var(--accent);background:var(--tint)}
 
 .lead-list-badge.contract[data-value="一对一"]{--option-bg:#e4efff;--option-text:#1e4d8f}

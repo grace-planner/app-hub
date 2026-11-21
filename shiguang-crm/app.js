@@ -331,7 +331,7 @@ function fillDetail(target=$('detail'), record=records.find(item=>item.id===sele
     '<section class="edit-section lead-facts">'+
     textarea('具体信息','info',edit.info,3)+
     '<div class="grid lead-date-pair"><div class="record-readonly"><span>分配时间</span><p>'+
-    escape(record.assigned||'—')+'</p></div>'+field('报名日期','signup',edit.signup,'date')+'</div></section>'+
+    escape(record.assigned||'—')+'</p></div>'+clearableField('报名日期','signup',edit.signup,'date')+'</div></section>'+
     '<section class="edit-section lead-choices" aria-label="客户分类">'+leadChoices.map(([label,name,values])=>
       leadChoice(label,name,values,edit[name])).join('')+'</section></div>'+
     '<div class="lead-column"><section class="edit-section lead-latest"><div class="record-readonly">'+
@@ -377,7 +377,21 @@ function showList() {
   document.body.dataset.view='list';
   document.querySelector('.row[aria-current=true]')?.focus();
 }
+function openDatePicker(event) {
+  const input=event.target;
+  if (!input.matches?.('input[type="date"]:enabled') || typeof input.showPicker!=='function') return;
+  try {
+    input.showPicker();
+    event.preventDefault();
+  } catch {
+    // Leave native date input behavior available when the browser blocks showPicker.
+  }
+}
+document.addEventListener('keydown',event=>{
+  if (event.key==='Enter') openDatePicker(event);
+});
 document.addEventListener('click',async event=>{
+  openDatePicker(event);
   const button=event.target.closest('button');
   if (!button || (saving && !button.dataset.clearField)) return;
   if (button.dataset.module) switchModule(button.dataset.module);
