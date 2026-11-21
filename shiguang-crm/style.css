@@ -254,7 +254,7 @@ input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;wi
 .month-more,.search-glyph{display:none}
 @media(min-width:761px){
   main{padding-top:22px}
-  #home .hero{display:grid;grid-template-columns:minmax(max-content,1fr) minmax(0,238px);align-items:center;column-gap:24px;row-gap:3px;padding:13px 19px;margin-bottom:12px}
+  #home .hero{display:grid;grid-template-columns:minmax(0,1fr) clamp(210px,36%,280px);align-items:center;column-gap:24px;row-gap:3px;padding:13px 19px;margin-bottom:12px}
   #home .hero h1{grid-column:1;grid-row:1;font-size:32px;line-height:1.2;white-space:nowrap}
   #home .quote{grid-column:1/-1;grid-row:2;margin:3px 0 0;min-height:23px}
   #home .global-search{position:relative;grid-column:2;grid-row:1;align-self:center;width:100%}
