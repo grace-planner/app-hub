@@ -353,6 +353,11 @@ input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;wi
 @media(max-width:350px){
   .detail-form .schedule-grid{grid-template-columns:minmax(0,1fr)}
 }
+.detail-form .lead-facts textarea[name=info],
+.detail-form .schedule-grid input{font-size:13px;line-height:1.5}
+.detail-form .schedule-grid input[type=date]{padding-left:8px}
+.detail-form .schedule-grid .clearable-field:has(.field-clear:not([hidden])) input[type=date]{padding-right:28px}
+.detail-form .schedule-grid input[type=date]::-webkit-datetime-edit{padding:0}
 @media(min-width:761px){
   body[data-rail-collapsed]{--rail-width:62px}
   .rail .rail-toggle{
