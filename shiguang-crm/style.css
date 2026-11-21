@@ -322,6 +322,8 @@ input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;wi
 
 .rail .rail-toggle{display:none}
 @media(max-width:760px){
+  .detail-form .save-bar{padding:8px 0 4px}
+  .detail-form .save-bar .primary{width:100%;min-height:44px}
   .detail-form .detail-body :is(input,textarea,select){font-size:14px;line-height:1.45}
   .detail-form .detail-body :is(input,select){padding-inline:8px}
   .detail-form .detail-body input[type=date]{appearance:none;-webkit-appearance:none;min-width:0}
