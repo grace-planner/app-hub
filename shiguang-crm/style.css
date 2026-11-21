@@ -192,7 +192,7 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
 
 .lead-identity{flex:0 1 auto;width:fit-content;max-width:100%;column-gap:12px;row-gap:2px}
 .lead-identity h2 input{field-sizing:content;min-width:4ch;max-width:100%;width:auto}
-.lead-identity .lead-contact input{field-sizing:content;width:auto;min-width:11ch;max-width:100%;font-variant-numeric:tabular-nums}
+.lead-identity .lead-contact input{field-sizing:content;width:auto;min-width:11ch;max-width:100%;font-variant-numeric:tabular-nums;font-size:16px;font-weight:650;color:#322548}
 .lead-contact-actions .record-source{padding:0;background:none;font-size:11px;font-weight:500;color:var(--muted)}
 .lead-contact-actions .record-source[data-source="students"]{color:#38634f}
 .lead-banner .lead-dial .action{min-height:25px;padding:3px 2px;border:0;border-radius:4px;background:transparent;color:var(--accent)}
