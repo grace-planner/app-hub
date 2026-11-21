@@ -8,6 +8,9 @@ for(const [key,{options}] of Object.entries(MANUAL_SELECT_FIELDS)){
 }
 const labels={queued:'待分析',processing:'处理中',ready:'待保存',review:'需核对',writing:'保存中',done:'已归档',skipped:'未分析',ambiguous:'匹配有歧义',awaiting_link:'待关联客户',error:'失败',invalid:'文件不支持',uncertain:'需确认结果'};
 async function call(c,...args){const r=await window.crm.call(c,...args);if(!r.ok)throw Error(r.error);return r.data;}
+async function copyCallPhone(phone){
+  await navigator.clipboard.writeText(phone);
+}
 function notice(t){$('notice').textContent=t||'';}
 function action(fn){return async()=>{try{notice('');await fn();}catch(e){notice(e.message);}};}
 document.addEventListener('click',event=>{
@@ -204,7 +207,23 @@ function render(items){
     const check=document.createElement('input');check.type='checkbox';check.className='row-check';check.checked=!!i.selectedItem;check.disabled=wasRunning;check.setAttribute('aria-label','选择 '+(i.customer||i.filename));
     check.onchange=action(()=>call('select',[i.id],'items',check.checked));
     const info=document.createElement('div');info.className='info';const title=document.createElement('span');title.className='row-title';title.textContent=i.customer||i.filename;
-    const meta=document.createElement('span');meta.className='meta';meta.textContent=i.meta?`${i.meta.stamp} · ${i.meta.phone?i.meta.phone.replace(/(\d{3})\d{4}(\d{4})/,'$1****$2'):'无号码 · 可手动关联'}`:i.filename;
+    const meta=document.createElement('span');
+    meta.className='meta';
+    const number=i.meta?.phone;
+    meta.textContent=i.meta?`${i.meta.stamp} · ${number?'':'无号码 · 可手动关联'}`:i.filename;
+    if(number){
+      const copy=document.createElement('button');
+      copy.className='row-copy-phone';
+      copy.type='button';
+      copy.textContent=number;
+      copy.setAttribute('aria-label','复制电话号码 '+number);
+      copy.title='复制号码';
+      copy.onclick=action(async()=>{
+        await copyCallPhone(number);
+        notice('已复制号码');
+      });
+      meta.append(copy);
+    }
     // Older drafts may still have the model's full review reason in the status message.
     const reviewReason=i.draft?.review_reason;
     let message=reviewReason?String(i.message||'').replace(reviewReason,'请核对草稿'):i.message;
@@ -305,11 +324,13 @@ function render(items){
       menu.append(trigger,secondary);
       buttons.append(menu);
     }
-    content.append(heading,meta);
-    if(context.textContent)content.append(context);
-    if(text.textContent)content.append(text);
-    if(compact?.textContent)content.append(compact);
-    info.append(content);
+    const readingArea=document.createElement('div');
+    readingArea.className='row-reading-area';
+    readingArea.append(content,heading,meta);
+    if(context.textContent)readingArea.append(context);
+    if(text.textContent)readingArea.append(text);
+    if(compact?.textContent)readingArea.append(compact);
+    info.append(readingArea);
     if(buttons.childElementCount)info.append(buttons);
     row.append(check,info);
     container.append(row);
@@ -407,6 +428,17 @@ async function openDraft(item){
   const r=await call('draft',item.id);currentDraftId=item.id;const f=$('review-form'),editable=!item.trashedAt&&['review','ready','awaiting_link'].includes(r.status),historical=r.protection?.newestCall===false;
   const archived=r.status==='done';
   $('review-original').hidden=archived;
+  const phone=$('review-phone');
+  const number=item.meta?.phone||'';
+  phone.hidden=!number;
+  phone.textContent=number;
+  phone.setAttribute('aria-label','复制电话号码 '+number);
+  phone.onclick=number?action(async()=>{
+    await copyCallPhone(number);
+    phone.setAttribute('aria-label','已复制电话号码 '+number);
+    phone.title='已复制号码';
+  }):null;
+  phone.title=number?'复制号码':'';
   const original=r.original||{};
   $('original-intent').textContent=original.intent||'';$('original-latest').textContent=original.latest_summary||'';$('original-logs').textContent=original.recent_logs?.length?original.recent_logs.map(v=>`[${v.stamp}] ${v.text}`).join('\n\n'):(original.hasUnformattedLog?'暂无标准时间格式的跟进日志':'');$('original-next-date').textContent=original.next_date||'';$('original-next-purpose').textContent=original.next_purpose||'';$('original-reminder-date').textContent=original.reminder_date||'';$('original-reminder-note').textContent=original.reminder_note||'';
   $('original-group').textContent=r.original?(original.group||(original.groupEmpty?'':'已填写')):'未读取到飞书客群';

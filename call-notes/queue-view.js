@@ -18,8 +18,7 @@
     return items.filter(i=>wanted.has(i.id)&&i.selectedItem&&eligible(i,action)).map(i=>i.id);
   }
   function displayName(item){
-    const value=String(item.customer||item.meta?.sourceLabel||item.filename||'未命名录音').replace(/\.[^.]+$/,'');
-    return /^(?:\+?86)?1[3-9]\d{9}$/.test(value)?value.replace(/^(?:\+?86)?(\d{3})\d{4}(\d{4})$/,'$1****$2'):value;
+    return String(item.customer||item.meta?.sourceLabel||item.filename||'未命名录音').replace(/\.[^.]+$/,'');
   }
   function dateValue(date){const m=String(date||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)throw Error('日期格式无效');return Date.UTC(+m[1],+m[2]-1,+m[3]);}
   function dateKey(ms){return new Date(ms).toISOString().slice(0,10);}

@@ -617,24 +617,39 @@ main > header h1 {
   align-items: flex-start;
   gap: 4px 12px;
 }
-#queue .row-content {
+#queue .row-reading-area {
+  position: relative;
   flex: 1 1 0;
   min-width: 0;
   padding: 10px 12px;
+  border-radius: 6px;
   line-height: 1.4;
 }
+#queue .row-reading-area:has(> .row-content:is(:hover,:active):enabled) { background: #f8f4fb; }
 #queue button.row-content {
-  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  padding: 0;
   border: 0;
-  border-radius: 6px;
+  border-radius: inherit;
   background: transparent;
-  text-align: start;
-  color: inherit;
 }
-#queue button.row-content:is(:hover,:active):enabled { background: #f8f4fb; }
 #queue button.row-content:disabled { opacity: 1; }
 #queue .row-title { font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }
-#queue .row-content .meta { display: block; margin-top: 5px; }
+#queue .row-reading-area .meta { display: block; margin-top: 5px; }
+#queue .row-copy-phone {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: #674a88;
+  font: inherit;
+  white-space: nowrap;
+}
+#queue .row-copy-phone:is(:hover,:focus-visible) { text-decoration: underline; }
 #queue .row-context {
   display: block;
   margin-top: 8px;
@@ -702,12 +717,13 @@ main > header h1 {
   position: relative;
   display: block;
 }
-#queue .inbox-row .row-content { width: 100%; }
+#queue .inbox-row .row-reading-area { width: 100%; }
 #queue .inbox-row .info:has(.row-actions) :is(.item-heading,.meta) {
   padding-inline-end: 28px;
 }
 #queue .inbox-row .row-actions {
   position: absolute;
+  z-index: 2;
   inset-block-start: 0;
   inset-inline-end: 0;
   margin: 0;
@@ -838,3 +854,15 @@ main > header h1 {
   outline-offset: -3px;
   background-color: #f7f2fc;
 }
+
+#review #review-phone {
+  display: inline-block;
+  align-self: start;
+  padding: 2px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #674a88;
+  font-size: 12px;
+}
+#review #review-phone:hover { text-decoration: underline; }
