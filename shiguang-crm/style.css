@@ -322,6 +322,20 @@ input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;wi
 
 .rail .rail-toggle{display:none}
 @media(max-width:760px){
+  .detail-form .detail-body :is(input,textarea,select){font-size:14px;line-height:1.45}
+  .detail-form .detail-body :is(input,select){padding-inline:8px}
+  .detail-form .detail-body input[type=date]{appearance:none;-webkit-appearance:none;min-width:0}
+  .detail-form input[type=date]::-webkit-date-and-time-value{text-align:left;min-width:0}
+  .detail-form .clearable-field:has(.field-clear:not([hidden])) input{padding-right:28px}
+  .detail-form .field-clear{right:4px}
+  .detail-form .detail-body textarea{padding-block:8px}
+  .detail-form .lead-facts textarea{field-sizing:content;min-height:5.5em;max-height:15em}
+  .lead-form .choice-intent .choice-options{
+    grid-template-columns:minmax(0,1fr) minmax(35px,1fr) minmax(0,1fr);gap:4px
+  }
+  .lead-form .choice-intent .choice-options span{padding-inline:0;font-size:11px}
+  .lead-form .choice-intent input[value="已报名"]+span{white-space:nowrap}
+  .detail-form .schedule-grid{grid-template-columns:minmax(132px,.9fr) minmax(0,1fr)}
   #calendar-body{overflow-x:auto;overscroll-behavior-x:contain}
   #calendar-body .calendar-status{position:sticky;left:0}
   .calendar-grid:is(.span-7,.span-month){min-width:790px}
@@ -335,6 +349,9 @@ input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;wi
   .month-more:not([aria-expanded=true]){
     display:block;min-height:28px;padding:3px 4px;border:0;background:none;color:var(--accent);font-size:12px
   }
+}
+@media(max-width:350px){
+  .detail-form .schedule-grid{grid-template-columns:minmax(0,1fr)}
 }
 @media(min-width:761px){
   body[data-rail-collapsed]{--rail-width:62px}
