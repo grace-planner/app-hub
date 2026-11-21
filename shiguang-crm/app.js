@@ -1,6 +1,24 @@
 'use strict';
 
 const $ = id => document.getElementById(id);
+const railToggle = $('rail-toggle');
+const railPreference = 'shiguang-sidebar-collapsed';
+function setRailCollapsed(collapsed) {
+  document.body.toggleAttribute('data-rail-collapsed', collapsed);
+  railToggle.setAttribute('aria-expanded', String(!collapsed));
+  const label = collapsed ? '展开侧栏' : '收起侧栏';
+  railToggle.setAttribute('aria-label', label);
+  railToggle.title = label;
+}
+try {
+  setRailCollapsed(localStorage.getItem(railPreference) === 'true');
+} catch {}
+railToggle.addEventListener('click', () => {
+  const collapsed = railToggle.getAttribute('aria-expanded') === 'true';
+  setRailCollapsed(collapsed);
+  try { localStorage.setItem(railPreference, String(collapsed)); } catch {}
+});
+
 const zone = 'Asia/Shanghai';
 const proxyUrl = "https://feishu-le-proxy-wyyuhgxhep.cn-hangzhou.fcapp.run";
 const intents = ['A','B','C','D','E','F','G','已报名','续费'];

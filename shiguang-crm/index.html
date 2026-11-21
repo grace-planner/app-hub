@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://feishu-le-proxy-wyyuhgxhep.cn-hangzhou.fcapp.run https://v1.hitokoto.cn; style-src 'self'; script-src 'self'">
 <title>拾光 · 山海</title>
-<link rel="stylesheet" href="style.css?v=ca5a29a1fe">
-<script src="app.js?v=2e92eb57e2" defer></script>
+<link rel="stylesheet" href="style.css?v=94a0f3996c">
+<script src="app.js?v=b4476e3eab" defer></script>
 <script src="home.js?v=8c3449a936" defer></script>
 </head>
 <body data-page="home">
-<aside class="rail">
+<aside class="rail" id="sidebar">
+  <button type="button" class="rail-toggle" id="rail-toggle" aria-controls="sidebar" aria-expanded="true" aria-label="收起侧栏" title="收起侧栏"></button>
   <div class="brand"><img class="brand-avatar" src="shark-avatar.jpg" width="28" height="28" alt=""><span>拾光 · 山海</span></div>
   <button class="home-link" id="home-link" aria-current="page">首页</button>
   <div class="modules" aria-label="业务模块"><button data-module="leads" aria-pressed="false">寻迹 <small>分配数据</small></button><button data-module="students" aria-pressed="false">织网 <small>学员台账</small></button></div>
@@ -20,7 +21,7 @@
     <button data-filter="week"><span aria-hidden="true">▦</span> 本周待联系</button>
     <button data-filter="enrolled"><span aria-hidden="true">✓</span> 已报名</button>
   </nav>
-  <div class="rail-foot"><span></span> 飞书 CRM</div>
+  <div class="rail-foot"><span aria-hidden="true"></span><span class="rail-foot-label">飞书 CRM</span></div>
 </aside>
 <main>
   <section id="home">
