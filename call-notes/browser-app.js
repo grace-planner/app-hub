@@ -81,9 +81,9 @@ function conflictFields(item){
     ['特殊提醒日期',item.draft?.reminder_date],
     ['特殊提醒事项',item.draft?.reminder_note],
     ['意向',item.draft?.intent],
-    ['客群',item.manualSelections?.customer_group??item.draft?.customer_group],
-    ['留学报备',item.manualSelections?.study_abroad],
-    ['是否自有',item.manualSelections?.ownership]
+    ['客群',item.manualSelections?.customer_group?.value??item.groupChoice??item.groupApproved??item.draft?.customer_group],
+    ['留学报备',item.manualSelections?.study_abroad?.value],
+    ['是否自有',item.manualSelections?.ownership?.value]
   ];
 }
 function conflictDifference(local, remote, label){
