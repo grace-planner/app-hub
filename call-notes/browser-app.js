@@ -1,4 +1,4 @@
-import {canEnrollDriveText,makeDriveTextSync,requestDriveToken} from './google-drive-text.js?v=7-preview';
+import {canEnrollDriveText,makeDriveTextSync,requestDriveToken} from './google-drive-text.js?v=8-conflict-resolution';
 import {get,set,batch,openDB,storageError,hashFile,MAX_FILE,path} from './browser-platform.js?v=20261119-ui-parity1';
 import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,displayedGroupSuggestion,recordSnapshot,suggestedFollowUp,recencyGuard,validateDraft} from './core.js?v=20261120-followup-review';
 const $=id=>document.getElementById(id);
@@ -9,7 +9,7 @@ function publish(items=queue?.publicItems()||[]){
   const running=!!busyOperation||!!queue?.running;
   const operation=queue?.running?queue.operation:busyOperation;
   const stopMode=queue?.running&&['analysis','resummarizing','saving'].includes(operation)
-    ?'batch' :['connecting-drive','syncing','clearing-trash','inspecting-drive-conflict'].includes(busyOperation)?'drive':null;
+    ?'batch' :['connecting-drive','syncing','clearing-trash','inspecting-drive-conflict','resolving-drive-conflict'].includes(busyOperation)?'drive':null;
   const analysisProgress=!busyOperation&&queue?.operation==='analysis'?queue.analysisProgress:null;
   for(const fn of listeners)fn({items,running,operation,stopMode,analysisProgress});
 }
@@ -64,13 +64,14 @@ function syncWithDrive(){
   return runDriveOperation('syncing',45_000,syncDriveText);
 }
 function showDriveStatus(message){$('drive-text-status').textContent=message;}
-function conflictVersion(label, item) {
-  const section=document.createElement('section');
-  const title=document.createElement('h4');
-  title.textContent=label;
-  section.append(title);
-  const fields=[
-    ['状态',item.trashedAt?'回收站':({done:'已归档',ready:'待保存',review:'需核对',queued:'待分析',error:'失败',ambiguous:'匹配有歧义',awaiting_link:'待关联客户',uncertain:'需确认结果'})[item.status]||item.status],
+let driveConflictDetails=[];
+const conflictStatus={
+  done:'已归档',ready:'待保存',review:'需核对',queued:'待分析',error:'失败',
+  ambiguous:'匹配有歧义',awaiting_link:'待关联客户',uncertain:'需确认结果'
+};
+function conflictFields(item){
+  return [
+    ['状态',item.trashedAt?'回收站':conflictStatus[item.status]||item.status],
     ['客户',item.customer],
     ['录音',item.filename],
     ['一句话',item.draft?.latest_summary],
@@ -78,9 +79,44 @@ function conflictVersion(label, item) {
     ['下次跟进日期',item.draft?.next_date],
     ['下次跟进目的',item.draft?.next_purpose],
     ['特殊提醒日期',item.draft?.reminder_date],
-    ['特殊提醒事项',item.draft?.reminder_note]
+    ['特殊提醒事项',item.draft?.reminder_note],
+    ['意向',item.draft?.intent],
+    ['客群',item.manualSelections?.customer_group??item.draft?.customer_group],
+    ['留学报备',item.manualSelections?.study_abroad],
+    ['是否自有',item.manualSelections?.ownership]
   ];
-  for(const [label,value] of fields){
+}
+function conflictDifference(local, remote, label){
+  const section=document.createElement('section');
+  const title=document.createElement('h4');
+  title.textContent=label;
+  section.append(title);
+  const before=new Map(conflictFields(local));
+  for(const [field,value] of conflictFields(remote)){
+    const previous=before.get(field);
+    if((previous??'')===(value??''))continue;
+    const line=document.createElement('p');
+    line.textContent=`${field} · 本机：${previous||'空白'} / 云端：${value||'空白'}`;
+    section.append(line);
+  }
+  if(local.transcript!==remote.transcript){
+    const line=document.createElement('p');
+    line.textContent='转写原文不同，请展开两份版本核对。';
+    section.append(line);
+  }
+  if(section.childElementCount===1){
+    const line=document.createElement('p');
+    line.textContent='以上显示字段一致。版本历史或其他同步字段可能不同。';
+    section.append(line);
+  }
+  return section;
+}
+function conflictVersion(label, item) {
+  const section=document.createElement('section');
+  const title=document.createElement('h4');
+  title.textContent=label;
+  section.append(title);
+  for(const [label,value] of conflictFields(item)){
     if(!value)continue;
     const line=document.createElement('p');
     line.textContent=`${label} · ${value}`;
@@ -95,9 +131,41 @@ function conflictVersion(label, item) {
     details.append(summary,transcript);
     section.append(details);
   }
-  return section;
+  const full=document.createElement('details');
+  const summary=document.createElement('summary');
+  summary.textContent=`查看${label}详情`;
+  full.append(summary,section);
+  return full;
+}
+function conflictChoice(conflict, choice, label, item, feedback){
+  const button=document.createElement('button');
+  button.type='button';
+  button.textContent=label;
+  button.onclick=async()=>{
+    const name=item.customer||item.filename;
+    const location=item.trashedAt?'保留在回收站':item.status==='done'?'保留在已归档':'回到待处理';
+    if(!confirm(`「${name}」${label}并${location}？选定的版本将用于网页和 Google Drive 同步。此操作不会改动飞书 CRM。`))return;
+    button.disabled=true;
+    try{
+      await runDriveOperation('resolving-drive-conflict',45_000,async signal=>{
+        const current=queue.items.find(row=>row.id===conflict.id);
+        const next=await driveTextClient.resolveConflict(conflict,current,choice,signal);
+        const items=current?queue.items.map(row=>row.id===next.id?next:row):[...queue.items,next];
+        await saveDriveItems(items,[]);
+        queue.candidateCache.delete(next.id);
+        const remaining=driveConflictDetails.filter(row=>row.id!==conflict.id);
+        showDriveConflicts(remaining);
+        showDriveStatus(remaining.length?`已处理 1 条冲突，还有 ${remaining.length} 条待核对。`:'已处理同步冲突。');
+      });
+    }catch(error){
+      button.disabled=false;
+      feedback.textContent=error.message;
+    }
+  };
+  return button;
 }
 function showDriveConflicts(conflicts){
+  driveConflictDetails=conflicts;
   const panel=$('drive-text-conflicts');
   const list=$('drive-text-conflict-list');
   panel.hidden=!conflicts.length;
@@ -117,6 +185,7 @@ function showDriveConflicts(conflicts){
     list.append(row);
     if(!heads.length){
       feedback.textContent='上次检查未找到云端版本。';
+      if(item?.transcript?.trim())row.append(conflictChoice(conflict,'local','保留本机',item,feedback));
       continue;
     }
     const button=document.createElement('button');
@@ -128,7 +197,18 @@ function showDriveConflicts(conflicts){
       feedback.textContent='正在读取云端版本…';
       try{
         const cloud=await runDriveOperation('inspecting-drive-conflict',45_000,signal=>driveTextClient.inspectConflict(conflict,signal));
-        for(const [i,version] of cloud.entries())versions.append(conflictVersion(`云端版本 ${i+1}`,version));
+        const differences=document.createElement('div');
+        const actions=document.createElement('div');
+        actions.className='drive-conflict-actions';
+        if(item?.transcript?.trim())actions.append(conflictChoice(conflict,'local','保留本机',item,feedback));
+        for(const [i,version] of cloud.entries()){
+          const label=cloud.length===1?'云端版本':`云端版本 ${i+1}`;
+          if(item)differences.append(conflictDifference(item,version,cloud.length===1?'本机与云端的差异':`与${label}的差异`));
+          versions.append(conflictVersion(label,version));
+          actions.append(conflictChoice(conflict,heads[i].version,cloud.length===1?'保留云端':`保留${label}`,version,feedback));
+        }
+        versions.before(differences);
+        row.append(actions);
         button.remove();
         feedback.textContent='';
       }catch(error){

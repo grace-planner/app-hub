@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; frame-src https://accounts.google.com; style-src 'self'; img-src 'self' data:; connect-src https:; object-src 'none'; base-uri 'none'; form-action 'none'; media-src 'self' blob:">
-<title>通话跟进 · 网页版</title><link rel="stylesheet" href="style.css?v=20261121-drive-conflicts"></head>
+<title>通话跟进 · 网页版</title><link rel="stylesheet" href="style.css?v=20261121-resolve-conflicts"></head>
 <body inert><aside id="sidebar" aria-label="主导航">
 <button type="button" id="sidebar-toggle" aria-expanded="true" aria-controls="sidebar-navigation" aria-label="收起侧边栏" title="收起侧边栏"></button>
 <div class="brand"><img class="logo" src="cta-avatar.jpg" width="40" height="40" alt="Grace 的头像"><div>通话跟进<small>GRACE · CALL NOTES</small></div></div>
@@ -32,8 +32,8 @@
 <button type="button" id="drive-text-cancel" hidden>取消 Google Drive 操作</button>
 <p id="drive-text-status" class="hint" role="status"></p>
 <details id="drive-text-conflicts" hidden>
-<summary>查看同步冲突</summary>
-<p class="hint">以下是上次同步检查发现的版本差异。</p>
+<summary>查看并处理同步冲突</summary>
+<p class="hint">逐条核对差异，然后选择要保留的版本。</p>
 <div id="drive-text-conflict-list"></div>
 </details>
 </fieldset>
@@ -73,4 +73,4 @@
 <details><summary>查看转写原文</summary><pre id="transcript"></pre></details></section></div></div>
 <div class="dialog-actions review-actions"><button type="submit" class="primary" id="approve">确认草稿</button></div></form></dialog>
 <dialog id="link" aria-labelledby="link-title"><button type="button" id="close-link" class="dialog-close" aria-label="关闭关联客户窗口" title="关闭"></button><h2 id="link-title">关联飞书客户</h2><p>输入分配数据表中的姓名或号码，核对后选择对应客户。关联前不会写入飞书。</p><form id="link-form"><label>姓名或号码<input id="link-query" minlength="2" required autocomplete="off"></label><button type="submit">搜索客户</button></form><div id="link-results"></div></dialog>
-<script src="queue-view.js?v=20261121-tap-phone"></script><script type="module" src="browser-app.js?v=20261121-drive-conflicts"></script></body></html>
+<script src="queue-view.js?v=20261121-tap-phone"></script><script type="module" src="browser-app.js?v=20261121-resolve-conflicts"></script></body></html>

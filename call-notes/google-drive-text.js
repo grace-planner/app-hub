@@ -14,6 +14,33 @@ const idPattern = /^[a-f0-9]{64}$/;
 const fileIdPattern = /^[A-Za-z0-9_-]+$/;
 const snapshot = item => JSON.stringify(Object.fromEntries(fields.filter(key => Object.hasOwn(item, key)).map(key => [key, item[key]])));
 
+// Drive properties store one extra parent per key, keeping old single-parent revisions readable.
+const mergeParentKeys = Array.from({length: 24}, (_, index) => 'merge' + index);
+const mergeParents = props => mergeParentKeys.map(key => props[key]).filter(version => idPattern.test(version || ''));
+const toVersion = file => {
+  const {version, parent} = file.appProperties;
+  return {id: file.id, version, parent, merged: mergeParents(file.appProperties)};
+};
+function recordHeads(files) {
+  const versions = new Map(files.map(file => [file.appProperties.version, toVersion(file)]));
+  const ancestors = new Set([...versions.values()].flatMap(row => [row.parent, ...row.merged]));
+  return [...versions.values()].filter(row => !ancestors.has(row.version))
+    .sort((a, b) => a.version.localeCompare(b.version));
+}
+function canonical(value) {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])]));
+  }
+  return value;
+}
+const sameText = (first, second) => first === second ||
+  (!!first && !!second && JSON.stringify(canonical(JSON.parse(first))) === JSON.stringify(canonical(JSON.parse(second))));
+const revisionContent = (text, parent, merged = []) =>
+  new Blob([parent || '', '\n', ...merged.map(version => version + '\n'), text]);
+const localIdentity = item => item && JSON.stringify([snapshot(item), item.driveText || null]);
+
+
 export function requestDriveToken(signal = AbortSignal.timeout(45_000)) {
   return new Promise((resolve, reject) => {
     const oauth = globalThis.google?.accounts?.oauth2;
@@ -184,9 +211,8 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSig
       }
       if (deleted.has(item.id)) continue;
       const versions = records.filter(file => file.appProperties.record === item.id);
-      const parents = new Set(versions.map(file => file.appProperties.parent));
-      const heads = versions.filter(file => !parents.has(file.appProperties.version));
-      if (heads.some(file => file.appProperties.version !== item.driveText.version)) {
+      const heads = recordHeads(versions);
+      if (heads.some(head => head.version !== item.driveText.version)) {
         throw Error('其他设备有更新或冲突，请先同步并核对后再清空回收站。');
       }
     }
@@ -217,7 +243,7 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSig
       throw Error('Drive 转写记录内容无效');
     }
     const remote = snapshot(record);
-    if (await hash(new Blob([head.parent || '', '\n', remote])) !== head.version) throw Error('Drive 转写记录校验失败');
+    if (await hash(revisionContent(remote, head.parent, head.merged)) !== head.version) throw Error('Drive 转写记录校验失败');
     return remote;
   }
 
@@ -225,6 +251,53 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSig
     const versions = [];
     for (const head of heads) versions.push(JSON.parse(await readVersion(id, head)));
     return versions;
+  }
+
+  function appliedVersion(item, text, version) {
+    const record = JSON.parse(text);
+    const next = { ...item, ...record, selectedItem: false, selectedAnalysis: false, selectedSave: false,
+      driveText: { account, version, baseline: text } };
+    for (const key of fields) if (!Object.hasOwn(record, key)) delete next[key];
+    return next;
+  }
+
+  async function mergeVersions(files, id, heads, text) {
+    const [parent, ...merged] = heads.map(head => head.version);
+    if (merged.length > mergeParentKeys.length) throw Error('云端版本过多，暂时无法合并。');
+    const version = await hash(revisionContent(text, parent, merged));
+    const links = Object.fromEntries(merged.map((value, index) => [mergeParentKeys[index], value]));
+    await upload(await resolveFolder(files), id, text, {version, ...(parent && {parent}), ...links});
+    return version;
+  }
+
+  async function resolveConflict({conflict, current, choice}) {
+    const {id, heads} = conflict;
+    const stale = () => Error('这条记录的版本已更新，请点「立即同步」后重新核对。');
+    if (!idPattern.test(id) || localIdentity(current) !== conflict.localIdentity ||
+        (current?.driveText && current.driveText.account !== account)) throw stale();
+    const checkHeads = async () => {
+      const files = await list();
+      const active = recordHeads(recordFiles(files).filter(file => file.appProperties.record === id));
+      if (deletionIds(files).has(id) || active.map(head => head.version).join() !== heads.map(head => head.version).join()) {
+        throw stale();
+      }
+      return {files, active};
+    };
+    const {active} = await checkHeads();
+    const selected = active.find(head => head.version === choice);
+    const text = choice === 'local' && current?.transcript?.trim() ? snapshot(current)
+      : selected ? await readVersion(id, selected) : null;
+    if (!text || transient.has(current?.status)) throw stale();
+    if (active.length === 1 && selected) {
+      await checkHeads();
+      return appliedVersion(current, text, selected.version);
+    }
+    if (active.length === 1 && sameText(text, await readVersion(id, active[0]))) {
+      await checkHeads();
+      return appliedVersion(current, text, active[0].version);
+    }
+    const {files} = await checkHeads();
+    return appliedVersion(current, text, await mergeVersions(files, id, active, text));
   }
 
   async function sync(items) {
@@ -238,9 +311,9 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSig
     const moved = folder ? await moveRootFiles(records, folder) : 0;
     const histories = new Map();
     for (const file of records) {
-      const { record, version, parent } = file.appProperties;
-      if (!histories.has(record)) histories.set(record, new Map());
-      histories.get(record).set(version, { id: file.id, version, parent });
+      const {record} = file.appProperties;
+      if (!histories.has(record)) histories.set(record, []);
+      histories.get(record).push(file);
     }
     const local = new Map(items.map(item => [item.id, item]));
     const removed = items.filter(item => item.driveText?.account === account &&
@@ -256,33 +329,52 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSig
       const item = local.get(id);
       const state = item?.driveText;
       if (item && (transient.has(item.status) || (state && state.account !== account))) continue;
-      const versions = [...(histories.get(id)?.values() || [])];
-      const ancestors = new Set(versions.map(row => row.parent));
-      const heads = versions.filter(row => !ancestors.has(row.version));
-      if (heads.length > 1) { conflictDetails.push({id, item, heads}); continue; }
+      const heads = recordHeads(histories.get(id) || []);
+      const conflict = () => conflictDetails.push({id, item, heads, localIdentity: localIdentity(item)});
       let head = heads[0];
       let text = item && snapshot(item);
-      if (item?.transcript && state && text !== state.baseline) {
-        const version = await hash(new Blob([state.version, '\n', text]));
+      if (heads.length > 1) {
+        const matching = await readVersion(id, head);
+        if (item?.transcript && (!state || !sameText(text, state.baseline)) && !sameText(text, matching)) {
+          conflict();
+          continue;
+        }
+        let identical = true;
+        for (const candidate of heads.slice(1)) {
+          if (!sameText(matching, await readVersion(id, candidate))) {
+            identical = false;
+            break;
+          }
+        }
+        if (!identical) { conflict(); continue; }
+        const version = await mergeVersions(available, id, heads, matching);
+        result.set(id, appliedVersion(item, matching, version));
+        uploaded++;
+        continue;
+      }
+      if (item?.transcript && state && !sameText(text, state.baseline)) {
+        const version = await hash(revisionContent(text, state.version));
         if (head?.version !== version) {
-          if ((head?.version || '') !== state.version) { conflictDetails.push({id, item, heads}); continue; }
-          folder ??= await resolveFolder(available);
-          await upload(folder, id, text, { version, ...(state.version && { parent: state.version }) });
-          uploaded++;
-          head = { version };
+          if ((head?.version || '') !== state.version) {
+            const remote = head && await readVersion(id, head);
+            if (!sameText(text, remote)) { conflict(); continue; }
+            text = remote;
+            downloaded++;
+          } else {
+            folder ??= await resolveFolder(available);
+            await upload(folder, id, text, { version, ...(state.version && { parent: state.version }) });
+            uploaded++;
+            head = { version };
+          }
         }
       } else if (head && head.version !== state?.version) {
         const remote = await readVersion(id, head);
-        if (item?.transcript && !state && text !== remote) { conflictDetails.push({id, item, heads}); continue; }
+        if (item?.transcript && !state && !sameText(text, remote)) { conflict(); continue; }
         text = remote;
         downloaded++;
       }
       if (!head || !text || head.version === state?.version) continue;
-      const record = JSON.parse(text);
-      const next = { ...item, ...record, selectedItem: false, selectedAnalysis: false, selectedSave: false,
-        driveText: { account, version: head.version, baseline: text } };
-      for (const key of fields) if (!Object.hasOwn(record, key)) delete next[key];
-      result.set(id, next);
+      result.set(id, appliedVersion(item, text, head.version));
     }
     return { items: [...result.values()], conflicts: conflictDetails.length, conflictDetails, uploaded, downloaded, moved, removed };
   }
@@ -305,6 +397,7 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSig
     account,
     sync: (items, signal) => run(sync, items, signal),
     inspectConflict: (conflict, signal) => run(inspectConflict, conflict, signal),
+    resolveConflict: (conflict, current, choice, signal) => run(resolveConflict, {conflict, current, choice}, signal),
     clearTrash: (items, signal) => run(clearTrash, items, signal)
   };
 }
