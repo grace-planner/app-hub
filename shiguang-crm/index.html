@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://feishu-le-proxy-wyyuhgxhep.cn-hangzhou.fcapp.run https://v1.hitokoto.cn; style-src 'self'; script-src 'self'">
 <title>拾光 · 山海</title>
-<link rel="stylesheet" href="style.css?v=4c24435b2f">
+<link rel="stylesheet" href="style.css?v=7bca92a322">
 <script src="app.js?v=b4476e3eab" defer></script>
-<script src="home.js?v=3ab9b0cdff" defer></script>
+<script src="home.js?v=46a2f09eb3" defer></script>
 </head>
 <body data-page="home">
 <aside class="rail" id="sidebar">
@@ -37,17 +37,22 @@
       <div id="search-results" hidden aria-live="polite"></div>
     </header>
       <div class="calendar-toolbar">
-        <div class="calendar-head"><div><div class="calendar-views calendar-mode" aria-label="选择日历">
-          <button type="button" data-calendar-mode="followup" aria-pressed="true">跟进日历</button>
-          <button type="button" data-calendar-mode="contracts" aria-pressed="false">签约日历</button>
-          <button type="button" data-calendar-mode="assignments" aria-pressed="false">分配日历</button>
-        </div><p id="period"></p></div>
+        <div class="calendar-head">
+          <div class="calendar-views calendar-mode" aria-label="选择日历">
+            <button type="button" data-calendar-mode="followup" aria-pressed="true">跟进日历</button>
+            <button type="button" data-calendar-mode="contracts" aria-pressed="false">签约日历</button>
+            <button type="button" data-calendar-mode="assignments" aria-pressed="false">分配日历</button>
+          </div>
           <div class="calendar-views" aria-label="时间范围">
             <button data-span="1">1 天</button><button data-span="3">3 天</button><button data-span="7">7 天</button><button data-span="month">月历</button>
           </div>
         </div>
+        <div class="calendar-dates">
+          <p id="period" class="calendar-period"></p>
+          <div class="calendar-nav"><button id="previous" aria-label="上一个时间段">‹</button><button id="cal-today">今天</button><button id="next" aria-label="下一个时间段">›</button></div>
+        </div>
         <div class="calendar-controls">
-          <div class="calendar-nav"><button id="previous" aria-label="上一个时间段">‹</button><button id="cal-today">今天</button><button id="next" aria-label="下一个时间段">›</button><button type="button" id="refresh-calendar" title="从飞书重新读取日历数据">更新日历</button><button type="button" id="toggle-month-days" aria-controls="calendar-body" hidden>全部展开</button></div>
+          <div class="calendar-nav"><button type="button" id="refresh-calendar" title="从飞书重新读取日历数据">更新日历</button><button type="button" id="toggle-month-days" aria-controls="calendar-body" hidden>全部展开</button></div>
           <div class="calendar-filters"><select id="source" aria-label="筛选表来源"><option value="">全部来源</option><option value="leads">分配数据</option><option value="students">学员台账</option></select>
           <select id="kind" aria-label="筛选提醒类型"><option value="">全部事项</option><option value="待联系">待联系</option><option value="特殊提醒">特殊提醒</option><option value="台账提醒">台账提醒</option></select></div>
         </div>

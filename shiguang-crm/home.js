@@ -94,7 +94,8 @@ function renderCalendar(recenter=false) {
     length=Math.ceil((weekDay(first)+days)/7)*7;
   }
   const end=shiftDate(start,length-1);
-  $('period').textContent=month ? first.slice(0,7).replace('-',' 年 ')+' 月'
+  $('period').classList.toggle('is-month',month);
+  $('period').textContent=month ? first.slice(0,7).replace('-','/')
     : start+(length>1?' 至 '+end:'');
   const events=calendarEvents();
   const source=followup?$('source').value:'';
