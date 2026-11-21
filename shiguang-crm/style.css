@@ -293,11 +293,8 @@ input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;wi
 
 @media(max-width:760px){.calendar-head{flex-wrap:wrap}}
 
-#toggle-month-days{display:none}
-@media(min-width:761px){
-  .calendar-nav #toggle-month-days:not([hidden]){display:block;border-color:transparent;background:transparent;color:var(--accent)}
-  .calendar-nav #toggle-month-days:hover{background:var(--tint)}
-}
+.calendar-nav #toggle-month-days{border-color:transparent;background:transparent;color:var(--accent)}
+.calendar-nav #toggle-month-days:hover{background:var(--tint)}
 
 .calendar-toolbar{background:#fff;border:1px solid var(--line);border-radius:16px 16px 0 0}
 #home .calendar{border-top:0;border-radius:0 0 16px 16px}
