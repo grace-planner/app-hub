@@ -136,12 +136,12 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
 }
 
 @media(max-width:760px){
-  .rail:has(.home-link){padding:7px 10px;background:#fff;border-bottom:1px solid var(--line);gap:4px}
-  .rail .home-link,.rail .modules button{color:var(--muted);padding:7px 9px;min-height:36px}
-  .rail .modules small{color:inherit}
-  .rail .home-link:hover,.rail .modules button:hover,.rail .modules button[aria-pressed=true],
-  body[data-page=home] .rail .home-link{background:var(--tint);color:var(--accent)}
-  body[data-page=home] .rail .modules button[aria-pressed=true]:not(:hover){background:transparent;color:var(--muted)}
+  .rail:has(.home-link){padding:7px 10px;flex-wrap:nowrap;gap:5px}
+  .rail .brand{display:flex;flex:none;padding:0 10px 0 2px;margin:0 2px 0 0;border:0;border-right:1px solid #ffffff20}
+  .rail .brand > span{display:none}
+  .rail .home-link,.rail .modules button{padding:7px 9px;min-height:36px}
+  .rail .modules{gap:4px}
+  .rail .modules small{margin-left:4px}
   .rail #views{display:none}
   #module-page .page-head{gap:8px;margin-bottom:10px}#module-page .page-head .date{font-size:11px}
   #module-page .page-head .mode{padding:0;background:none;font-size:11px}
@@ -153,6 +153,12 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
   #module-page .stat b{font-size:20px;line-height:1.15;margin:0}
   #module-page .stat:nth-child(n+4) b{font-size:13px}
   #module-page .stat small{font-size:10px}
+}
+@media(max-width:340px){
+  .rail:has(.home-link){padding-inline:7px;gap:3px}
+  .rail .brand{padding-right:7px}
+  .rail .home-link,.rail .modules button{padding-inline:6px}
+  .rail .modules small{margin-left:2px}
 }
 .scope-reset{background:transparent;border:0;color:var(--accent);font-size:12px;padding:3px 4px}
 .scope-reset:hover{text-decoration:underline}
