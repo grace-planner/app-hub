@@ -326,7 +326,6 @@ function fillDetail(target=$('detail'), record=records.find(item=>item.id===sele
   const logs=record.rawLog ? parseLogs(record.rawLog,'') : [];
   const logItems=logs.slice(0,3).map(({date,text})=>
     '<li>'+(date?'<time>'+escape(date)+'</time>':'')+'<p>'+escape(text)+'</p></li>');
-  const latestCallText=logs[0]?.text || record.latest || '暂无通话记录';
   target.innerHTML='<form class="edit detail-form lead-form">'+
     detailHeader(edit)+'<div class="detail-body"><div class="lead-column">'+
     '<section class="edit-section lead-facts">'+
@@ -336,7 +335,7 @@ function fillDetail(target=$('detail'), record=records.find(item=>item.id===sele
     '<section class="edit-section lead-choices" aria-label="客户分类">'+leadChoices.map(([label,name,values])=>
       leadChoice(label,name,values,edit[name])).join('')+'</section></div>'+
     '<div class="lead-column"><section class="edit-section lead-latest"><div class="record-readonly">'+
-    '<span>最新通话记录</span><p>'+escape(latestCallText)+'</p></div></section>'+
+    '<span>最新通话记录</span><p>'+escape(record.latest||'暂无通话记录')+'</p></div></section>'+
     '<section class="edit-section lead-log"><details class="log-history"><summary>跟进日志 <small>'+logItems.length+' 条</small></summary>'+
     (logItems.length?'<ol class="recent-logs">'+logItems.join('')+'</ol>':'<p class="quiet">暂无跟进日志</p>')+
     '</details>'+
@@ -472,13 +471,15 @@ document.addEventListener('submit',async event=>{
       const time=new Intl.DateTimeFormat('en-GB',{timeZone:zone,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(now);
       const logLine='['+dateKey(now).replaceAll('-','/')+' '+time+'] '+note.trim();
       patch['跟进日志']=logLine+(rawLog?'\n'+rawLog:'');
+      patch['最新通话记录']=note.trim();
     }
     await request(isStudent?'student_update':'update',{recordId:id,fields:patch});
     const newLog=patch['跟进日志'];
     const updated={...current,...Object.fromEntries(changes.map(name=>[name,fields[name]]))};
     if (Object.hasOwn(patch,'跟进日志')) {
       updated.rawLog=newLog||'';
-      updated.logs=parseLogs(updated.rawLog,current.latest);
+      updated.latest=patch['最新通话记录'];
+      updated.logs=parseLogs(updated.rawLog,updated.latest);
       updated.lastFollowUp=lastLoggedDate(updated.logs)||current.lastFollowUp;
     }
     const draftKey=source+':'+id;
