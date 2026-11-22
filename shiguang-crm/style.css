@@ -85,7 +85,10 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
 
 .lead-identity{min-width:0;flex:1}.lead-identity input{display:block;min-width:0;margin:0;padding:1px 0;border:0;border-radius:0;background:transparent;color:inherit;box-shadow:none;outline:none;caret-color:#fff}.lead-identity h2 input{font:inherit;min-height:30px}.lead-identity .lead-contact input{min-height:25px;width:clamp(110px,18ch,175px);max-width:100%;color:inherit;font-size:inherit}.lead-identity input::placeholder{color:#e7dff3}.lead-identity input:focus-visible{outline:none;text-decoration:underline;text-decoration-color:#fff7;text-underline-offset:.25em}.lead-dial{flex:none}
 #record-dialog{position:fixed}#dialog-record .lead-banner{padding-right:58px}
-#close-record{position:absolute;z-index:2;top:12px;right:12px;display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:#ffffff21;color:white;font-size:24px;line-height:1}#close-record:hover{background:#ffffff3b}#close-record:focus-visible{outline-color:white}
+#close-record{position:absolute;z-index:2;top:12px;right:12px;display:grid;place-items:center;width:34px;height:34px;padding:0;border-radius:50%}
+#close-record::before,#close-record::after{content:"";grid-area:1/1;width:15px;height:2px;border-radius:1px;background:currentColor}
+#close-record::before{transform:rotate(45deg)}
+#close-record::after{transform:rotate(-45deg)}
 
 /* 详情标题使用白底。 */
 .lead-banner{color:#29253a;border-bottom:1px solid #e6dced;padding-block:14px}
