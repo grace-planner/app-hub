@@ -149,7 +149,7 @@ function renderCalendar(recenter=false) {
   const scrollLeft=body.scrollLeft;
   body.innerHTML=banner+(pending && !events.length ? loadingPanel(followup?'正在读取双表日历':contracts?'正在读取签约日历':'正在读取分配日历') :
     (pending?'<p class="calendar-status">正在读取其余事项…</p>':'')+
-    '<div class="calendar-grid span-'+span+'">'+days+'</div>');
+    '<div class="calendar-grid span-'+span+'"'+(followup && span!=='1'?' data-touch-move':'')+'>'+days+'</div>');
   const focusCell=body.querySelector('[data-day="'+focusDate+'"]');
   if (compactCalendar.matches && focusCell) {
     const range=span+':'+start;
@@ -329,6 +329,7 @@ let draggedItem;
 let dropTarget;
 
 function setDropTarget(cell) {
+  if (cell===dropTarget) return;
   dropTarget?.classList.remove('calendar-drop-target');
   dropTarget=cell;
   dropTarget?.classList.add('calendar-drop-target');
@@ -369,11 +370,15 @@ async function moveCalendarItem(item, date) {
 }
 
 const calendarBody=$('calendar-body');
+function calendarDragItem(button) {
+  if (!button || saving || $('refresh-calendar').disabled || calendarMode!=='followup' || span==='1') return;
+  return openItems[Number(button.dataset.event)];
+}
+
 calendarBody.addEventListener('dragstart',event=>{
   const button=event.target.closest('.appointment');
   if (!button) return;
-  if (saving || $('refresh-calendar').disabled || calendarMode!=='followup' || span==='1') { event.preventDefault(); return; }
-  draggedItem=openItems[Number(button.dataset.event)];
+  draggedItem=calendarDragItem(button);
   if (!draggedItem) { event.preventDefault(); return; }
   event.dataTransfer.effectAllowed='move';
   event.dataTransfer.setData('text/plain','calendar-appointment');
@@ -399,3 +404,85 @@ calendarBody.addEventListener('drop',event=>{
   moveCalendarItem(item,cell.dataset.day);
 });
 calendarBody.addEventListener('dragend',clearCalendarDrag);
+
+let touchDrag;
+function clearTouchDrag() {
+  if (!touchDrag) return;
+  clearTimeout(touchDrag.timer);
+  cancelAnimationFrame(touchDrag.frame);
+  if (touchDrag.active) clearCalendarDrag();
+  touchDrag=undefined;
+}
+
+function touchDropCell(drag) {
+  const cell=document.elementFromPoint(drag.x,drag.y)?.closest('[data-day]');
+  return cell && calendarBody.contains(cell) && cell.dataset.day!==drag.item.date ? cell : undefined;
+}
+
+function trackTouchDrag() {
+  const drag=touchDrag;
+  if (!drag?.active || !drag.button.isConnected) { clearTouchDrag(); return; }
+  const bounds=calendarBody.getBoundingClientRect();
+  const edge=32;
+  if (drag.x>=bounds.left && drag.x<=bounds.right) {
+    if (drag.x<bounds.left+edge) calendarBody.scrollLeft-=8;
+    if (drag.x>bounds.right-edge) calendarBody.scrollLeft+=8;
+    if (drag.y<56) window.scrollBy(0,-8);
+    if (drag.y>window.innerHeight-edge) window.scrollBy(0,8);
+  }
+  setDropTarget(touchDropCell(drag));
+  drag.frame=requestAnimationFrame(trackTouchDrag);
+}
+
+calendarBody.addEventListener('touchstart',event=>{
+  clearTouchDrag();
+  if (event.touches.length!==1) return;
+  const button=event.target.closest('.appointment');
+  const item=calendarDragItem(button);
+  if (!item) return;
+  const {identifier,clientX:x,clientY:y}=event.touches[0];
+  const drag={button,item,identifier,x,y,active:false};
+  touchDrag=drag;
+  drag.timer=setTimeout(()=>{
+    if (!button.isConnected || calendarDragItem(button)!==item) { clearTouchDrag(); return; }
+    drag.active=true;
+    button.classList.add('is-dragging');
+  },380);
+},{passive:true});
+
+calendarBody.addEventListener('touchmove',event=>{
+  const drag=touchDrag;
+  if (!drag) return;
+  const touch=event.touches[0];
+  if (event.touches.length!==1 || touch.identifier!==drag.identifier) { clearTouchDrag(); return; }
+  if (!drag.active) {
+    if (Math.hypot(touch.clientX-drag.x,touch.clientY-drag.y)>8) clearTouchDrag();
+    return;
+  }
+  if (!event.cancelable) { clearTouchDrag(); return; }
+  event.preventDefault();
+  drag.x=touch.clientX;
+  drag.y=touch.clientY;
+  setDropTarget(touchDropCell(drag));
+  if (drag.frame===undefined) drag.frame=requestAnimationFrame(trackTouchDrag);
+},{passive:false});
+
+calendarBody.addEventListener('touchend',event=>{
+  const drag=touchDrag;
+  if (!drag) return;
+  if (drag.active) {
+    event.preventDefault();
+    const touch=Array.from(event.changedTouches).find(touch=>touch.identifier===drag.identifier);
+    if (touch && drag.button.isConnected) {
+      drag.x=touch.clientX;
+      drag.y=touch.clientY;
+      const date=touchDropCell(drag)?.dataset.day;
+      if (date) moveCalendarItem(drag.item,date);
+    }
+  }
+  clearTouchDrag();
+},{passive:false});
+calendarBody.addEventListener('touchcancel',clearTouchDrag);
+calendarBody.addEventListener('contextmenu',event=>{
+  if (touchDrag && event.target.closest('.appointment')===touchDrag.button) event.preventDefault();
+});

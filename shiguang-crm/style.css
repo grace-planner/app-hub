@@ -187,6 +187,9 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
 .calendar-grid:not(.span-1) .appointment[draggable=true]{cursor:grab}
 .calendar-grid .appointment.is-dragging{opacity:.45;cursor:grabbing}
 .calendar-day.calendar-drop-target{background:#f1e9fa;box-shadow:inset 0 0 0 2px #a98acb}
+@media(pointer:coarse){
+  .calendar-grid[data-touch-move] .appointment{-webkit-touch-callout:none;user-select:none}
+}
 
 .record-source{display:inline-flex;align-items:center;margin-bottom:4px;padding:3px 8px;border-radius:6px;background:#f2eaf9;color:#5d3b89;font-size:11px;font-weight:600}
 .record-source[data-source="students"]{background:#e9f3ee;color:#38634f}
