@@ -302,8 +302,7 @@ input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;wi
   .calendar-head{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:6px}
   .calendar-head .calendar-views button,.calendar-head .calendar-views button[aria-pressed=true]{padding-inline:0;font-size:11px}
   .calendar-controls{gap:4px}
-  .calendar-controls .calendar-nav button{padding-inline:3px}
-  .calendar-filters select{max-width:72px;padding-inline:3px}
+  .calendar-controls .calendar-nav button{padding-inline:3px;font-size:11px}
   .calendar-period:not(.is-month){font-size:13px}
 }
 
@@ -331,6 +330,12 @@ input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;wi
 
 .rail .rail-toggle{display:none}
 @media(max-width:760px){
+  .calendar-filters select{
+    -webkit-appearance:none;appearance:none;min-width:76px;max-width:none;padding:4px 18px 4px 6px;
+    background-image:linear-gradient(45deg,transparent 40%,currentColor 40% 60%,transparent 60%),
+      linear-gradient(135deg,transparent 40%,currentColor 40% 60%,transparent 60%);
+    background-position:right 9px center,right 5px center;background-size:4px 4px;background-repeat:no-repeat
+  }
   .detail-form .save-bar{padding:8px 0 4px}
   .detail-form .save-bar .primary{width:100%;min-height:44px}
   .detail-form .detail-body :is(input,textarea,select){font-size:14px;line-height:1.45}
