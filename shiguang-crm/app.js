@@ -311,8 +311,15 @@ function field(label,name,value,type='text') {
   return '<label>'+label+'<input name="'+name+'" type="'+type+'"'+(type==='number'?' step="any"':'')+' value="'+escape(value)+'"></label>';
 }
 function clearableField(label,name,value,type='text') {
-  const control=type==='textarea'?textarea(label,name,value):field(label,name,value,type);
-  return '<div class="clearable-field">'+control+
+  let control;
+  if (type==='date') {
+    control='<label>'+label+'<span class="date-field-control">'+
+      '<span class="date-field-value" aria-hidden="true">'+escape((value||'').replaceAll('-','/'))+'</span>'+
+      '<input name="'+name+'" type="date" value="'+escape(value)+'"></span></label>';
+  } else {
+    control=type==='textarea'?textarea(label,name,value):field(label,name,value,type);
+  }
+  return '<div class="clearable-field'+(type==='date'?' clearable-date':'')+'">'+control+
     '<button type="button" class="field-clear" data-clear-field="'+name+'" aria-label="清除'+label+'"'+
     (value?'':' hidden')+'>×</button></div>';
 }
@@ -459,8 +466,11 @@ document.addEventListener('click',async event=>{
 document.addEventListener('input',event=>{
   const form=event.target.closest('form.edit');
   if (!form) return;
-  const clear=event.target.closest('.clearable-field')?.querySelector('.field-clear');
+  const field=event.target.closest('.clearable-field');
+  const clear=field?.querySelector('.field-clear');
   if (clear) clear.hidden=!event.target.value;
+  const dateText=field?.querySelector('.date-field-value');
+  if (dateText) dateText.textContent=event.target.value.replaceAll('-','/');
   if (event.target.name==='phone') form.querySelector('.lead-dial').innerHTML=callLink(event.target.value);
   const entry=form.closest('dialog') ? modalEntry : null;
   drafts.set((entry?.source ?? moduleId)+':'+(entry?.record.id ?? selected),Object.fromEntries(new FormData(form)));

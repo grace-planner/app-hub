@@ -205,12 +205,18 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
 .lead-banner .lead-dial .action:hover{text-decoration:underline}
 
 .clearable-field{position:relative;min-width:0}
-.clearable-field:has(.field-clear:not([hidden])) input{padding-right:32px}
+.clearable-field:has(.field-clear:not([hidden])) input:not([type=date]){padding-right:32px}
 input[type=date]{position:relative}
 input[type=date]:enabled{cursor:pointer}
 input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:auto;height:auto;margin:0;padding:0;opacity:0;cursor:pointer}
 .field-clear{position:absolute;bottom:8px;right:6px;display:grid;place-items:center;width:23px;height:23px;padding:0;border:0;border-radius:5px;background:transparent;color:var(--muted);font-size:18px;line-height:1}
-.clearable-field:has(input[type=date]) .field-clear{z-index:1}
+.date-field-control{position:relative;display:flex;align-items:center;min-width:0;min-height:40px;padding:0 8px;border:1px solid #ddd5e7;border-radius:8px;background:#fff;color:#322a40;font-size:13px;font-variant-numeric:tabular-nums}
+.clearable-date:has(.field-clear:not([hidden])) .date-field-control{padding-right:28px}
+.date-field-control input[type=date]{position:absolute;inset:0;height:100%;min-width:0;opacity:0;cursor:pointer}
+.date-field-control:has(input:focus-visible){outline:2px solid #8455c4;outline-offset:2px}
+.date-field-value{white-space:nowrap;pointer-events:none}
+.date-field-value:empty::before{content:"年 / 月 / 日";color:var(--muted)}
+.clearable-date .field-clear{right:4px;z-index:1}
 .field-clear:hover{color:var(--accent);background:var(--tint)}
 
 .lead-list-badge.contract[data-value="一对一"]{--option-bg:#e4efff;--option-text:#1e4d8f}
@@ -326,9 +332,7 @@ input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;wi
   .detail-form .save-bar .primary{width:100%;min-height:44px}
   .detail-form .detail-body :is(input,textarea,select){font-size:14px;line-height:1.45}
   .detail-form .detail-body :is(input,select){padding-inline:8px}
-  .detail-form .detail-body input[type=date]{appearance:none;-webkit-appearance:none;min-width:0}
-  .detail-form input[type=date]::-webkit-date-and-time-value{text-align:left;min-width:0}
-  .detail-form .clearable-field:has(.field-clear:not([hidden])) input{padding-right:28px}
+  .detail-form .clearable-field:has(.field-clear:not([hidden])) input:not([type=date]){padding-right:28px}
   .detail-form .field-clear{right:4px}
   .detail-form .detail-body textarea{padding-block:8px}
   .detail-form .lead-facts textarea{field-sizing:content;min-height:5.5em;max-height:15em}
@@ -357,9 +361,6 @@ input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;wi
 }
 .detail-form .lead-facts textarea[name=info],
 .detail-form .schedule-grid input{font-size:13px;line-height:1.5}
-.detail-form .schedule-grid input[type=date]{padding-left:8px}
-.detail-form .schedule-grid .clearable-field:has(.field-clear:not([hidden])) input[type=date]{padding-right:28px}
-.detail-form .schedule-grid input[type=date]::-webkit-datetime-edit{padding:0}
 @media(min-width:761px){
   body[data-rail-collapsed]{--rail-width:62px}
   .rail .rail-toggle{
