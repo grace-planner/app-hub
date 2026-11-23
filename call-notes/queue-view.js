@@ -32,11 +32,13 @@
     return calendarRange(items,dateKey(start),42).map(day=>({...day,inMonth:new Date(dateValue(day.date)).getUTCMonth()===month}));
   }
   function archived(items,query=''){
-    const number=query.normalize('NFKC').replace(/[\s()+-]/g,'');
-    const hasQuery=!!query.trim();
+    const search=query.normalize('NFKC').trim().toLowerCase();
+    const number=search.replace(/[\s()+-]/g,'');
+    const byNumber=/^\d+$/.test(number);
     const callTime=item=>Number.isFinite(item.meta?.epoch)?item.meta.epoch:-Infinity;
     return items.filter(item=>!item.trashedAt&&item.status==='done'&&
-      (!hasQuery||(/^\d+$/.test(number)&&String(item.meta?.phone||'').replace(/\D/g,'').includes(number)))).sort((a,b)=>callTime(b)-callTime(a));
+      (!search||String(item.customer||'').normalize('NFKC').toLowerCase().includes(search)||
+        (byNumber&&String(item.meta?.phone||'').replace(/\D/g,'').includes(number)))).sort((a,b)=>callTime(b)-callTime(a));
   }
   const api={group,inbox,archived,eligible,actionIds,displayName,calendarItems,calendarRange,calendarMonth};
   if(typeof module==='object'&&module.exports)module.exports=api;
