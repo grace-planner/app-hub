@@ -2,6 +2,13 @@ import {canEnrollDriveText,makeDriveTextSync,requestDriveToken} from './google-d
 import {get,set,batch,openDB,storageError,hashFile,MAX_FILE,path} from './browser-platform.js?v=20261119-ui-parity1';
 import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,displayedGroupSuggestion,recordSnapshot,suggestedFollowUp,recencyGuard,validateDraft} from './core.js?v=20261124-v0138-summary';
 const $=id=>document.getElementById(id);
+const appVersion = new URL(import.meta.url).searchParams.get('v');
+if (appVersion) {
+  const localPreview = ['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname);
+  const versionLabel = $('app-version');
+  versionLabel.textContent = `当前版本 · ${appVersion} · ${localPreview ? '本地测试版' : '正式版'}`;
+  versionLabel.hidden = false;
+}
 const defaults={proxy:PROXY,audioProvider:'aliyun',audioBase:'https://dashscope.aliyuncs.com/api/v1',audioModel:'qwen-audio-3.1-asr-flash',textBase:'https://dashscope.aliyuncs.com/compatible-mode/v1',textModel:'qwen-plus',autoWrite:false};
 let settings,queue,keys={audio:'',text:''},busyOperation=null,ready=false,lastError='',backupAt=null;
 const listeners=[];
