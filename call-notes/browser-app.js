@@ -6,7 +6,7 @@ const appVersion = new URL(import.meta.url).searchParams.get('v');
 if (appVersion) {
   const localPreview = ['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname);
   const versionLabel = $('app-version');
-  versionLabel.textContent = `当前版本 · ${appVersion} · ${localPreview ? '本地测试版' : '正式版'}`;
+  versionLabel.textContent = `当前版本 · ${appVersion} · ${localPreview ? '本地测试版' : '正式网页'}`;
   versionLabel.hidden = false;
 }
 const defaults={proxy:PROXY,audioProvider:'aliyun',audioBase:'https://dashscope.aliyuncs.com/api/v1',audioModel:'qwen-audio-3.1-asr-flash',textBase:'https://dashscope.aliyuncs.com/compatible-mode/v1',textModel:'qwen-plus',autoWrite:false};
