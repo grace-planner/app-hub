@@ -1,4 +1,4 @@
-import {MANUAL_SELECT_FIELDS,callOutcome} from './core.js?v=20261120-followup-review';
+import {MANUAL_SELECT_FIELDS,callOutcome} from './core.js?v=20261124-v0138-summary';
 const $=id=>document.getElementById(id);
 let currentItems=[],currentDraftId=null,currentLinkId=null,currentPreserved={},page='inbox',filter='all',wasRunning=false,calendarMode='1',calendarAnchor=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai'}).format(new Date());
 let currentManualValues=null,operation=null,stopRequested=false;
