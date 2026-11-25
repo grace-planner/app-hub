@@ -359,8 +359,9 @@ function fillDetail(target=$('detail'), record=records.find(item=>item.id===sele
     escape(record.assigned||'—')+'</p></div>'+clearableField('报名日期','signup',edit.signup,'date')+'</div></section>'+
     '<section class="edit-section lead-choices" aria-label="客户分类">'+leadChoices.map(([label,name,values])=>
       leadChoice(label,name,values,edit[name])).join('')+'</section></div>'+
-    '<div class="lead-column"><section class="edit-section lead-latest"><div class="record-readonly">'+
-    '<span>最新通话记录</span><p>'+escape(record.latest||'暂无通话记录')+'</p></div></section>'+
+    '<div class="lead-column"><section class="edit-section lead-latest"><label class="record-readonly">'+
+    '<span>最新通话记录</span><textarea class="latest-call-text" rows="3" readonly>'+
+    '\n'+escape(record.latest||'暂无通话记录')+'</textarea></label></section>'+
     '<section class="edit-section lead-log"><details class="log-history"><summary>跟进日志 <small>'+logItems.length+' 条</small></summary>'+
     (logItems.length?'<ol class="recent-logs">'+logItems.join('')+'</ol>':'<p class="quiet">暂无跟进日志</p>')+
     '</details>'+
@@ -416,16 +417,14 @@ document.addEventListener('keydown',event=>{
   if (event.key==='Enter') openDatePicker(event);
 });
 document.addEventListener('copy',event=>{
-  const selection=document.getSelection();
-  if (!event.clipboardData || !selection || selection.isCollapsed || selection.rangeCount!==1) return;
-  const {commonAncestorContainer}=selection.getRangeAt(0);
-  const container=commonAncestorContainer.nodeType===Node.ELEMENT_NODE
-    ? commonAncestorContainer : commonAncestorContainer.parentElement;
-  if (!container?.closest('.lead-latest .record-readonly > p')) return;
+  const source=event.target;
+  if (!event.clipboardData || !source.matches?.('textarea.latest-call-text')) return;
+  const selectedText=source.value.slice(source.selectionStart,source.selectionEnd);
+  if (!selectedText) return;
   event.clipboardData.clearData();
-  event.clipboardData.setData('text/plain',selection.toString());
+  event.clipboardData.setData('text/plain',selectedText);
   event.preventDefault();
-});
+},true);
 document.addEventListener('click',async event=>{
   openDatePicker(event);
   const button=event.target.closest('button');
