@@ -53,6 +53,10 @@ body[data-page=home] #views{display:none}body[data-page=home] .home-link{backgro
   border:0;border-radius:3px;background:transparent;color:var(--text,#29253a);
   font-size:14px;line-height:1.55;overflow-wrap:anywhere;resize:none
 }
+.detail-form .lead-latest .latest-call-text:focus-visible{outline:none}
+.lead-latest label:has(.latest-call-text:focus-visible)>span{
+  color:var(--accent);text-decoration:underline;text-underline-offset:3px
+}
 .lead-form .lead-date-pair{border-top:1px solid var(--line);padding-top:8px}
 .lead-form .lead-facts .record-readonly{border:0;padding:0}
 .lead-form .lead-choices{grid-template-areas:"study study" "intent audience" "owner owner";gap:8px 12px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
