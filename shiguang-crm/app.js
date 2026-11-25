@@ -415,6 +415,17 @@ function openDatePicker(event) {
 document.addEventListener('keydown',event=>{
   if (event.key==='Enter') openDatePicker(event);
 });
+document.addEventListener('copy',event=>{
+  const selection=document.getSelection();
+  if (!event.clipboardData || !selection || selection.isCollapsed || selection.rangeCount!==1) return;
+  const {commonAncestorContainer}=selection.getRangeAt(0);
+  const container=commonAncestorContainer.nodeType===Node.ELEMENT_NODE
+    ? commonAncestorContainer : commonAncestorContainer.parentElement;
+  if (!container?.closest('.lead-latest .record-readonly > p')) return;
+  event.clipboardData.clearData();
+  event.clipboardData.setData('text/plain',selection.toString());
+  event.preventDefault();
+});
 document.addEventListener('click',async event=>{
   openDatePicker(event);
   const button=event.target.closest('button');
