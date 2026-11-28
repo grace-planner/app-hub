@@ -267,7 +267,7 @@ function render(items){
     heading.append(title,status);
     const content=document.createElement('button');content.className='row-content';
     content.type='button';
-    content.disabled=wasRunning;
+    content.disabled=wasRunning&&!(operation==='analysis'&&window.crmView.canPreviewDraft(i));
     content.setAttribute('aria-label','查看 '+title.textContent);
     content.onclick=action(()=>openRecordingDetails(i));
     const buttons=document.createElement('div');buttons.className='row-actions';
@@ -441,9 +441,13 @@ function openRecordingDetails(item){
   ].filter(Boolean).join('\n'));
 }
 async function openDraft(item){
-  const r=await call('draft',item.id);currentDraftId=item.id;const f=$('review-form'),editable=!item.trashedAt&&['review','ready','awaiting_link'].includes(r.status),historical=r.protection?.newestCall===false;
+  const preview=wasRunning&&operation==='analysis';
+  const r=await call(preview?'preview-completed-draft':'draft',item.id);
+  const f=$('review-form'),editable=!r.viewOnly&&!item.trashedAt&&['review','ready','awaiting_link'].includes(r.status),historical=r.protection?.newestCall===false;
+  currentDraftId=editable?item.id:null;
   const archived=r.status==='done';
-  $('review-original').hidden=archived;
+  const staticReview=archived||r.viewOnly;
+  $('review-original').hidden=staticReview;
   const phone=$('review-phone');
   const number=item.meta?.phone||'';
   phone.hidden=!number;
@@ -475,7 +479,7 @@ async function openDraft(item){
   const logDetails=$('original-log-details');
   logDetails.open=false;
   logDetails.querySelector('summary').textContent=archived?'飞书跟进日志（最新 3 条）':'跟进日志（最新3条）';
-  $('archive-log-slot').hidden=!archived;
+  $('archive-log-slot').hidden=!archived||r.viewOnly;
   $(archived?'archive-log-slot':'original-log-slot').append(logDetails);
   const latestField=f.elements.latest_summary;
   latestField.value=r.draft.latest_summary??(!r.nameDecisionMade&&editable?callOutcome(r.draft.summary):'');
@@ -514,19 +518,19 @@ async function openDraft(item){
   defaultNextDate=suggestedNextDate||(r.draft.default_follow_up?r.draft.next_date:'');
   if(suggestedNextDate)f.elements.next_date.value=suggestedNextDate;
   clearControls.forEach(update=>update());
-  const offer=!archived&&!!r.draft.suggested_name&&!String(r.customer||'').trim();$('name-offer').hidden=!offer;f.elements.suggested_name.value=r.draft.suggested_name||'';f.elements.suggested_name.disabled=!editable||!offer;
+  const offer=!staticReview&&!!r.draft.suggested_name&&!String(r.customer||'').trim();$('name-offer').hidden=!offer;f.elements.suggested_name.value=r.draft.suggested_name||'';f.elements.suggested_name.disabled=!editable||!offer;
   f.elements.approveName.checked=r.nameDecisionMade?!!r.nameApproved:true;f.elements.approveName.disabled=!editable||!offer;
   $('name-evidence').textContent='录音依据：'+(r.draft.name_evidence||'');
   $('review-history').hidden=!historical;
-  $('write-scope').textContent=archived?'已归档':!r.recordId?'尚未关联客户：可核对草稿，关联后才允许保存到飞书。':historical?r.protection.reason+'。姓名可补空值，客群、留学报备和是否自有按确认的选项保存。':'保存前会重新核对飞书原值。';
-  for(const section of f.querySelectorAll('[data-review-editor]'))section.hidden=archived;
-  for(const section of f.querySelectorAll('[data-review-archive]'))section.hidden=!archived;
-  if(archived){
+  $('write-scope').textContent=r.viewOnly?'批量分析期间可查看草稿。分析结束后可重新打开编辑。':archived?'已归档':!r.recordId?'尚未关联客户：可核对草稿，关联后才允许保存到飞书。':historical?r.protection.reason+'。姓名可补空值，客群、留学报备和是否自有按确认的选项保存。':'保存前会重新核对飞书原值。';
+  for(const section of f.querySelectorAll('[data-review-editor]'))section.hidden=staticReview;
+  for(const section of f.querySelectorAll('[data-review-archive]'))section.hidden=!staticReview;
+  if(staticReview){
     for(const output of f.querySelectorAll('[data-archive-value]')){
       const key=output.dataset.archiveValue;
       const control=f.elements[key];
       const savedChoice=r.manualSelections?.[key]?.value;
-      const value=savedChoice||(control.selectedOptions?.[0]?.textContent??control.value);
+      const value=savedChoice||(r.viewOnly&&key==='customer_group'?r.groupChoice:null)||(control.selectedOptions?.[0]?.textContent??control.value);
       output.textContent=value.trim()||'—';
     }
   }
@@ -608,6 +612,7 @@ $('test').onclick=async()=>{try{alert(await call('test'));}catch(e){alert(e.mess
 $('close-transcript-view').onclick=()=>$('transcript-view').close();
 $('review-form').onsubmit=async e=>{
   e.preventDefault();
+  if(!currentDraftId)return;
   try{
     const f=e.target,v=Object.fromEntries(new FormData(f).entries());
     const approveName=!$('name-offer').hidden&&f.elements.approveName.checked;
@@ -645,7 +650,9 @@ window.crm.onQueue(payload=>{
       analysisCompletionTimer=setTimeout(()=>{analysisCompletionTimer=0;analysisProgress=null;render(currentItems);},700);
     }
   }
+  const scroll=page==='inbox'&&operation==='analysis'?{left:window.scrollX,top:window.scrollY,behavior:'instant'}:null;
   render(items);
+  if(scroll)window.scrollTo(scroll);
 });
 (async()=>{try{const s=await fillSettings();wasRunning=s.running;render(s.items);}catch(e){notice(e.message);}})();
 

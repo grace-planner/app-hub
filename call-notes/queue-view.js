@@ -17,6 +17,9 @@
     const wanted=new Set(ids);
     return items.filter(i=>wanted.has(i.id)&&i.selectedItem&&eligible(i,action)).map(i=>i.id);
   }
+  function canPreviewDraft(item){
+    return !!item.draft&&!item.trashedAt&&['ready','review','awaiting_link','done'].includes(item.status);
+  }
   function displayName(item){
     return String(item.customer||item.meta?.sourceLabel||item.filename||'未命名录音').replace(/\.[^.]+$/,'');
   }
@@ -40,7 +43,7 @@
       (!search||String(item.customer||'').normalize('NFKC').toLowerCase().includes(search)||
         (byNumber&&String(item.meta?.phone||'').replace(/\D/g,'').includes(number)))).sort((a,b)=>callTime(b)-callTime(a));
   }
-  const api={group,inbox,archived,eligible,actionIds,displayName,calendarItems,calendarRange,calendarMonth};
+  const api={group,inbox,archived,eligible,actionIds,canPreviewDraft,displayName,calendarItems,calendarRange,calendarMonth};
   if(typeof module==='object'&&module.exports)module.exports=api;
   else root.crmView=api;
 })(typeof window==='object'?window:globalThis);
