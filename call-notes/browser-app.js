@@ -1,6 +1,6 @@
-import {canEnrollDriveText,makeDriveTextSync,requestDriveToken} from './google-drive-text.js?v=8-conflict-resolution';
+import {canEnrollDriveText,makeDriveTextSync,requestDriveToken} from './google-drive-text.js?v=9-browser-writer';
 import {get,set,batch,openDB,storageError,hashFile,MAX_FILE,path} from './browser-platform.js?v=20261119-ui-parity1';
-import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,displayedGroupSuggestion,recordSnapshot,suggestedFollowUp,recencyGuard,validateDraft} from './core.js?v=20261124-v0138-summary';
+import {PROXY,Queue,Services,httpURL,aliyunAudioBase,parseName,fieldText,displayedGroupSuggestion,recordSnapshot,suggestedFollowUp,recencyGuard,validateDraft} from './core.js?v=20261128-draft-and-sync';
 const $=id=>document.getElementById(id);
 const appVersion = new URL(import.meta.url).searchParams.get('v');
 if (appVersion) {
@@ -309,7 +309,12 @@ if(driveOrigin){
     document.head.append(script);
   },{once:true});
   $('drive-text-connect').onclick=()=>runDriveOperation('connecting-drive',45_000,async signal=>{
-    const client=await makeDriveTextSync(await requestDriveToken(signal),hashFile,fetch,signal);
+    let writer=await get('driveTextWriter');
+    if(!writer){
+      writer=crypto.randomUUID();
+      await set('driveTextWriter',writer);
+    }
+    const client=await makeDriveTextSync(await requestDriveToken(signal),hashFile,fetch,signal,writer);
     signal.throwIfAborted();
     if(driveTextAccount&&client.account!==driveTextAccount)throw Error('请使用此前开启文字同步的 Google 账号');
     await set('driveTextAccount',client.account);
@@ -381,16 +386,33 @@ const handlers={
   stop:()=>{if(driveOperation)cancelDriveOperation();else queue.stop=true;return true;},
   commit:async selected=>{idle();const ids=window.crmView.actionIds(queue.items,selected,'save');if(!ids.length)throw Error('请先核对并勾选可保存的草稿');if(!confirm(`将 ${ids.length} 条草稿保存到飞书？\n请勿同时在其他 App 编辑相同客户。写入前会重读日志，但无法消除跨应用同时写入的冲突。`))return false;queue.commitReady(ids).catch(showError);publish();return true;},
   transcript:id=>{const item=queue.items.find(i=>i.id===id);if(!item?.transcript)throw Error('这条记录还没有转写原文');return item.transcript;},
-  'preview-completed-draft':async id=>{
-    await initialized;
-    if(!ready||storageError)throw Error(lastError||'本地记录暂时无法读取');
+  draft:async id=>{
+    const duringAnalysis=queue.running&&queue.operation==='analysis';
     const item=queue.items.find(i=>i.id===id);
-    if(!item||!window.crmView.canPreviewDraft(item))throw Error('这条录音还没有可查看的草稿');
-    const {draft,status,transcript,protection,customer,recordId,manualSelections,groupChoice,groupApproved}=item;
-    return {draft,status,transcript:transcript||'',protection,customer,recordId,manualSelections,
-      groupChoice:groupChoice??groupApproved??draft.suggested_group,viewOnly:true};
+    if(!item?.draft)throw Error('草稿不存在');
+    if(duringAnalysis&&!window.crmView.canPreviewDraft({...item,analysisPending:!queue.canEditDuringAnalysis(id)})){
+      throw Error('这条录音还在处理中，请稍后再编辑');
+    }
+    let original=null;
+    if(item.recordId){
+      try{
+        const records=await queue.resolve(item);
+        if(records.length===1&&(!duringAnalysis||records[0].record_id===item.recordId)){
+          item.customer=fieldText(records[0].fields?.['姓名']).trim();
+          item.protection=recencyGuard(records[0],item.meta);
+          original=recordSnapshot(records[0]);
+        }
+      }catch(error){
+        if(!duringAnalysis)throw error;
+      }
+    }
+    return {draft:item.draft,original,manualSelections:item.manualSelections,
+      group:displayedGroupSuggestion(item.draft,item.transcript),
+      groupChoice:Object.hasOwn(item,'groupChoice')?item.groupChoice:item.groupApproved||undefined,
+      suggestedNextDate:item.nameDecisionMade?'':suggestedFollowUp(item.meta,item.draft,original,item.protection),
+      transcript:item.transcript||'',status:item.status,protection:item.protection,customer:item.customer,
+      recordId:item.recordId,nameApproved:item.nameApproved,nameDecisionMade:item.nameDecisionMade,duringAnalysis};
   },
-  draft:async id=>{idle();const i=queue.items.find(i=>i.id===id);if(!i?.draft)throw Error('草稿不存在');let original=null;if(i.recordId){const records=await queue.resolve(i);if(records.length===1){i.customer=fieldText(records[0].fields?.['姓名']).trim();i.protection=recencyGuard(records[0],i.meta);original=recordSnapshot(records[0]);}}return {draft:i.draft,original,manualSelections:i.manualSelections,group:displayedGroupSuggestion(i.draft,i.transcript),groupChoice:Object.hasOwn(i,'groupChoice')?i.groupChoice:i.groupApproved||undefined,suggestedNextDate:i.nameDecisionMade?'':suggestedFollowUp(i.meta,i.draft,original,i.protection),transcript:i.transcript||'',status:i.status,protection:i.protection,customer:i.customer,recordId:i.recordId,nameApproved:i.nameApproved,nameDecisionMade:i.nameDecisionMade};},
   approve:(...args)=>queue.approve(...args),retry:id=>queue.recover(id),select:(...args)=>queue.select(...args),candidates:(...args)=>queue.findCandidates(...args),matches:id=>queue.matchedCandidates(id),bind:(...args)=>queue.bind(...args),'move-items':(...args)=>queue.moveItems(...args),
   'clean-archive-files':async()=>{idle();const n=queue.items.filter(i=>!i.trashedAt&&i.status==='done'&&i.file).length;if(!n||!confirm(`删除浏览器中 ${n} 条已归档录音的副本？\n保留转写、草稿和飞书记录，不会删除原文件夹里的录音。`))return 0;return queue.cleanArchivedFiles();},
   'clear-trash':async()=>{
@@ -410,7 +432,20 @@ const handlers={
   },
   test:async()=>{idle();if(!confirm('向现有飞书云函数发送无客户含义的只读查询，检查接口是否正常？'))return '已取消';await queue.services.search('connection-check-no-phone');return '飞书接口返回正常；尚未验证实际客户匹配或写入。';}
 };
-window.crm={onQueue:fn=>listeners.push(fn),call:async(channel,...args)=>{try{if(!['state','stop','preview-completed-draft'].includes(channel)){if(busyOperation==='applying-drive-sync')await backgroundSync.promise;idle();}if(!handlers[channel])throw Error('不支持的操作');return {ok:true,data:await handlers[channel](...args)};}catch(e){return {ok:false,error:e.message};}}};
+window.crm={onQueue:fn=>listeners.push(fn),call:async(channel,...args)=>{
+  try{
+    if(!['state','stop'].includes(channel)){
+      if(busyOperation==='applying-drive-sync')await backgroundSync.promise;
+      const analysisDraftAction=['draft','approve'].includes(channel)&&!busyOperation&&queue?.running&&queue.operation==='analysis';
+      if(analysisDraftAction){
+        if(!ready||storageError)throw storageError||Error(lastError||'本地记录暂时无法读取');
+      }else idle();
+    }
+    if(!handlers[channel])throw Error('不支持的操作');
+    return {ok:true,data:await handlers[channel](...args)};
+  }catch(e){return {ok:false,error:e.message};}
+}};
+
 function showError(e){$('notice').textContent=e.message;if(storageError){ready=false;lastError=e.message;}publish();}
 async function storageStatus(){const e=await navigator.storage?.estimate?.(),persistent=await navigator.storage?.persisted?.();$('storage-status').textContent=(e?`此网站所在域已用 ${(e.usage/1024/1024).toFixed(1)} MB。`:'')+(persistent?'已获浏览器持久存储保护。':'建议点击“保护本地存储”。')+'清除网站数据仍会删除记录。'+(backupAt?'最近导出：'+new Date(backupAt).toLocaleString('zh-CN'):'请定期导出备份。');}
 async function boot(){
@@ -447,5 +482,5 @@ function validateBackup(raw){
 }
 $('import-backup').onclick=async()=>{storageFeedback();try{idle();const [file]=await chooseFile('.json');if(!file)return;if(file.size>100*1024*1024)throw Error('备份文件过大');const incoming=validateBackup(JSON.parse(await file.text()));idle();const existingIds=new Set(queue.items.map(i=>i.id)),fresh=incoming.filter(i=>!existingIds.has(i.id));if(!confirm(`从备份合并 ${fresh.length} 条新记录？\n本地已有的同一录音记录保持原样。备份不含录音和密钥；需要分析时请重新导入原始录音。`))return;const items=[...queue.items,...fresh];await set('queue',items);queue.items=items;publish();await storageStatus();storageFeedback(`已恢复 ${fresh.length} 条记录。相同录音的本地记录未覆盖；分析前请重新导入原始录音。`);}catch(e){reportStorageError(e);}};
 $('persist-storage').onclick=async()=>{storageFeedback();try{idle();const ok=await navigator.storage?.persist?.();await storageStatus();storageFeedback(ok?'已开启本地存储保护。':'浏览器尚未授予存储保护。请定期导出备份。');}catch(e){reportStorageError(e);}};
-await import('./renderer.js?v=20261128-completed-draft');
+await import('./renderer.js?v=20261128-draft-and-sync');
 try{await initialized;document.body.inert=false;}catch{}

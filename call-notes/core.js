@@ -401,7 +401,7 @@ class Services {
   }
 }
 class Queue {
-  constructor(directory,services,notify=()=>{},options={}) {this.directory=directory;this.services=services;this.notify=notify;this.managedFiles=!!options.managedFiles;this.items=[];this.running=false;this.stop=false;this.candidateCache=new Map();}
+  constructor(directory,services,notify=()=>{},options={}) {this.directory=directory;this.services=services;this.notify=notify;this.managedFiles=!!options.managedFiles;this.items=[];this.running=false;this.stop=false;this.candidateCache=new Map();this.analysisPending=new Set();}
   get stateFile(){return path.join(this.directory,'queue.json');}
   async load() {
     await fs.mkdir(this.directory,{recursive:true,mode:0o700});
@@ -420,7 +420,8 @@ class Queue {
     await this.persist();
   }
   async persist(){const snapshot=JSON.stringify(this.items);const write=async()=>{const tmp=this.stateFile+'.tmp';await fs.writeFile(tmp,snapshot,{mode:0o600});await fs.rename(tmp,this.stateFile);this.notify(this.publicItems());};const pending=(this.pendingPersist||Promise.resolve()).then(write);this.pendingPersist=pending.catch(()=>{});return pending;}
-  publicItems(){return this.items.map(({file,transcript,audioCache,...v})=>({...v,hasTranscript:!!transcript,hasSource:!!file}));}
+  publicItems(){return this.items.map(({file,transcript,audioCache,...v})=>({...v,hasTranscript:!!transcript,hasSource:!!file,analysisPending:this.analysisPending.has(v.id)}));}
+  canEditDuringAnalysis(id){return this.running&&this.operation==='analysis'&&!this.analysisPending.has(id);}
   async add(files) {
     if(this.running)throw Error('请等待当前批次完成后再导入');
     for(const file of files) {
@@ -505,6 +506,7 @@ class Queue {
     const pending=this.items.filter(i=>!i.trashedAt&&(explicit
       ?ids.includes(i.id)&&!['done','uncertain','invalid'].includes(i.status)
       :['queued','error'].includes(i.status)));
+    this.analysisPending=new Set(pending.map(i=>i.id));
     let processed=0;
     const progress=phase=>{
       this.analysisProgress=pending.length?(processed+phase)/pending.length:0;
@@ -536,9 +538,9 @@ class Queue {
           await this.persist();
           if(autoWrite && i.status==='ready')await this.commitItem(i);
         }catch(e){if(!['uncertain','done'].includes(i.status)) {i.status='error';i.message=e.message;}await this.persist();}
-        finally{processed++;progress(0);}
+        finally{this.analysisPending.delete(i.id);processed++;progress(0);}
       }
-    }finally{this.running=false;this.notify(this.publicItems());}
+    }finally{this.analysisPending.clear();this.running=false;this.notify(this.publicItems());}
   }
   async resummarizeSelected(ids) {
     if(this.running)throw Error('正在处理');
@@ -618,10 +620,10 @@ class Queue {
     await this.persist();
   }
   async commitReady(ids=null){if(this.running)throw Error('正在处理');this.running=true;this.operation='saving';this.stop=false;try{const selected=this.items.filter(i=>!i.trashedAt&&i.status==='ready'&&(!Array.isArray(ids)||ids.includes(i.id)));for(const i of saveOrder(selected)){if(this.stop)break;try{await this.commitItem(i);}catch(e){i.status='review';i.message=e.message;await this.persist();}}}finally{this.running=false;this.notify(this.publicItems());}}
-  async approve(id,draft,approveName=false,groupChoice,manualSelections){if(this.running)throw Error('请等当前批次完成');const i=this.items.find(i=>i.id===id);if(!i||i.trashedAt||!['ready','review','awaiting_link'].includes(i.status))throw Error('此记录不可编辑');if(draft.latest_summary&&!validLatestSummary(draft.latest_summary))throw Error('最新通话记录请写成一句话，最多60字');i.draft=validateDraft({...i.draft,...draft,meaningful:true,needs_review:false});i.nameApproved=!!approveName&&!!i.draft.suggested_name;i.nameDecisionMade=true;i.groupApproved=null;if(i.recordId&&groupChoice!==undefined)i.groupChoice=CUSTOMER_GROUPS.includes(groupChoice)?groupChoice:null;
+  async approve(id,draft,approveName=false,groupChoice,manualSelections){if(this.running&&!this.canEditDuringAnalysis(id))throw Error('这条录音还在处理中，请稍后再编辑');const i=this.items.find(i=>i.id===id);if(!i?.draft||i.trashedAt||!['ready','review','awaiting_link'].includes(i.status))throw Error('此记录不可编辑');if(draft.latest_summary&&!validLatestSummary(draft.latest_summary))throw Error('最新通话记录请写成一句话，最多60字');i.draft=validateDraft({...i.draft,...draft,meaningful:true,needs_review:false});i.nameApproved=!!approveName&&!!i.draft.suggested_name;i.nameDecisionMade=true;i.groupApproved=null;if(i.recordId&&groupChoice!==undefined)i.groupChoice=CUSTOMER_GROUPS.includes(groupChoice)?groupChoice:null;
     if(i.draft.latest_summary)delete i.draft.latest_summary_reason;
-    i.manualSelections={};
-    if(i.recordId){
+    if(manualSelections!==undefined||!i.recordId)i.manualSelections={};
+    if(i.recordId&&manualSelections!==undefined){
       for(const [key,{options}] of Object.entries(MANUAL_SELECT_FIELDS)){
         const edit=manualSelections?.[key];
         if(edit&&options.includes(edit.value)&&typeof edit.original==='string'&&edit.value!==edit.original){

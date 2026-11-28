@@ -18,14 +18,28 @@ const snapshot = item => JSON.stringify(Object.fromEntries(fields.filter(key => 
 const mergeParentKeys = Array.from({length: 24}, (_, index) => 'merge' + index);
 const mergeParents = props => mergeParentKeys.map(key => props[key]).filter(version => idPattern.test(version || ''));
 const toVersion = file => {
-  const {version, parent} = file.appProperties;
-  return {id: file.id, version, parent, merged: mergeParents(file.appProperties)};
+  const {version, parent, writer} = file.appProperties;
+  return {id: file.id, version, parent, writer, merged: mergeParents(file.appProperties)};
 };
 function recordHeads(files) {
   const versions = new Map(files.map(file => [file.appProperties.version, toVersion(file)]));
   const ancestors = new Set([...versions.values()].flatMap(row => [row.parent, ...row.merged]));
   return [...versions.values()].filter(row => !ancestors.has(row.version))
     .sort((a, b) => a.version.localeCompare(b.version));
+}
+function ownContinuations(heads, files, baseVersion, writer) {
+  if (!writer || !heads.length || heads.some(head => head.version === baseVersion)) return false;
+  const versions = new Map(files.map(file => [file.appProperties.version, toVersion(file)]));
+  return heads.every(head => {
+    const seen = new Set();
+    let current = head;
+    while (current?.writer === writer && !current.merged.length && !seen.has(current.version)) {
+      if ((current.parent || '') === baseVersion) return true;
+      seen.add(current.version);
+      current = versions.get(current.parent);
+    }
+    return false;
+  });
 }
 function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical);
@@ -84,7 +98,7 @@ export function canEnrollDriveText(item) {
     idPattern.test(item.id) && !!item.meta && typeof item.transcript === 'string' && !!item.transcript.trim();
 }
 
-export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSignal) {
+export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSignal, writer) {
   let operationSignal = initialSignal;
   const request = async (step, path, options = {}) => {
     operationSignal?.throwIfAborted();
@@ -170,7 +184,7 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSig
 
   async function upload(folder, record, content, versions) {
     const boundary = 'call-notes-' + crypto.randomUUID();
-    const metadata = { name: '通话跟进-' + record + '.json', parents: [folder], appProperties: { app: namespace, record, ...versions } };
+    const metadata = { name: '通话跟进-' + record + '.json', parents: [folder], appProperties: { app: namespace, record, ...versions, ...(writer && {writer}) } };
     const body = new Blob([
       `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n`,
       JSON.stringify(metadata),
@@ -327,12 +341,22 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSig
     for (const id of new Set([...histories.keys(), ...eligible.map(item => item.id)])) {
       if (deleted.has(id)) continue;
       const item = local.get(id);
-      const state = item?.driveText;
+      let state = item?.driveText;
       if (item && (transient.has(item.status) || (state && state.account !== account))) continue;
-      const heads = recordHeads(histories.get(id) || []);
+      const history = histories.get(id) || [];
+      const heads = recordHeads(history);
       const conflict = () => conflictDetails.push({id, item, heads, localIdentity: localIdentity(item)});
       let head = heads[0];
       let text = item && snapshot(item);
+      if (item?.transcript && state && ownContinuations(heads, history, state.version, writer)) {
+        if (heads.length > 1) {
+          const version = await mergeVersions(available, id, heads, text);
+          result.set(id, appliedVersion(item, text, version));
+          uploaded++;
+          continue;
+        }
+        state = {...state, version: head.version, baseline: await readVersion(id, head)};
+      }
       if (heads.length > 1) {
         const matching = await readVersion(id, head);
         if (item?.transcript && (!state || !sameText(text, state.baseline)) && !sameText(text, matching)) {
@@ -373,7 +397,7 @@ export async function makeDriveTextSync(token, hash, fetcher = fetch, initialSig
         text = remote;
         downloaded++;
       }
-      if (!head || !text || head.version === state?.version) continue;
+      if (!head || !text || head.version === item?.driveText?.version) continue;
       result.set(id, appliedVersion(item, text, head.version));
     }
     return { items: [...result.values()], conflicts: conflictDetails.length, conflictDetails, uploaded, downloaded, moved, removed };

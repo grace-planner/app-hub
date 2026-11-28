@@ -18,7 +18,7 @@
     return items.filter(i=>wanted.has(i.id)&&i.selectedItem&&eligible(i,action)).map(i=>i.id);
   }
   function canPreviewDraft(item){
-    return !!item.draft&&!item.trashedAt&&['ready','review','awaiting_link','done'].includes(item.status);
+    return !!item.draft&&!item.trashedAt&&!item.analysisPending&&['ready','review','awaiting_link','done'].includes(item.status);
   }
   function displayName(item){
     return String(item.customer||item.meta?.sourceLabel||item.filename||'未命名录音').replace(/\.[^.]+$/,'');

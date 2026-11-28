@@ -1,4 +1,4 @@
-import {MANUAL_SELECT_FIELDS,callOutcome} from './core.js?v=20261124-v0138-summary';
+import {MANUAL_SELECT_FIELDS,callOutcome} from './core.js?v=20261128-draft-and-sync';
 const $=id=>document.getElementById(id);
 let currentItems=[],currentDraftId=null,currentLinkId=null,currentPreserved={},page='inbox',filter='all',wasRunning=false,calendarMode='1',calendarAnchor=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai'}).format(new Date());
 let currentManualValues=null,operation=null,stopRequested=false;
@@ -441,13 +441,11 @@ function openRecordingDetails(item){
   ].filter(Boolean).join('\n'));
 }
 async function openDraft(item){
-  const preview=wasRunning&&operation==='analysis';
-  const r=await call(preview?'preview-completed-draft':'draft',item.id);
-  const f=$('review-form'),editable=!r.viewOnly&&!item.trashedAt&&['review','ready','awaiting_link'].includes(r.status),historical=r.protection?.newestCall===false;
+  const r=await call('draft',item.id);
+  const f=$('review-form'),editable=!item.trashedAt&&['review','ready','awaiting_link'].includes(r.status),historical=r.protection?.newestCall===false;
   currentDraftId=editable?item.id:null;
   const archived=r.status==='done';
-  const staticReview=archived||r.viewOnly;
-  $('review-original').hidden=staticReview;
+  $('review-original').hidden=archived;
   const phone=$('review-phone');
   const number=item.meta?.phone||'';
   phone.hidden=!number;
@@ -479,7 +477,7 @@ async function openDraft(item){
   const logDetails=$('original-log-details');
   logDetails.open=false;
   logDetails.querySelector('summary').textContent=archived?'飞书跟进日志（最新 3 条）':'跟进日志（最新3条）';
-  $('archive-log-slot').hidden=!archived||r.viewOnly;
+  $('archive-log-slot').hidden=!archived;
   $(archived?'archive-log-slot':'original-log-slot').append(logDetails);
   const latestField=f.elements.latest_summary;
   latestField.value=r.draft.latest_summary??(!r.nameDecisionMade&&editable?callOutcome(r.draft.summary):'');
@@ -504,8 +502,13 @@ async function openDraft(item){
   const cancelledVisit=editable&&!historical&&visit.test(original.next_purpose||'')&&
     /(?:取消(?:了)?原定[^。；]{0,28}(?:到店|到校|到访|面谈|线下咨询)|明确取消(?:本次|原定的)?(?:到店|到校|到访|面谈|线下咨询))/.test(r.draft.summary||'');
   const scheduleHint=$('follow-up-review-hint');
-  scheduleHint.hidden=!cancelledVisit;
-  scheduleHint.textContent=cancelledVisit?'本次通话取消了原定到访。请核对原跟进日期和目的，再填写新的安排。':'';
+  const scheduleHints = [
+    cancelledVisit && '本次通话取消了原定到访。请核对原跟进日期和目的，再填写新的安排。',
+    editable && !historical && !r.nameDecisionMade && r.draft.next_date_suggested === true &&
+      '建议回访：按家长预计确认的时间，周末后主动询问结果。'
+  ].filter(Boolean);
+  scheduleHint.hidden = !scheduleHints.length;
+  scheduleHint.textContent = scheduleHints.join(' ');
   for(const key of ['intent','next_date','next_purpose','reminder_date','reminder_note']){
     const proposed=r.draft[key];
     const skipOriginal=(key==='next_purpose'&&(purposeExpired||cancelledVisit))||(key==='next_date'&&cancelledVisit);
@@ -518,19 +521,19 @@ async function openDraft(item){
   defaultNextDate=suggestedNextDate||(r.draft.default_follow_up?r.draft.next_date:'');
   if(suggestedNextDate)f.elements.next_date.value=suggestedNextDate;
   clearControls.forEach(update=>update());
-  const offer=!staticReview&&!!r.draft.suggested_name&&!String(r.customer||'').trim();$('name-offer').hidden=!offer;f.elements.suggested_name.value=r.draft.suggested_name||'';f.elements.suggested_name.disabled=!editable||!offer;
+  const offer=!archived&&!!r.draft.suggested_name&&!String(r.customer||'').trim();$('name-offer').hidden=!offer;f.elements.suggested_name.value=r.draft.suggested_name||'';f.elements.suggested_name.disabled=!editable||!offer;
   f.elements.approveName.checked=r.nameDecisionMade?!!r.nameApproved:true;f.elements.approveName.disabled=!editable||!offer;
   $('name-evidence').textContent='录音依据：'+(r.draft.name_evidence||'');
   $('review-history').hidden=!historical;
-  $('write-scope').textContent=r.viewOnly?'批量分析期间可查看草稿。分析结束后可重新打开编辑。':archived?'已归档':!r.recordId?'尚未关联客户：可核对草稿，关联后才允许保存到飞书。':historical?r.protection.reason+'。姓名可补空值，客群、留学报备和是否自有按确认的选项保存。':'保存前会重新核对飞书原值。';
-  for(const section of f.querySelectorAll('[data-review-editor]'))section.hidden=staticReview;
-  for(const section of f.querySelectorAll('[data-review-archive]'))section.hidden=!staticReview;
-  if(staticReview){
+  $('write-scope').textContent=archived?'已归档':r.duringAnalysis?'确认草稿会先保存到本机。批量分析完成后，可统一保存到飞书。':!r.recordId?'尚未关联客户：可核对草稿，关联后才允许保存到飞书。':historical?r.protection.reason+'。姓名可补空值，客群、留学报备和是否自有按确认的选项保存。':'保存前会重新核对飞书原值。';
+  for(const section of f.querySelectorAll('[data-review-editor]'))section.hidden=archived;
+  for(const section of f.querySelectorAll('[data-review-archive]'))section.hidden=!archived;
+  if(archived){
     for(const output of f.querySelectorAll('[data-archive-value]')){
       const key=output.dataset.archiveValue;
       const control=f.elements[key];
       const savedChoice=r.manualSelections?.[key]?.value;
-      const value=savedChoice||(r.viewOnly&&key==='customer_group'?r.groupChoice:null)||(control.selectedOptions?.[0]?.textContent??control.value);
+      const value=savedChoice||(control.selectedOptions?.[0]?.textContent??control.value);
       output.textContent=value.trim()||'—';
     }
   }
@@ -612,7 +615,9 @@ $('test').onclick=async()=>{try{alert(await call('test'));}catch(e){alert(e.mess
 $('close-transcript-view').onclick=()=>$('transcript-view').close();
 $('review-form').onsubmit=async e=>{
   e.preventDefault();
-  if(!currentDraftId)return;
+  const approve=$('approve');
+  if(!currentDraftId||approve.disabled)return;
+  approve.disabled=true;
   try{
     const f=e.target,v=Object.fromEntries(new FormData(f).entries());
     const approveName=!$('name-offer').hidden&&f.elements.approveName.checked;
@@ -626,10 +631,10 @@ $('review-form').onsubmit=async e=>{
     for(const [k,original] of Object.entries(currentPreserved))if(v[k]===original)v[k]=null;
     for(const k of Object.keys(v))if(!v[k])v[k]=null;
     v.default_follow_up=!!defaultNextDate&&v.next_date===defaultNextDate;
-    await call('approve',currentDraftId,v,approveName,null,manualSelections);
+    await call('approve',currentDraftId,v,approveName,null,currentManualValues?manualSelections:undefined);
     $('review').close();
-    render(currentItems);
   }catch(err){alert(err.message);}
+  finally{approve.disabled=false;}
 };
 function renderCandidates(records){const container=$('link-results');container.replaceChildren();if(!records.length){container.textContent='没有找到，请换用完整姓名或号码查询。';return;}for(const r of records){const row=document.createElement('div');row.className='candidate';const label=document.createElement('span');label.textContent=[r.name,r.phone&&('号码/微信：'+r.phone),r.details&&('具体信息：'+r.details),r.intent&&('意向：'+r.intent),r.latest&&('最新通话：'+r.latest)].filter(Boolean).join('\n');const b=document.createElement('button');b.textContent='关联此客户';b.onclick=async()=>{try{await call('bind',currentLinkId,r.id);$('link').close();notice('已关联。请查看草稿、确认后勾选保存。');}catch(err){alert(err.message);}};row.append(label,b);container.append(row);}}
 $('link-form').onsubmit=async e=>{e.preventDefault();try{

@@ -8,7 +8,7 @@ const id = 'a'.repeat(64);
 const original = {id, filename:'test.m4a', meta:{date:'2026-11-20'}, status:'done', transcript:'测试', draft:{summary:'已有记录'}};
 const hash = async blob => createHash('sha256').update(Buffer.from(await blob.arrayBuffer())).digest('hex');
 
-async function mockDrive(){
+async function mockDrive(onUpload=()=>{}){
   const files = [{id:'folder', mimeType:'application/vnd.google-apps.folder', appProperties:{kind:'folder'}}];
   const texts = new Map();
   const writes = [];
@@ -31,7 +31,9 @@ async function mockDrive(){
       const [meta,text] = (await body.text()).split('\r\n\r\n').slice(1)
         .map(part=>part.split('\r\n--')[0]);
       writes.push(JSON.parse(meta).appProperties);
-      return Response.json({id:save(JSON.parse(meta),text)});
+      const id = save(JSON.parse(meta),text);
+      onUpload();
+      return Response.json({id});
     }
     if (url.pathname.endsWith('/files') && method==='GET') return Response.json({files:files.filter(file=>!file.trashed)});
     if (url.pathname.endsWith('/files') && method==='POST'){
@@ -47,7 +49,7 @@ async function mockDrive(){
     assert.ok(file);
     return new Response(texts.get(file.id));
   }
-  return {add,writes,connect:()=>makeDriveTextSync('mock',hash,fetcher)};
+  return {add,writes,connect:writer=>makeDriveTextSync('mock',hash,fetcher,undefined,writer)};
 }
 const local = (record,version,baseline) => ({...record,driveText:{account,version,baseline:JSON.stringify(baseline)}});
 
@@ -128,4 +130,23 @@ test('combines two cloud versions that have identical content',async()=>{
   assert.equal(synced.uploaded,1);
   assert.equal((await client.sync(synced.items)).conflicts,0);
   assert.equal(drive.writes.length,1);
+});
+
+test('resumes an interrupted own upload but preserves other browser conflicts',async()=>{
+  for(const writer of ['this-browser','another-browser',undefined]){
+    const controller = new AbortController();
+    const drive = await mockDrive(()=>controller.abort());
+    const previous = {...original,status:'review'};
+    const approved = local({...original,status:'ready'},await drive.add(previous),previous);
+    await assert.rejects((await drive.connect(writer)).sync([approved],controller.signal),{name:'AbortError'});
+    const current = {...approved,status:'done',trashedAt:'2026-11-28'};
+    const client = await drive.connect('this-browser');
+    const result = await client.sync([current]);
+    assert.equal(result.conflicts,writer==='this-browser'?0:1);
+    assert.equal(result.items[0].trashedAt,current.trashedAt);
+    if(writer==='this-browser'){
+      assert.equal(result.uploaded,1);
+      assert.equal((await client.sync(result.items)).conflicts,0);
+    }else assert.equal(result.uploaded,0);
+  }
 });
